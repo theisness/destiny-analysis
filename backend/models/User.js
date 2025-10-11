@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     required: [true, '请输入用户名'],
     unique: true,
     trim: true,
-    minlength: [3, '用户名至少3个字符'],
+    minlength: [2, '用户名至少3个字符'],
     maxlength: [30, '用户名最多30个字符']
   },
   email: {

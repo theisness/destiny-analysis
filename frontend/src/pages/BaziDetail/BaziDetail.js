@@ -11,10 +11,38 @@ const BaziDetail = () => {
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // 流年流月选择
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [liunianData, setLiunianData] = useState([]);
+  const [liuyueData, setLiuyueData] = useState([]);
+  
+  // 当前农历信息
+  const [currentLunarInfo, setCurrentLunarInfo] = useState(null);
 
   useEffect(() => {
     fetchDetail();
+    fetchCurrentLunar();
   }, [id]);
+
+  // 获取当前农历信息
+  const fetchCurrentLunar = async () => {
+    try {
+      const response = await baziAPI.getCurrentLunar();
+      setCurrentLunarInfo(response.data.data);
+    } catch (error) {
+      console.error('获取当前农历信息失败:', error);
+    }
+  };
+
+  // 实时计算流年流月
+  useEffect(() => {
+    if (selectedYear && currentLunarInfo) {
+      setLiunianData(calculateLiunian(selectedYear));
+      setLiuyueData(calculateLiuyue(selectedYear));
+    }
+  }, [selectedYear, currentLunarInfo]);
 
   const fetchDetail = async () => {
     try {
@@ -66,6 +94,73 @@ const BaziDetail = () => {
   const formatDate = (dateObj) => {
     if (!dateObj || !dateObj.year) return '未知';
     return `${dateObj.year}年${dateObj.month}月${dateObj.day}日 ${dateObj.hour || 0}时${dateObj.minute || 0}分`;
+  };
+
+  // 天干地支常量
+  const TIAN_GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+  const DI_ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+
+  // 计算流年（前后各5年）
+  const calculateLiunian = (centerYear) => {
+    const liunian = [];
+    const startYear = centerYear - 5;
+    
+    for (let i = 0; i < 11; i++) {
+      const year = startYear + i;
+      const ganIndex = (year - 4) % 10;
+      const zhiIndex = (year - 4) % 12;
+      
+      liunian.push({
+        year: year,
+        gan: TIAN_GAN[ganIndex],
+        zhi: DI_ZHI[zhiIndex],
+        isCurrent: year === currentYear
+      });
+    }
+    
+    return liunian;
+  };
+
+  // 计算流月（五虎遁月诀）
+  const calculateLiuyue = (year) => {
+    const liuyue = [];
+    const yearGanIndex = (year - 4) % 10;
+    
+    // 五虎遁月诀：甲己之年丙作首，乙庚之岁戊为头，丙辛必定寻庚起，丁壬壬位顺行流，戊癸甲寅好追求
+    const firstMonthGanMap = {
+      0: 2, 5: 2,  // 甲、己年从丙起
+      1: 4, 6: 4,  // 乙、庚年从戊起
+      2: 6, 7: 6,  // 丙、辛年从庚起
+      3: 8, 8: 8,  // 丁、壬年从壬起
+      4: 0, 9: 0   // 戊、癸年从甲起
+    };
+    
+    let monthGanIndex = firstMonthGanMap[yearGanIndex];
+    
+    // 获取当前农历月份（使用从API获取的准确信息）
+    let currentLunarMonth = null;
+    let currentLunarYear = null;
+    
+    if (currentLunarInfo) {
+      currentLunarMonth = Math.abs(currentLunarInfo.month); // 农历月可能是负数（闰月）
+      currentLunarYear = currentLunarInfo.year;
+    }
+    
+    for (let month = 1; month <= 12; month++) {
+      const isCurrentMonth = currentLunarInfo && 
+                            year === currentLunarYear && 
+                            month === currentLunarMonth+1;
+      
+      liuyue.push({
+        month: month,
+        gan: TIAN_GAN[monthGanIndex % 10],
+        zhi: DI_ZHI[(month + 1) % 12],
+        isCurrent: isCurrentMonth
+      });
+      monthGanIndex++;
+    }
+    
+    return liuyue;
   };
 
   if (loading) {
@@ -215,25 +310,41 @@ const BaziDetail = () => {
         {/* 大运 */}
         {baziResult.dayun && baziResult.dayun.length > 0 && (
           <div className="card">
-            <h2>大运</h2>
+            <h2>大运排盘</h2>
             {baziResult.qiyunAge && (
-              <p className="qiyun-info">
-                起运时间：{baziResult.qiyunAge.years}岁{baziResult.qiyunAge.months}个月{baziResult.qiyunAge.days}天
-              </p>
+              <div className="qiyun-info-box">
+                <div className="qiyun-title">🕐 起运时间</div>
+                <div className="qiyun-details">
+                  <span className="qiyun-value">
+                    {baziResult.qiyunAge.years}岁 {baziResult.qiyunAge.months}个月 {baziResult.qiyunAge.days}天
+                  </span>
+                  {record.gregorianDate && record.gregorianDate.year && (
+                    <span className="qiyun-date">
+                      （约{record.gregorianDate.year + baziResult.qiyunAge.years}年起运）
+                    </span>
+                  )}
+                </div>
+              </div>
             )}
             <div className="dayun-grid">
               {baziResult.dayun.map((yun, index) => {
                 const ganWuxing = getGanWuxing(yun.gan);
                 const zhiWuxing = getZhiWuxing(yun.zhi);
                 
+                // 判断是否是当前大运
+                const birthYear = record.gregorianDate?.year || 0;
+                const currentAge = currentYear - birthYear;
+                const isCurrent = currentAge >= yun.age && (index === baziResult.dayun.length - 1 || currentAge < baziResult.dayun[index + 1]?.age);
+                
                 return (
-                  <div key={index} className="dayun-item">
+                  <div key={index} className={`dayun-item ${isCurrent ? 'current' : ''}`}>
                     <div className="dayun-age">{yun.age}岁</div>
                     <div className="dayun-ganzhi">
                       <span style={{ color: getWuxingColor(ganWuxing) }}>{yun.gan}</span>
                       <span style={{ color: getWuxingColor(zhiWuxing) }}>{yun.zhi}</span>
                     </div>
-                    <div className="dayun-year">{yun.startYear}年起</div>
+                    <div className="dayun-year">{yun.startYear}年</div>
+                    {isCurrent && <div className="current-badge">当前</div>}
                   </div>
                 );
               })}
@@ -253,51 +364,88 @@ const BaziDetail = () => {
           </div>
         )}
 
-        {/* 流年 */}
-        {baziResult.liunian && baziResult.liunian.length > 0 && (
-          <div className="card">
-            <h2>流年</h2>
-            <div className="liunian-grid">
-              {baziResult.liunian.map((nian, index) => {
-                const ganWuxing = getGanWuxing(nian.gan);
-                const zhiWuxing = getZhiWuxing(nian.zhi);
-                
-                return (
-                  <div key={index} className="liunian-item">
-                    <div className="liunian-year">{nian.year}</div>
-                    <div className="liunian-ganzhi">
-                      <span style={{ color: getWuxingColor(ganWuxing) }}>{nian.gan}</span>
-                      <span style={{ color: getWuxingColor(zhiWuxing) }}>{nian.zhi}</span>
-                    </div>
-                  </div>
-                );
-              })}
+        {/* 流年 - 实时计算 */}
+        <div className="card">
+          <div className="card-header-with-control">
+            <h2>流年排盘</h2>
+            <div className="year-selector">
+              <button 
+                className="year-nav-btn"
+                onClick={() => setSelectedYear(selectedYear - 10)}
+              >
+                ←
+              </button>
+              <select 
+                value={selectedYear} 
+                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                className="year-select"
+              >
+                {Array.from({ length: 100 }, (_, i) => currentYear - 50 + i).map(year => (
+                  <option key={year} value={year}>{year}年</option>
+                ))}
+              </select>
+              <button 
+                className="year-nav-btn"
+                onClick={() => setSelectedYear(selectedYear + 10)}
+              >
+                →
+              </button>
+              <button 
+                className="btn-today"
+                onClick={() => setSelectedYear(currentYear)}
+              >
+                今年
+              </button>
             </div>
           </div>
-        )}
+          <div className="liunian-grid">
+            {liunianData.map((nian, index) => {
+              const ganWuxing = getGanWuxing(nian.gan);
+              const zhiWuxing = getZhiWuxing(nian.zhi);
+              
+              return (
+                <div key={index} className={`liunian-item ${nian.isCurrent ? 'current' : ''}`}>
+                  <div className="liunian-year">{nian.year}</div>
+                  <div className="liunian-ganzhi">
+                    <span style={{ color: getWuxingColor(ganWuxing) }}>{nian.gan}</span>
+                    <span style={{ color: getWuxingColor(zhiWuxing) }}>{nian.zhi}</span>
+                  </div>
+                  {nian.isCurrent && <div className="current-badge">当前</div>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-        {/* 流月 */}
-        {baziResult.liuyue && baziResult.liuyue.length > 0 && (
-          <div className="card">
-            <h2>流月</h2>
-            <div className="liuyue-grid">
-              {baziResult.liuyue.map((yue, index) => {
-                const ganWuxing = getGanWuxing(yue.gan);
-                const zhiWuxing = getZhiWuxing(yue.zhi);
-                
-                return (
-                  <div key={index} className="liuyue-item">
-                    <div className="liuyue-month">{yue.month}月</div>
-                    <div className="liuyue-ganzhi">
-                      <span style={{ color: getWuxingColor(ganWuxing) }}>{yue.gan}</span>
-                      <span style={{ color: getWuxingColor(zhiWuxing) }}>{yue.zhi}</span>
-                    </div>
+        {/* 流月 - 实时计算 */}
+        <div className="card">
+          <h2>流月排盘（{selectedYear}年）</h2>
+          <p className="liuyue-hint">
+            💡 五虎遁月诀：甲己之年丙作首，乙庚之岁戊为头，丙辛必定寻庚起，丁壬壬位顺行流，戊癸甲寅好追求
+            {currentLunarInfo && selectedYear === currentLunarInfo.year && (
+              <span className="current-lunar-info">
+                （当前：农历{Math.abs(currentLunarInfo.month+1)}月 - {currentLunarInfo.monthInGanZhi}）
+              </span>
+            )}
+          </p>
+          <div className="liuyue-grid">
+            {liuyueData.map((yue, index) => {
+              const ganWuxing = getGanWuxing(yue.gan);
+              const zhiWuxing = getZhiWuxing(yue.zhi);
+              
+              return (
+                <div key={index} className={`liuyue-item ${yue.isCurrent ? 'current' : ''}`}>
+                  <div className="liuyue-month">{yue.month}月</div>
+                  <div className="liuyue-ganzhi">
+                    <span style={{ color: getWuxingColor(ganWuxing) }}>{yue.gan}</span>
+                    <span style={{ color: getWuxingColor(zhiWuxing) }}>{yue.zhi}</span>
                   </div>
-                );
-              })}
-            </div>
+                  {yue.isCurrent && <div className="current-badge">当前</div>}
+                </div>
+              );
+            })}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

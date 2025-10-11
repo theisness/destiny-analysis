@@ -20,7 +20,7 @@ const generateToken = (id) => {
 router.post(
   '/register',
   [
-    body('username').trim().isLength({ min: 3, max: 30 }).withMessage('用户名需要3-30个字符'),
+    body('username').trim().isLength({ min: 2, max: 30 }).withMessage('用户名需要2-30个字符'),
     body('email').isEmail().normalizeEmail().withMessage('请输入有效的邮箱地址'),
     body('password').isLength({ min: 6 }).withMessage('密码至少需要6个字符')
   ],

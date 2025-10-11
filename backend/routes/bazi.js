@@ -103,12 +103,33 @@ router.post(
           });
         }
 
+        // 如果前端提供了对应的公农历日期，保存它们并用于计算大运
+        let dateTimeForDayun = null;
+        
+        if (gregorianDate && gregorianDate.year && gregorianDate.month && gregorianDate.day) {
+          finalGregorianDate = gregorianDate;
+          // 使用公历日期计算大运
+          dateTimeForDayun = {
+            year: gregorianDate.year,
+            month: gregorianDate.month,
+            day: gregorianDate.day,
+            hour: gregorianDate.hour || 0,
+            minute: gregorianDate.minute || 0
+          };
+        }
+        
+        if (lunarDate && lunarDate.year && lunarDate.month && lunarDate.day) {
+          finalLunarDate = lunarDate;
+        }
+
+        // 计算八字，如果有日期则同时计算大运
         baziResult = calculateFromSizhu(
           sizhu.year,
           sizhu.month,
           sizhu.day,
           sizhu.hour,
-          gender
+          gender,
+          dateTimeForDayun  // 传递日期时间用于计算大运
         );
       }
 
@@ -161,6 +182,39 @@ router.get('/', protect, async (req, res) => {
     res.status(500).json({
       success: false,
       message: '获取记录失败'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/bazi/current-lunar
+ * @desc    获取当前的农历信息
+ * @access  Public
+ */
+router.get('/current-lunar', async (req, res) => {
+  try {
+    const { Solar } = require('lunar-javascript');
+    const now = new Date();
+    
+    const solar = Solar.fromDate(now);
+    const lunar = solar.getLunar();
+    
+    res.json({
+      success: true,
+      data: {
+        year: lunar.getYear(),
+        month: lunar.getMonth(),
+        day: lunar.getDay(),
+        isLeapMonth: lunar.getMonth() < 0,
+        yearInGanZhi: lunar.getYearInGanZhi(),
+        monthInGanZhi: lunar.getMonthInGanZhi()
+      }
+    });
+  } catch (error) {
+    console.error('获取当前农历信息错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取失败'
     });
   }
 });
@@ -233,6 +287,105 @@ router.get('/community/list', protect, async (req, res) => {
     res.status(500).json({
       success: false,
       message: '获取社区记录失败'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/bazi/reverse-calculate
+ * @desc    根据四柱反推可能的日期
+ * @access  Private
+ */
+router.post('/reverse-calculate', protect, async (req, res) => {
+  try {
+    const { sizhu } = req.body;
+
+    if (!sizhu || !sizhu.year || !sizhu.month || !sizhu.day || !sizhu.hour) {
+      return res.status(400).json({
+        success: false,
+        message: '请提供完整的四柱信息'
+      });
+    }
+
+    const { Solar } = require('lunar-javascript');
+    const dates = [];
+    const currentYear = new Date().getFullYear();
+    const startYear = currentYear - 60; // 往前60年
+    const endYear = currentYear + 20;   // 往后20年
+
+    // 遍历日期范围，查找匹配的四柱
+    for (let year = startYear; year <= endYear; year++) {
+      for (let month = 1; month <= 12; month++) {
+        const daysInMonth = new Date(year, month, 0).getDate();
+        
+        // 日柱60天一循环，所以每60天采样一次，然后检查前后
+        for (let startDay = 1; startDay <= daysInMonth; startDay += 60) {
+          for (let dayOffset = 0; dayOffset < 60 && startDay + dayOffset <= daysInMonth; dayOffset++) {
+            const day = startDay + dayOffset;
+            
+            try {
+              // 根据时柱地支推算可能的时辰
+              const hourZhi = sizhu.hour[1];
+              const zhiList = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+              const hourIndex = zhiList.indexOf(hourZhi);
+              if (hourIndex === -1) continue;
+              
+              const hour = hourIndex * 2; // 每个地支对应2小时
+              
+              // 创建Solar对象并获取四柱
+              const solar = Solar.fromYmdHms(year, month, day, hour, 0, 0);
+              const lunar = solar.getLunar();
+              
+              const yearGanZhi = lunar.getYearInGanZhi();
+              const monthGanZhi = lunar.getMonthInGanZhi();
+              const dayGanZhi = lunar.getDayInGanZhi();
+              const timeGanZhi = lunar.getTimeInGanZhi();
+              
+              // 检查是否匹配
+              if (yearGanZhi === sizhu.year && 
+                  monthGanZhi === sizhu.month && 
+                  dayGanZhi === sizhu.day && 
+                  timeGanZhi === sizhu.hour) {
+                
+                dates.push({
+                  year: year,
+                  month: month,
+                  day: day,
+                  hour: hour,
+                  minute: 0,
+                  lunarYear: lunar.getYear(),
+                  lunarMonth: lunar.getMonth(),
+                  lunarDay: lunar.getDay(),
+                  isLeapMonth: lunar.getMonth() < 0
+                });
+                
+                // 限制结果数量
+                if (dates.length >= 20) {
+                  return res.json({
+                    success: true,
+                    dates: dates
+                  });
+                }
+              }
+            } catch (error) {
+              // 跳过无效日期
+              continue;
+            }
+          }
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      dates: dates
+    });
+
+  } catch (error) {
+    console.error('反推日期错误:', error);
+    res.status(500).json({
+      success: false,
+      message: `反推失败: ${error.message}`
     });
   }
 });

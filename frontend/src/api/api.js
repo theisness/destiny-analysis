@@ -65,7 +65,10 @@ export const baziAPI = {
   getCommunity: (search = '') => api.get(`/bazi/community/list?search=${search}`),
   
   // 删除八字记录
-  delete: (id) => api.delete(`/bazi/${id}`)
+  delete: (id) => api.delete(`/bazi/${id}`),
+  
+  // 获取当前农历信息
+  getCurrentLunar: () => api.get('/bazi/current-lunar')
 };
 
 export default api;

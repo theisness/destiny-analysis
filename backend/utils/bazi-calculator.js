@@ -70,11 +70,11 @@ const calculateBazi = (dateTime, gender) => {
     const lunar = solar.getLunar();
     const bazi = lunar.getEightChar();
     
-    // 获取四柱
-    const yearGanZhi = bazi.getYearInGanZhi();
-    const monthGanZhi = bazi.getMonthInGanZhi();
-    const dayGanZhi = bazi.getDayInGanZhi();
-    const timeGanZhi = bazi.getTimeInGanZhi();
+    // 获取四柱 - 直接从 lunar 对象获取
+    const yearGanZhi = lunar.getYearInGanZhi();
+    const monthGanZhi = lunar.getMonthInGanZhi();
+    const dayGanZhi = lunar.getDayInGanZhi();
+    const timeGanZhi = lunar.getTimeInGanZhi();
     
     // 提取天干地支
     const yearPillar = { gan: yearGanZhi[0], zhi: yearGanZhi[1] };
@@ -94,7 +94,7 @@ const calculateBazi = (dateTime, gender) => {
     const wuxing = calculateWuxing(yearPillar, monthPillar, dayPillar, hourPillar, hiddenGan);
     
     // 计算大运
-    const dayun = calculateDayun(bazi, gender);
+    const dayun = calculateDayun(bazi, gender, lunar);
     
     // 计算起运时间
     const qiyunAge = calculateQiyunAge(bazi, gender);
@@ -175,21 +175,38 @@ const calculateWuxing = (yearPillar, monthPillar, dayPillar, hourPillar, hiddenG
 /**
  * 计算大运
  */
-const calculateDayun = (bazi, gender) => {
+const calculateDayun = (bazi, gender, lunar) => {
   const dayun = [];
-  const yunArray = bazi.getDaYun(gender === '女' ? 0 : 1);
   
-  for (let i = 0; i < 8; i++) {
-    const yun = yunArray.getDaYun()[i];
-    if (yun) {
-      const ganZhi = yun.getGanZhi();
-      dayun.push({
-        age: yun.getStartAge(),
-        gan: ganZhi[0],
-        zhi: ganZhi[1],
-        startYear: yun.getStartYear()
-      });
+  try {
+    // 从 bazi 对象获取大运
+    const sect = gender === '女' ? 0 : 1; // 0-坤造（女），1-乾造（男）
+    
+    // lunar-javascript 中大运是通过 bazi.getYun(sect) 获取的
+    const daYunList = bazi.getYun(sect);
+    
+    // daYunList 有一个 getDaYun() 方法返回大运数组
+    const daYuns = daYunList.getDaYun();
+    
+    for (let i = 0; i < Math.min(8, daYuns.length); i++) {
+      const yun = daYuns[i];
+      if (yun) {
+        const ganZhi = yun.getGanZhi();
+        const age = yun.getStartAge();
+        const startYear = yun.getStartYear();
+        
+        dayun.push({
+          age: age,
+          gan: ganZhi[0] || '',
+          zhi: ganZhi[1] || '',
+          startYear: startYear
+        });
+      }
     }
+  } catch (error) {
+    console.error('大运计算错误:', error.message);
+    console.error('错误堆栈:', error.stack);
+    // 如果大运计算失败，返回空数组
   }
   
   return dayun;
@@ -199,16 +216,30 @@ const calculateDayun = (bazi, gender) => {
  * 计算起运时间
  */
 const calculateQiyunAge = (bazi, gender) => {
-  const yunArray = bazi.getDaYun(gender === '女' ? 0 : 1);
-  const startAge = yunArray.getStartAge();
-  const startMonth = yunArray.getStartMonth();
-  const startDay = yunArray.getStartDay();
-  
-  return {
-    years: startAge,
-    months: startMonth,
-    days: startDay
-  };
+  try {
+    const sect = gender === '女' ? 0 : 1;
+    
+    // lunar-javascript 中通过 bazi.getYun(sect) 获取运对象
+    const yunArray = bazi.getYun(sect);
+    
+    const startAge = yunArray.getStartAge();
+    const startMonth = yunArray.getStartMonth();
+    const startDay = yunArray.getStartDay();
+    
+    return {
+      years: startAge,
+      months: startMonth,
+      days: startDay
+    };
+  } catch (error) {
+    console.error('起运时间计算错误:', error.message);
+    console.error('错误堆栈:', error.stack);
+    return {
+      years: 0,
+      months: 0,
+      days: 0
+    };
+  }
 };
 
 /**
@@ -319,8 +350,14 @@ const calculateLiuyue = (currentYear) => {
 
 /**
  * 从四柱直接计算八字（当用户直接输入四柱时）
+ * @param {string} yearGanZhi - 年柱干支
+ * @param {string} monthGanZhi - 月柱干支
+ * @param {string} dayGanZhi - 日柱干支
+ * @param {string} hourGanZhi - 时柱干支
+ * @param {string} gender - 性别
+ * @param {Object} dateTime - 可选的日期时间对象（用于计算大运）
  */
-const calculateFromSizhu = (yearGanZhi, monthGanZhi, dayGanZhi, hourGanZhi, gender) => {
+const calculateFromSizhu = (yearGanZhi, monthGanZhi, dayGanZhi, hourGanZhi, gender, dateTime = null) => {
   const yearPillar = { gan: yearGanZhi[0], zhi: yearGanZhi[1] };
   const monthPillar = { gan: monthGanZhi[0], zhi: monthGanZhi[1] };
   const dayPillar = { gan: dayGanZhi[0], zhi: dayGanZhi[1] };
@@ -349,6 +386,28 @@ const calculateFromSizhu = (yearGanZhi, monthGanZhi, dayGanZhi, hourGanZhi, gend
   // 计算流月
   const liuyue = calculateLiuyue(currentYear);
   
+  // 如果提供了日期时间，计算大运和起运
+  let dayun = [];
+  let qiyunAge = { years: 0, months: 0, days: 0 };
+  
+  if (dateTime && dateTime.year && dateTime.month && dateTime.day) {
+    try {
+      const { year, month, day, hour, minute } = dateTime;
+      const solar = Solar.fromYmdHms(year, month, day, hour || 0, minute || 0, 0);
+      const lunar = solar.getLunar();
+      const bazi = lunar.getEightChar();
+      
+      // 计算大运
+      dayun = calculateDayun(bazi, gender, lunar);
+      
+      // 计算起运时间
+      qiyunAge = calculateQiyunAge(bazi, gender);
+    } catch (error) {
+      console.error('从四柱计算大运时出错:', error.message);
+      // 保持默认空值
+    }
+  }
+  
   return {
     yearPillar,
     monthPillar,
@@ -356,8 +415,8 @@ const calculateFromSizhu = (yearGanZhi, monthGanZhi, dayGanZhi, hourGanZhi, gend
     hourPillar,
     hiddenGan,
     wuxing,
-    dayun: [], // 从四柱无法准确计算大运，需要具体日期
-    qiyunAge: { years: 0, months: 0, days: 0 },
+    dayun,
+    qiyunAge,
     shensha,
     liunian,
     liuyue
