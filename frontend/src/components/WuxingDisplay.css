@@ -1,0 +1,56 @@
+.wuxing-display {
+  margin: 20px 0;
+}
+
+.wuxing-display h3 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 20px;
+}
+
+.wuxing-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.wuxing-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wuxing-label {
+  min-width: 80px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.wuxing-value {
+  color: #666;
+  font-size: 14px;
+}
+
+.wuxing-bar-container {
+  flex: 1;
+  height: 24px;
+  background: #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.wuxing-bar {
+  height: 100%;
+  transition: width 0.6s ease;
+  border-radius: 12px;
+}
+
+.wuxing-percentage {
+  min-width: 60px;
+  text-align: right;
+  color: #666;
+  font-size: 14px;
+}
+

@@ -1,0 +1,280 @@
+.bazi-detail {
+  min-height: 100vh;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.detail-header h1 {
+  color: white;
+  font-size: 32px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.card h2 {
+  color: #333;
+  font-size: 22px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* 基本信息 */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  gap: 10px;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #666;
+  min-width: 80px;
+}
+
+.info-value {
+  color: #333;
+  font-weight: 500;
+}
+
+/* 四柱 */
+.sizhu-display-detail {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.pillar-detail {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.pillar-detail:hover {
+  transform: translateY(-5px);
+}
+
+.pillar-name {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.pillar-chars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.pillar-chars .char {
+  font-size: 36px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pillar-wuxing {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* 藏干 */
+.canggan-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.canggan-item {
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.canggan-label {
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.canggan-values {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: center;
+}
+
+.canggan-values span {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* 大运 */
+.qiyun-info {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: #666;
+  font-weight: 500;
+}
+
+.dayun-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.dayun-item {
+  text-align: center;
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+}
+
+.dayun-age {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.dayun-ganzhi {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.dayun-ganzhi span {
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dayun-year {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* 神煞 */
+.shensha-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.shensha-badge {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+/* 流年 */
+.liunian-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.liunian-item {
+  text-align: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.liunian-item:hover {
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.liunian-year {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.liunian-ganzhi {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* 流月 */
+.liuyue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.liuyue-item {
+  text-align: center;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.liuyue-item:hover {
+  border-color: #764ba2;
+  transform: scale(1.05);
+}
+
+.liuyue-month {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.liuyue-ganzhi {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .info-grid,
+  .sizhu-display-detail,
+  .canggan-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dayun-grid,
+  .liunian-grid,
+  .liuyue-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-header h1 {
+    font-size: 24px;
+  }
+}
+
