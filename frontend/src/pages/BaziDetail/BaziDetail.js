@@ -4,6 +4,15 @@ import Navbar from '../../components/Navbar';
 import WuxingDisplay from '../../components/WuxingDisplay';
 import { baziAPI } from '../../api/api';
 import { calculateDayun, calculateDayunManual } from '../../utils/dayun-calculator';
+import { 
+  calculateDiShi, 
+  calculateNaYin, 
+  calculateDiShiByDate,
+  calculateNaYinByDate,
+  getDiShiColor,
+  getNaYinColor,
+  getZhiBenQi 
+} from '../../utils/bazi-utils';
 import './BaziDetail.css';
 
 const BaziDetail = () => {
@@ -26,6 +35,14 @@ const BaziDetail = () => {
   const [dayunData, setDayunData] = useState({
     dayunList: [],
     qiyunAge: { years: 0, months: 0, days: 0 }
+  });
+  
+  // 地势和纳音数据（本地计算）
+  const [diShiData, setDiShiData] = useState({
+    year: '', month: '', day: '', hour: ''
+  });
+  const [naYinData, setNaYinData] = useState({
+    year: '', month: '', day: '', hour: ''
   });
 
   useEffect(() => {
@@ -67,6 +84,12 @@ const BaziDetail = () => {
           recordData.baziResult.monthPillar
         );
         setDayunData(dayunResult);
+        
+        // 本地计算地势和纳音
+        const diShiResult = calculateDiShiByDate(recordData.gregorianDate);
+        const naYinResult = calculateNaYinByDate(recordData.gregorianDate);
+        setDiShiData(diShiResult);
+        setNaYinData(naYinResult);
       } else if (recordData.baziResult && recordData.baziResult.monthPillar) {
         // 如果没有完整日期，使用手动计算（备用方案）
         const dayunResult = calculateDayunManual(
@@ -76,6 +99,21 @@ const BaziDetail = () => {
           new Date().getFullYear() - 30 // 假设年龄
         );
         setDayunData(dayunResult);
+        
+        // 从四柱直接计算地势和纳音
+        const baziResult = recordData.baziResult;
+        setDiShiData({
+          year: calculateDiShi(baziResult.yearPillar.gan, baziResult.yearPillar.zhi),
+          month: calculateDiShi(baziResult.monthPillar.gan, baziResult.monthPillar.zhi),
+          day: calculateDiShi(baziResult.dayPillar.gan, baziResult.dayPillar.zhi),
+          hour: calculateDiShi(baziResult.hourPillar.gan, baziResult.hourPillar.zhi)
+        });
+        setNaYinData({
+          year: calculateNaYin(baziResult.yearPillar.gan, baziResult.yearPillar.zhi),
+          month: calculateNaYin(baziResult.monthPillar.gan, baziResult.monthPillar.zhi),
+          day: calculateNaYin(baziResult.dayPillar.gan, baziResult.dayPillar.zhi),
+          hour: calculateNaYin(baziResult.hourPillar.gan, baziResult.hourPillar.zhi)
+        });
       }
 
       setError('');
@@ -362,7 +400,7 @@ const BaziDetail = () => {
 
         {/* 四柱 */}
         <div className="card">
-          <h2>四柱八字</h2>
+          <h2>四柱八字 <span className="local-calc-badge">本地计算</span></h2>
           <div className="sizhu-display-detail">
             {['year', 'month', 'day', 'hour'].map((pillar) => {
               const pillarName = { year: '年柱', month: '月柱', day: '日柱', hour: '时柱' }[pillar];
@@ -374,6 +412,10 @@ const BaziDetail = () => {
               const riGan = baziResult.dayPillar?.gan;
               const isDayGan = pillar === 'day';
               const ganShishen = getShishen(riGan, pillarData.gan, isDayGan);
+              
+              // 获取地势和纳音
+              const dishi = diShiData[pillar];
+              const nayin = naYinData[pillar];
 
               return (
                 <div key={pillar} className="pillar-detail">
@@ -400,7 +442,25 @@ const BaziDetail = () => {
                     >
                       {pillarData.zhi}
                     </span>
+                    {/* 地势（十二长生） */}
+                    {dishi && (
+                      <div 
+                        className="dishi-label"
+                        style={{ color: getDiShiColor(dishi) }}
+                      >
+                        {dishi}
+                      </div>
+                    )}
                   </div>
+                  {/* 纳音 */}
+                  {nayin && (
+                    <div 
+                      className="nayin-label"
+                      style={{ color: getNaYinColor(nayin) }}
+                    >
+                      {nayin}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -491,18 +551,58 @@ const BaziDetail = () => {
                 // 计算大运天干十神
                 const riGan = baziResult.dayPillar?.gan;
                 const ganShishen = getShishen(riGan, yun.gan);
+                
+                // 计算大运地支十神（通过地支本气）
+                const zhiBenQi = getZhiBenQi(yun.zhi);
+                const zhiShishen = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+                
+                // 计算大运地势和纳音
+                const dishi = calculateDiShi(yun.gan, yun.zhi);
+                const nayin = calculateNaYin(yun.gan, yun.zhi);
 
                 return (
                   <div key={index} className={`dayun-item ${isCurrent ? 'current' : ''}`}>
                     <div className="dayun-age">{yun.age}岁</div>
-                    {/* 十神 */}
-                    <div className="dayun-shishen" style={{ color: getShishenColor(ganShishen) }}>
-                      {ganShishen}
+                    
+                    {/* 干支及十神 */}
+                    <div className="dayun-ganzhi-container">
+                      {/* 天干部分 */}
+                      <div className="dayun-gan-section">
+                        {ganShishen && (
+                          <div className="dayun-gan-shishen" style={{ color: getShishenColor(ganShishen) }}>
+                            {ganShishen}
+                          </div>
+                        )}
+                        <span className="dayun-gan" style={{ color: getWuxingColor(ganWuxing) }}>
+                          {yun.gan}
+                        </span>
+                      </div>
+                      
+                      {/* 地支部分 */}
+                      <div className="dayun-zhi-section">
+                        {zhiShishen && (
+                          <div className="dayun-zhi-shishen" style={{ color: getShishenColor(zhiShishen) }}>
+                            {zhiShishen}
+                          </div>
+                        )}
+                        <span className="dayun-zhi" style={{ color: getWuxingColor(zhiWuxing) }}>
+                          {yun.zhi}
+                        </span>
+                      </div>
                     </div>
-                    <div className="dayun-ganzhi">
-                      <span style={{ color: getWuxingColor(ganWuxing) }}>{yun.gan}</span>
-                      <span style={{ color: getWuxingColor(zhiWuxing) }}>{yun.zhi}</span>
-                    </div>
+                    
+                    {/* 地势 */}
+                    {dishi && (
+                      <div className="dayun-dishi" style={{ color: getDiShiColor(dishi) }}>
+                        {dishi}
+                      </div>
+                    )}
+                    {/* 纳音 */}
+                    {nayin && (
+                      <div className="dayun-nayin" style={{ color: getNaYinColor(nayin) }}>
+                        {nayin}
+                      </div>
+                    )}
                     <div className="dayun-year">{yun.startYear}年</div>
                     {isCurrent && <div className="current-badge">当前</div>}
                   </div>

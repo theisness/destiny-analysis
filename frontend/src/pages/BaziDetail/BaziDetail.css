@@ -68,14 +68,18 @@
 
 .pillar-detail {
   text-align: center;
-  padding: 20px;
+  padding: 15px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 12px;
   transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .pillar-detail:hover {
   transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .pillar-name {
@@ -107,6 +111,29 @@
   background: rgba(255, 255, 255, 0.9);
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 地势标签（地支下方） */
+.dishi-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 5px;
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 纳音标签（柱底部） */
+.nayin-label {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 10px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .pillar-wuxing {
@@ -200,17 +227,20 @@
 
 .dayun-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 15px;
 }
 
 .dayun-item {
   text-align: center;
-  padding: 15px;
+  padding: 15px 12px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .dayun-age {
@@ -219,30 +249,96 @@
   margin-bottom: 8px;
 }
 
-.dayun-shishen {
-  font-size: 13px;
+/* 干支容器 */
+.dayun-ganzhi-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+/* 天干部分 */
+.dayun-gan-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.dayun-gan-shishen {
+  font-size: 11px;
   font-weight: 600;
-  margin-bottom: 6px;
-  padding: 3px 8px;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 4px;
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+
+.dayun-gan {
+  font-size: 32px;
+  font-weight: bold;
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+/* 地支部分 */
+.dayun-zhi-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.dayun-zhi-shishen {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 4px;
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+
+.dayun-zhi {
+  font-size: 32px;
+  font-weight: bold;
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+/* 大运地势 */
+.dayun-dishi {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 6px;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 4px;
   color: inherit;
+  margin: 2px 0;
 }
 
-.dayun-ganzhi {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.dayun-ganzhi span {
-  color: white !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+/* 大运纳音 */
+.dayun-nayin {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+  color: inherit;
+  margin: 2px 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .dayun-year {
   font-size: 12px;
   opacity: 0.9;
+  margin-top: 4px;
 }
 
 /* 神煞 */
@@ -395,8 +491,9 @@
 
 .dayun-item.current {
   background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-  box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
-  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(255, 107, 107, 0.5);
+  transform: scale(1.08);
+  border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .liunian-item.current,
