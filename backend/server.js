@@ -17,6 +17,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// 日志中间件 - 记录所有接口的输入输出
+const logger = require('./middleware/logger');
+app.use(logger);
+
 // 路由
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/bazi', require('./routes/bazi'));

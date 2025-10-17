@@ -23,6 +23,19 @@
   border-bottom: 2px solid #f0f0f0;
 }
 
+/* 本地计算标签 */
+.local-calc-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
 /* 基本信息 */
 .info-grid {
   display: grid;
@@ -85,6 +98,17 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* 十神标签（天干上方） */
+.shishen-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .pillar-wuxing {
   display: flex;
   flex-direction: column;
@@ -116,13 +140,52 @@
 .canggan-values {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 10px;
   text-align: center;
 }
 
 .canggan-values span {
   font-weight: bold;
   font-size: 16px;
+}
+
+/* 藏干详细信息 */
+.canggan-item-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.canggan-item-detail:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.canggan-gan {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.canggan-wuxing {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* 藏干十神（藏干下方） */
+.canggan-shishen {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 3px 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  margin-top: 2px;
 }
 
 /* 大运 */
@@ -154,6 +217,16 @@
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 8px;
+}
+
+.dayun-shishen {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  color: inherit;
 }
 
 .dayun-ganzhi {
@@ -217,6 +290,16 @@
   font-weight: 600;
 }
 
+.liunian-shishen {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  color: inherit;
+}
+
 .liunian-ganzhi {
   font-size: 20px;
   font-weight: bold;
@@ -248,6 +331,16 @@
   color: #666;
   margin-bottom: 5px;
   font-weight: 600;
+}
+
+.liuyue-shishen {
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding: 2px 5px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  color: inherit;
 }
 
 .liuyue-ganzhi {

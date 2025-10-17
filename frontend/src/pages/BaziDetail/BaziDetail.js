@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import WuxingDisplay from '../../components/WuxingDisplay';
 import { baziAPI } from '../../api/api';
+import { calculateDayun, calculateDayunManual } from '../../utils/dayun-calculator';
 import './BaziDetail.css';
 
 const BaziDetail = () => {
@@ -11,15 +12,21 @@ const BaziDetail = () => {
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   // 流年流月选择
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [liunianData, setLiunianData] = useState([]);
   const [liuyueData, setLiuyueData] = useState([]);
-  
+
   // 当前农历信息
   const [currentLunarInfo, setCurrentLunarInfo] = useState(null);
+
+  // 大运数据（本地计算）
+  const [dayunData, setDayunData] = useState({
+    dayunList: [],
+    qiyunAge: { years: 0, months: 0, days: 0 }
+  });
 
   useEffect(() => {
     fetchDetail();
@@ -48,7 +55,29 @@ const BaziDetail = () => {
     try {
       setLoading(true);
       const response = await baziAPI.getById(id);
-      setRecord(response.data.data);
+      const recordData = response.data.data;
+      setRecord(recordData);
+
+      // 本地计算大运
+      if (recordData.gregorianDate && recordData.gregorianDate.year) {
+        console.log('record: ', recordData)
+        const dayunResult = calculateDayun(
+          recordData.gregorianDate,
+          recordData.gender,
+          recordData.baziResult.monthPillar
+        );
+        setDayunData(dayunResult);
+      } else if (recordData.baziResult && recordData.baziResult.monthPillar) {
+        // 如果没有完整日期，使用手动计算（备用方案）
+        const dayunResult = calculateDayunManual(
+          recordData.baziResult.monthPillar,
+          recordData.baziResult.yearPillar.gan,
+          recordData.gender,
+          new Date().getFullYear() - 30 // 假设年龄
+        );
+        setDayunData(dayunResult);
+      }
+
       setError('');
     } catch (err) {
       setError('加载失败，请重试');
@@ -91,6 +120,106 @@ const BaziDetail = () => {
     return zhiWuxing[zhi] || '';
   };
 
+  // 判断天干阴阳
+  const isYangGan = (gan) => {
+    const yangGan = ['甲', '丙', '戊', '庚', '壬'];
+    return yangGan.includes(gan);
+  };
+
+  // 获取天干五行
+  const getGanWuxingType = (gan) => {
+    const wuxingMap = {
+      '甲': '木', '乙': '木',
+      '丙': '火', '丁': '火',
+      '戊': '土', '己': '土',
+      '庚': '金', '辛': '金',
+      '壬': '水', '癸': '水'
+    };
+    return wuxingMap[gan] || '';
+  };
+
+  // 判断五行生克关系
+  const getWuxingRelation = (myWuxing, otherWuxing) => {
+    // 生我者为印，我生者为食伤，克我者为官，我克者为财，同我者为比劫
+    if (myWuxing === otherWuxing) return '比劫';
+
+    const shengRelation = {
+      '木': '水',  // 水生木
+      '火': '木',  // 木生火
+      '土': '火',  // 火生土
+      '金': '土',  // 土生金
+      '水': '金'   // 金生水
+    };
+
+    const keRelation = {
+      '木': '土',  // 木克土
+      '火': '金',  // 火克金
+      '土': '水',  // 土克水
+      '金': '木',  // 金克木
+      '水': '火'   // 水克火
+    };
+
+    if (shengRelation[myWuxing] === otherWuxing) return '印';
+    if (shengRelation[otherWuxing] === myWuxing) return '食伤';
+    if (keRelation[otherWuxing] === myWuxing) return '官';
+    if (keRelation[myWuxing] === otherWuxing) return '财';
+
+    return '';
+  };
+
+  // 计算十神
+  // isDayGan: 是否是日柱天干本身
+  const getShishen = (riGan, otherGan, isDayGan = false) => {
+    if (!riGan || !otherGan) return '';
+
+    // 只有日柱天干本身才显示为"日主"
+    if (isDayGan) {
+      return '日主';
+    }
+
+    const riWuxing = getGanWuxingType(riGan);
+    const otherWuxing = getGanWuxingType(otherGan);
+    const relation = getWuxingRelation(riWuxing, otherWuxing);
+
+    const riYang = isYangGan(riGan);
+    const otherYang = isYangGan(otherGan);
+    const sameYinYang = riYang === otherYang;
+
+    // 根据关系和阴阳判断具体十神
+    switch(relation) {
+      case '比劫':
+        return sameYinYang ? '比肩' : '劫财';
+      case '印':
+        return sameYinYang ? '偏印' : '正印';
+      case '食伤':
+        return sameYinYang ? '食神' : '伤官';
+      case '官':
+        return sameYinYang ? '七杀' : '正官';
+      case '财':
+        return sameYinYang ? '偏财' : '正财';
+      default:
+        return '';
+    }
+  };
+
+  // 获取十神颜色
+  const getShishenColor = (shishen) => {
+    const colorMap = {
+      '日主': '#8B0000',
+      '比肩': '#8B4513',
+      '劫财': '#A0522D',
+      '食神': '#228B22',
+      '伤官': '#32CD32',
+      '偏财': '#FFD700',
+      '正财': '#FFA500',
+      '七杀': '#DC143C',
+      '正官': '#FF6347',
+      '偏印': '#4169E1',
+      '正印': '#1E90FF'
+    };
+    return colorMap[shishen] || '#666';
+  };
+
   const formatDate = (dateObj) => {
     if (!dateObj || !dateObj.year) return '未知';
     return `${dateObj.year}年${dateObj.month}月${dateObj.day}日 ${dateObj.hour || 0}时${dateObj.minute || 0}分`;
@@ -104,12 +233,12 @@ const BaziDetail = () => {
   const calculateLiunian = (centerYear) => {
     const liunian = [];
     const startYear = centerYear - 5;
-    
+
     for (let i = 0; i < 11; i++) {
       const year = startYear + i;
       const ganIndex = (year - 4) % 10;
       const zhiIndex = (year - 4) % 12;
-      
+
       liunian.push({
         year: year,
         gan: TIAN_GAN[ganIndex],
@@ -117,7 +246,7 @@ const BaziDetail = () => {
         isCurrent: year === currentYear
       });
     }
-    
+
     return liunian;
   };
 
@@ -125,7 +254,7 @@ const BaziDetail = () => {
   const calculateLiuyue = (year) => {
     const liuyue = [];
     const yearGanIndex = (year - 4) % 10;
-    
+
     // 五虎遁月诀：甲己之年丙作首，乙庚之岁戊为头，丙辛必定寻庚起，丁壬壬位顺行流，戊癸甲寅好追求
     const firstMonthGanMap = {
       0: 2, 5: 2,  // 甲、己年从丙起
@@ -134,23 +263,23 @@ const BaziDetail = () => {
       3: 8, 8: 8,  // 丁、壬年从壬起
       4: 0, 9: 0   // 戊、癸年从甲起
     };
-    
+
     let monthGanIndex = firstMonthGanMap[yearGanIndex];
-    
+
     // 获取当前农历月份（使用从API获取的准确信息）
     let currentLunarMonth = null;
     let currentLunarYear = null;
-    
+
     if (currentLunarInfo) {
       currentLunarMonth = Math.abs(currentLunarInfo.month); // 农历月可能是负数（闰月）
       currentLunarYear = currentLunarInfo.year;
     }
-    
+
     for (let month = 1; month <= 12; month++) {
-      const isCurrentMonth = currentLunarInfo && 
-                            year === currentLunarYear && 
+      const isCurrentMonth = currentLunarInfo &&
+                            year === currentLunarYear &&
                             month === currentLunarMonth+1;
-      
+
       liuyue.push({
         month: month,
         gan: TIAN_GAN[monthGanIndex % 10],
@@ -159,7 +288,7 @@ const BaziDetail = () => {
       });
       monthGanIndex++;
     }
-    
+
     return liuyue;
   };
 
@@ -240,30 +369,36 @@ const BaziDetail = () => {
               const pillarData = baziResult[`${pillar}Pillar`];
               const ganWuxing = getGanWuxing(pillarData.gan);
               const zhiWuxing = getZhiWuxing(pillarData.zhi);
-              
+
+              // 计算天干十神（只有日柱天干才是日主）
+              const riGan = baziResult.dayPillar?.gan;
+              const isDayGan = pillar === 'day';
+              const ganShishen = getShishen(riGan, pillarData.gan, isDayGan);
+
               return (
                 <div key={pillar} className="pillar-detail">
                   <div className="pillar-name">{pillarName}</div>
                   <div className="pillar-chars">
-                    <span 
+                    {/* 天干十神（显示在天干上方） */}
+                    <div
+                      className="shishen-label"
+                      style={{ color: getShishenColor(ganShishen) }}
+                    >
+                      {ganShishen}
+                    </div>
+                    {/* 天干 */}
+                    <span
                       className="char gan"
                       style={{ color: getWuxingColor(ganWuxing) }}
                     >
                       {pillarData.gan}
                     </span>
-                    <span 
+                    {/* 地支 */}
+                    <span
                       className="char zhi"
                       style={{ color: getWuxingColor(zhiWuxing) }}
                     >
                       {pillarData.zhi}
-                    </span>
-                  </div>
-                  <div className="pillar-wuxing">
-                    <span style={{ color: getWuxingColor(ganWuxing) }}>
-                      {ganWuxing}
-                    </span>
-                    <span style={{ color: getWuxingColor(zhiWuxing) }}>
-                      {zhiWuxing}
                     </span>
                   </div>
                 </div>
@@ -278,21 +413,38 @@ const BaziDetail = () => {
           <div className="canggan-grid">
             {['year', 'month', 'day', 'hour'].map((pillar) => {
               const pillarName = { year: '年支', month: '月支', day: '日支', hour: '时支' }[pillar];
+              const pillarData = baziResult[`${pillar}Pillar`];
               const hiddenGans = baziResult.hiddenGan[pillar] || [];
-              
+              const riGan = baziResult.dayPillar?.gan;
+
               return (
                 <div key={pillar} className="canggan-item">
-                  <div className="canggan-label">{pillarName}</div>
+                  <div className="canggan-label">
+                    {pillarName}（{pillarData.zhi}）
+                  </div>
                   <div className="canggan-values">
                     {hiddenGans.map((gan, index) => {
                       const wuxing = getGanWuxing(gan);
+                      const shishen = getShishen(riGan, gan);
                       return (
-                        <span 
-                          key={index}
-                          style={{ color: getWuxingColor(wuxing) }}
-                        >
-                          {gan}({wuxing})
-                        </span>
+                        <div key={index} className="canggan-item-detail">
+                          <span
+                            className="canggan-gan"
+                            style={{ color: getWuxingColor(wuxing) }}
+                          >
+                            {gan}
+                          </span>
+                          <span className="canggan-wuxing">
+                            ({wuxing})
+                          </span>
+                          {/* 藏干十神（显示在藏干下方） */}
+                          <div
+                            className="canggan-shishen"
+                            style={{ color: getShishenColor(shishen) }}
+                          >
+                            {shishen}
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -307,38 +459,46 @@ const BaziDetail = () => {
           <WuxingDisplay wuxing={baziResult.wuxing} />
         </div>
 
-        {/* 大运 */}
-        {baziResult.dayun && baziResult.dayun.length > 0 && (
+        {/* 大运 - 本地计算 */}
+        {dayunData.dayunList && dayunData.dayunList.length > 0 && (
           <div className="card">
-            <h2>大运排盘</h2>
-            {baziResult.qiyunAge && (
+            <h2>大运排盘 <span className="local-calc-badge">本地计算</span></h2>
+            {dayunData.qiyunAge && (
               <div className="qiyun-info-box">
                 <div className="qiyun-title">🕐 起运时间</div>
                 <div className="qiyun-details">
                   <span className="qiyun-value">
-                    {baziResult.qiyunAge.years}岁 {baziResult.qiyunAge.months}个月 {baziResult.qiyunAge.days}天
+                    {dayunData.qiyunAge.years}岁 {dayunData.qiyunAge.months}个月 {dayunData.qiyunAge.days}天
                   </span>
                   {record.gregorianDate && record.gregorianDate.year && (
                     <span className="qiyun-date">
-                      （约{record.gregorianDate.year + baziResult.qiyunAge.years}年起运）
+                      （约{record.gregorianDate.year + dayunData.qiyunAge.years}年起运）
                     </span>
                   )}
                 </div>
               </div>
             )}
             <div className="dayun-grid">
-              {baziResult.dayun.map((yun, index) => {
+              {dayunData.dayunList.map((yun, index) => {
                 const ganWuxing = getGanWuxing(yun.gan);
                 const zhiWuxing = getZhiWuxing(yun.zhi);
-                
+
                 // 判断是否是当前大运
                 const birthYear = record.gregorianDate?.year || 0;
                 const currentAge = currentYear - birthYear;
-                const isCurrent = currentAge >= yun.age && (index === baziResult.dayun.length - 1 || currentAge < baziResult.dayun[index + 1]?.age);
-                
+                const isCurrent = currentAge >= yun.age && (index === dayunData.dayunList.length - 1 || currentAge < dayunData.dayunList[index + 1]?.age);
+
+                // 计算大运天干十神
+                const riGan = baziResult.dayPillar?.gan;
+                const ganShishen = getShishen(riGan, yun.gan);
+
                 return (
                   <div key={index} className={`dayun-item ${isCurrent ? 'current' : ''}`}>
                     <div className="dayun-age">{yun.age}岁</div>
+                    {/* 十神 */}
+                    <div className="dayun-shishen" style={{ color: getShishenColor(ganShishen) }}>
+                      {ganShishen}
+                    </div>
                     <div className="dayun-ganzhi">
                       <span style={{ color: getWuxingColor(ganWuxing) }}>{yun.gan}</span>
                       <span style={{ color: getWuxingColor(zhiWuxing) }}>{yun.zhi}</span>
@@ -369,14 +529,14 @@ const BaziDetail = () => {
           <div className="card-header-with-control">
             <h2>流年排盘</h2>
             <div className="year-selector">
-              <button 
+              <button
                 className="year-nav-btn"
                 onClick={() => setSelectedYear(selectedYear - 10)}
               >
                 ←
               </button>
-              <select 
-                value={selectedYear} 
+              <select
+                value={selectedYear}
                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
                 className="year-select"
               >
@@ -384,13 +544,13 @@ const BaziDetail = () => {
                   <option key={year} value={year}>{year}年</option>
                 ))}
               </select>
-              <button 
+              <button
                 className="year-nav-btn"
                 onClick={() => setSelectedYear(selectedYear + 10)}
               >
                 →
               </button>
-              <button 
+              <button
                 className="btn-today"
                 onClick={() => setSelectedYear(currentYear)}
               >
@@ -402,10 +562,18 @@ const BaziDetail = () => {
             {liunianData.map((nian, index) => {
               const ganWuxing = getGanWuxing(nian.gan);
               const zhiWuxing = getZhiWuxing(nian.zhi);
-              
+
+              // 计算流年天干十神
+              const riGan = baziResult.dayPillar?.gan;
+              const ganShishen = getShishen(riGan, nian.gan);
+
               return (
                 <div key={index} className={`liunian-item ${nian.isCurrent ? 'current' : ''}`}>
                   <div className="liunian-year">{nian.year}</div>
+                  {/* 十神 */}
+                  <div className="liunian-shishen" style={{ color: getShishenColor(ganShishen) }}>
+                    {ganShishen}
+                  </div>
                   <div className="liunian-ganzhi">
                     <span style={{ color: getWuxingColor(ganWuxing) }}>{nian.gan}</span>
                     <span style={{ color: getWuxingColor(zhiWuxing) }}>{nian.zhi}</span>
@@ -432,10 +600,18 @@ const BaziDetail = () => {
             {liuyueData.map((yue, index) => {
               const ganWuxing = getGanWuxing(yue.gan);
               const zhiWuxing = getZhiWuxing(yue.zhi);
-              
+
+              // 计算流月天干十神
+              const riGan = baziResult.dayPillar?.gan;
+              const ganShishen = getShishen(riGan, yue.gan);
+
               return (
                 <div key={index} className={`liuyue-item ${yue.isCurrent ? 'current' : ''}`}>
                   <div className="liuyue-month">{yue.month}月</div>
+                  {/* 十神 */}
+                  <div className="liuyue-shishen" style={{ color: getShishenColor(ganShishen) }}>
+                    {ganShishen}
+                  </div>
                   <div className="liuyue-ganzhi">
                     <span style={{ color: getWuxingColor(ganWuxing) }}>{yue.gan}</span>
                     <span style={{ color: getWuxingColor(zhiWuxing) }}>{yue.zhi}</span>
