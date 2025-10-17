@@ -241,3 +241,283 @@ export const getZhiBenQi = (zhi) => {
   }
 };
 
+/**
+ * 计算神煞（本地计算）
+ * @param {string} dayGan - 日干
+ * @param {string} yearZhi - 年支
+ * @param {string} monthZhi - 月支
+ * @param {string} dayZhi - 日支
+ * @param {string} hourZhi - 时支（可选）
+ * @returns {Array<string>} 神煞列表
+ */
+export const calculateShensha = (dayGan, yearZhi, monthZhi, dayZhi, hourZhi = '') => {
+  const shensha = [];
+  
+  try {
+    // 天乙贵人
+    const tianyiMap = {
+      '甲': ['丑', '未'], '戊': ['丑', '未'],
+      '乙': ['子', '申'], '己': ['子', '申'],
+      '丙': ['亥', '酉'], '丁': ['亥', '酉'],
+      '庚': ['丑', '未'], '辛': ['寅', '午'],
+      '壬': ['卯', '巳'], '癸': ['卯', '巳']
+    };
+    
+    if (tianyiMap[dayGan]) {
+      const tianyiZhi = tianyiMap[dayGan];
+      if (tianyiZhi.includes(yearZhi) || 
+          tianyiZhi.includes(monthZhi) || 
+          tianyiZhi.includes(dayZhi) ||
+          (hourZhi && tianyiZhi.includes(hourZhi))) {
+        shensha.push('天乙贵人');
+      }
+    }
+    
+    // 桃花（咸池）
+    // 年支或日支见：寅午戌见卯，申子辰见酉，巳酉丑见午，亥卯未见子
+    const taohuaMap = {
+      '寅': '卯', '午': '卯', '戌': '卯',
+      '申': '酉', '子': '酉', '辰': '酉',
+      '巳': '午', '酉': '午', '丑': '午',
+      '亥': '子', '卯': '子', '未': '子'
+    };
+    
+    const taohuaCheck = [yearZhi, dayZhi];
+    for (const zhi of taohuaCheck) {
+      if (taohuaMap[zhi]) {
+        if (taohuaMap[zhi] === yearZhi || 
+            taohuaMap[zhi] === monthZhi || 
+            taohuaMap[zhi] === dayZhi ||
+            (hourZhi && taohuaMap[zhi] === hourZhi)) {
+          if (!shensha.includes('桃花')) {
+            shensha.push('桃花');
+          }
+          break;
+        }
+      }
+    }
+    
+    // 文昌贵人
+    const wenchangMap = {
+      '甲': '巳', '乙': '午', '丙': '申', '丁': '酉',
+      '戊': '申', '己': '酉', '庚': '亥', '辛': '子',
+      '壬': '寅', '癸': '卯'
+    };
+    
+    if (wenchangMap[dayGan]) {
+      const wenchangZhi = wenchangMap[dayGan];
+      if (wenchangZhi === yearZhi || 
+          wenchangZhi === monthZhi || 
+          wenchangZhi === dayZhi ||
+          (hourZhi && wenchangZhi === hourZhi)) {
+        shensha.push('文昌贵人');
+      }
+    }
+    
+    // 天德贵人（按月支查）
+    const tiandeMap = {
+      '子': '巳', '丑': '庚', '寅': '丙', '卯': '壬',
+      '辰': '辛', '巳': '亥', '午': '甲', '未': '癸',
+      '申': '寅', '酉': '丁', '戌': '乙', '亥': '艮'
+    };
+    
+    if (tiandeMap[monthZhi] && tiandeMap[monthZhi] !== '艮') {
+      const tiandeValue = tiandeMap[monthZhi];
+      // 天德可能是天干或地支
+      if ([yearZhi, dayZhi, hourZhi].includes(tiandeValue) ||
+          [dayGan].includes(tiandeValue)) {
+        shensha.push('天德贵人');
+      }
+    }
+    
+    // 月德贵人（按月支查日干）
+    const yuedeMap = {
+      '寅': '丙', '午': '丙', '戌': '丙',  // 寅午戌月丙日
+      '亥': '甲', '卯': '甲', '未': '甲',  // 亥卯未月甲日
+      '巳': '壬', '酉': '壬', '丑': '壬',  // 巳酉丑月壬日
+      '申': '庚', '子': '庚', '辰': '庚'   // 申子辰月庚日
+    };
+    
+    if (yuedeMap[monthZhi] === dayGan) {
+      shensha.push('月德贵人');
+    }
+    
+    // 天乙贵人（福星贵人）
+    const fuxingMap = {
+      '甲': ['子', '午'], '乙': ['卯', '酉'],
+      '丙': ['寅', '申'], '丁': ['卯', '酉'],
+      '戊': ['辰', '戌'], '己': ['巳', '亥'],
+      '庚': ['午', '子'], '辛': ['未', '丑'],
+      '壬': ['申', '寅'], '癸': ['酉', '卯']
+    };
+    
+    if (fuxingMap[dayGan]) {
+      const fuxingZhi = fuxingMap[dayGan];
+      if (fuxingZhi.includes(yearZhi) || 
+          fuxingZhi.includes(monthZhi) || 
+          fuxingZhi.includes(dayZhi) ||
+          (hourZhi && fuxingZhi.includes(hourZhi))) {
+        if (!shensha.includes('福星贵人')) {
+          shensha.push('福星贵人');
+        }
+      }
+    }
+    
+    // 驿马（按年支或日支查）
+    const yimaMap = {
+      '寅': '申', '午': '申', '戌': '申',
+      '申': '寅', '子': '寅', '辰': '寅',
+      '巳': '亥', '酉': '亥', '丑': '亥',
+      '亥': '巳', '卯': '巳', '未': '巳'
+    };
+    
+    const yimaCheck = [yearZhi, dayZhi];
+    for (const zhi of yimaCheck) {
+      if (yimaMap[zhi]) {
+        if (yimaMap[zhi] === yearZhi || 
+            yimaMap[zhi] === monthZhi || 
+            yimaMap[zhi] === dayZhi ||
+            (hourZhi && yimaMap[zhi] === hourZhi)) {
+          if (!shensha.includes('驿马')) {
+            shensha.push('驿马');
+          }
+          break;
+        }
+      }
+    }
+    
+    // 华盖（按年支或日支查）
+    const huagaiMap = {
+      '寅': '戌', '午': '戌', '戌': '戌',
+      '申': '辰', '子': '辰', '辰': '辰',
+      '巳': '丑', '酉': '丑', '丑': '丑',
+      '亥': '未', '卯': '未', '未': '未'
+    };
+    
+    const huagaiCheck = [yearZhi, dayZhi];
+    for (const zhi of huagaiCheck) {
+      if (huagaiMap[zhi]) {
+        if (huagaiMap[zhi] === yearZhi || 
+            huagaiMap[zhi] === monthZhi || 
+            huagaiMap[zhi] === dayZhi ||
+            (hourZhi && huagaiMap[zhi] === hourZhi)) {
+          if (!shensha.includes('华盖')) {
+            shensha.push('华盖');
+          }
+          break;
+        }
+      }
+    }
+    
+    // 将星（按年支或日支查）
+    const jiangxingMap = {
+      '寅': '子', '午': '子', '戌': '子',
+      '申': '午', '子': '午', '辰': '午',
+      '巳': '酉', '酉': '酉', '丑': '酉',
+      '亥': '卯', '卯': '卯', '未': '卯'
+    };
+    
+    const jiangxingCheck = [yearZhi, dayZhi];
+    for (const zhi of jiangxingCheck) {
+      if (jiangxingMap[zhi]) {
+        if (jiangxingMap[zhi] === yearZhi || 
+            jiangxingMap[zhi] === monthZhi || 
+            jiangxingMap[zhi] === dayZhi ||
+            (hourZhi && jiangxingMap[zhi] === hourZhi)) {
+          if (!shensha.includes('将星')) {
+            shensha.push('将星');
+          }
+          break;
+        }
+      }
+    }
+    
+    // 金舆（按日干查）
+    const jinyuMap = {
+      '甲': '辰', '乙': '巳', '丙': '未', '丁': '申',
+      '戊': '辰', '己': '巳', '庚': '戌', '辛': '亥',
+      '壬': '丑', '癸': '寅'
+    };
+    
+    if (jinyuMap[dayGan]) {
+      const jinyuZhi = jinyuMap[dayGan];
+      if (jinyuZhi === yearZhi || 
+          jinyuZhi === monthZhi || 
+          jinyuZhi === dayZhi ||
+          (hourZhi && jinyuZhi === hourZhi)) {
+        shensha.push('金舆');
+      }
+    }
+    
+    // 红鸾（按年支查）
+    const honglunMap = {
+      '子': '卯', '丑': '寅', '寅': '丑', '卯': '子',
+      '辰': '亥', '巳': '戌', '午': '酉', '未': '申',
+      '申': '未', '酉': '午', '戌': '巳', '亥': '辰'
+    };
+    
+    if (honglunMap[yearZhi]) {
+      const honglunZhi = honglunMap[yearZhi];
+      if (honglunZhi === monthZhi || 
+          honglunZhi === dayZhi ||
+          (hourZhi && honglunZhi === hourZhi)) {
+        shensha.push('红鸾');
+      }
+    }
+    
+    // 天喜（按年支查，红鸾对冲）
+    const tianxiMap = {
+      '子': '酉', '丑': '申', '寅': '未', '卯': '午',
+      '辰': '巳', '巳': '辰', '午': '卯', '未': '寅',
+      '申': '丑', '酉': '子', '戌': '亥', '亥': '戌'
+    };
+    
+    if (tianxiMap[yearZhi]) {
+      const tianxiZhi = tianxiMap[yearZhi];
+      if (tianxiZhi === monthZhi || 
+          tianxiZhi === dayZhi ||
+          (hourZhi && tianxiZhi === hourZhi)) {
+        shensha.push('天喜');
+      }
+    }
+    
+    // 孤辰寡宿（按年支查）
+    const guchenMap = {
+      '寅': '巳', '午': '巳', '戌': '巳',
+      '申': '亥', '子': '亥', '辰': '亥',
+      '巳': '寅', '酉': '寅', '丑': '寅',
+      '亥': '申', '卯': '申', '未': '申'
+    };
+    
+    const guasuMap = {
+      '寅': '丑', '午': '丑', '戌': '丑',
+      '申': '未', '子': '未', '辰': '未',
+      '巳': '辰', '酉': '辰', '丑': '辰',
+      '亥': '戌', '卯': '戌', '未': '戌'
+    };
+    
+    if (guchenMap[yearZhi]) {
+      const guchenZhi = guchenMap[yearZhi];
+      if (guchenZhi === monthZhi || 
+          guchenZhi === dayZhi ||
+          (hourZhi && guchenZhi === hourZhi)) {
+        shensha.push('孤辰');
+      }
+    }
+    
+    if (guasuMap[yearZhi]) {
+      const guasuZhi = guasuMap[yearZhi];
+      if (guasuZhi === monthZhi || 
+          guasuZhi === dayZhi ||
+          (hourZhi && guasuZhi === hourZhi)) {
+        shensha.push('寡宿');
+      }
+    }
+    
+  } catch (error) {
+    console.error('计算神煞错误:', error);
+  }
+  
+  return shensha;
+};
+

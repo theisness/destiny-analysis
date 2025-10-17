@@ -11,7 +11,8 @@ import {
   calculateNaYinByDate,
   getDiShiColor,
   getNaYinColor,
-  getZhiBenQi 
+  getZhiBenQi,
+  calculateShensha 
 } from '../../utils/bazi-utils';
 import './BaziDetail.css';
 
@@ -44,6 +45,9 @@ const BaziDetail = () => {
   const [naYinData, setNaYinData] = useState({
     year: '', month: '', day: '', hour: ''
   });
+  
+  // 神煞数据（本地计算）
+  const [shenshaData, setShenshaData] = useState([]);
 
   useEffect(() => {
     fetchDetail();
@@ -114,6 +118,19 @@ const BaziDetail = () => {
           day: calculateNaYin(baziResult.dayPillar.gan, baziResult.dayPillar.zhi),
           hour: calculateNaYin(baziResult.hourPillar.gan, baziResult.hourPillar.zhi)
         });
+      }
+      
+      // 本地计算神煞
+      if (recordData.baziResult) {
+        const baziResult = recordData.baziResult;
+        const localShensha = calculateShensha(
+          baziResult.dayPillar.gan,
+          baziResult.yearPillar.zhi,
+          baziResult.monthPillar.zhi,
+          baziResult.dayPillar.zhi,
+          baziResult.hourPillar.zhi
+        );
+        setShenshaData(localShensha);
       }
 
       setError('');
@@ -400,7 +417,7 @@ const BaziDetail = () => {
 
         {/* 四柱 */}
         <div className="card">
-          <h2>四柱八字 <span className="local-calc-badge">本地计算</span></h2>
+          <h2>四柱八字</h2>
           <div className="sizhu-display-detail">
             {['year', 'month', 'day', 'hour'].map((pillar) => {
               const pillarName = { year: '年柱', month: '月柱', day: '日柱', hour: '时柱' }[pillar];
@@ -512,6 +529,18 @@ const BaziDetail = () => {
               );
             })}
           </div>
+          
+          {/* 神煞 */}
+          {shenshaData && shenshaData.length > 0 && (
+            <div className="shensha-section">
+              <h3>神煞</h3>
+              <div className="shensha-list">
+                {shenshaData.map((sha, index) => (
+                  <span key={index} className="shensha-badge">{sha}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 五行 */}
@@ -522,7 +551,7 @@ const BaziDetail = () => {
         {/* 大运 - 本地计算 */}
         {dayunData.dayunList && dayunData.dayunList.length > 0 && (
           <div className="card">
-            <h2>大运排盘 <span className="local-calc-badge">本地计算</span></h2>
+            <h2>大运排盘</h2>
             {dayunData.qiyunAge && (
               <div className="qiyun-info-box">
                 <div className="qiyun-title">🕐 起运时间</div>
@@ -608,18 +637,6 @@ const BaziDetail = () => {
                   </div>
                 );
               })}
-            </div>
-          </div>
-        )}
-
-        {/* 神煞 */}
-        {baziResult.shensha && baziResult.shensha.length > 0 && (
-          <div className="card">
-            <h2>神煞</h2>
-            <div className="shensha-list">
-              {baziResult.shensha.map((sha, index) => (
-                <span key={index} className="shensha-badge">{sha}</span>
-              ))}
             </div>
           </div>
         )}
