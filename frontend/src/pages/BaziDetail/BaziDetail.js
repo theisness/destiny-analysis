@@ -37,6 +37,12 @@ import {
 } from '../../utils/liunian-calculator';
 import { calculateShensha } from '../../utils/shensha-calculator';
 import './BaziDetail.css';
+import SizhuCard from '../../components/SizhuCard';
+import CangganCard from '../../components/CangganCard';
+import SevenGridCard from '../../components/SevenGridCard';
+import LiunianCard from '../../components/LiunianCard';
+import LiuyueCard from '../../components/LiuyueCard';
+import DayunCard from '../../components/DayunCard';
 
 const BaziDetail = () => {
   const { id } = useParams();
@@ -245,132 +251,10 @@ const BaziDetail = () => {
         </div>
 
         {/* 四柱 */}
-        <div className="card">
-          <h2>四柱八字</h2>
-          <div className="sizhu-display-detail">
-            {['year', 'month', 'day', 'hour'].map((pillar) => {
-              const pillarName = { year: '年柱', month: '月柱', day: '日柱', hour: '时柱' }[pillar];
-              const pillarData = baziResult[`${pillar}Pillar`];
-              const ganWuxing = getGanWuxing(pillarData.gan);
-              const zhiWuxing = getZhiWuxing(pillarData.zhi);
-
-              // 计算天干十神（只有日柱天干才是日主）
-              const riGan = baziResult.dayPillar?.gan;
-              const isDayGan = pillar === 'day';
-              const ganShishen = getShishen(riGan, pillarData.gan, isDayGan);
-              
-              // 获取地势和纳音
-              const dishi = diShiData[pillar];
-              const nayin = naYinData[pillar];
-
-              return (
-                <div key={pillar} className="pillar-detail">
-                  <div className="pillar-name">{pillarName}</div>
-                  <div className="pillar-chars">
-                    {/* 天干十神（显示在天干上方） */}
-                    <div
-                      className="shishen-label"
-                      style={{ color: getShishenColor(ganShishen) }}
-                    >
-                      {ganShishen}
-                    </div>
-                    {/* 天干 */}
-                    <span
-                      className="char gan"
-                      style={{ color: getWuxingColor(ganWuxing) }}
-                    >
-                      {pillarData.gan}
-                    </span>
-                    {/* 地支 */}
-                    <span
-                      className="char zhi"
-                      style={{ color: getWuxingColor(zhiWuxing) }}
-                    >
-                      {pillarData.zhi}
-                    </span>
-                    {/* 地势（十二长生） */}
-                    {dishi && (
-                      <div 
-                        className="dishi-label"
-                        style={{ color: getDiShiColor(dishi) }}
-                      >
-                        {dishi}
-                      </div>
-                    )}
-                  </div>
-                  {/* 纳音 */}
-                  {nayin && (
-                    <div 
-                      className="nayin-label"
-                      style={{ color: getNaYinColor(nayin) }}
-                    >
-                      {nayin}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <SizhuCard baziResult={baziResult} diShiData={diShiData} naYinData={naYinData} />
 
         {/* 藏干 */}
-        <div className="card">
-          <h2>地支藏干</h2>
-          <div className="canggan-grid">
-            {['year', 'month', 'day', 'hour'].map((pillar) => {
-              const pillarName = { year: '年支', month: '月支', day: '日支', hour: '时支' }[pillar];
-              const pillarData = baziResult[`${pillar}Pillar`];
-              const hiddenGans = baziResult.hiddenGan[pillar] || [];
-              const riGan = baziResult.dayPillar?.gan;
-
-              return (
-                <div key={pillar} className="canggan-item">
-                  <div className="canggan-label">
-                    {pillarName}（{pillarData.zhi}）
-                  </div>
-                  <div className="canggan-values">
-                    {hiddenGans.map((gan, index) => {
-                      const wuxing = getGanWuxing(gan);
-                      const shishen = getShishen(riGan, gan);
-                      return (
-                        <div key={index} className="canggan-item-detail">
-                          <span
-                            className="canggan-gan"
-                            style={{ color: getWuxingColor(wuxing) }}
-                          >
-                            {gan}
-                          </span>
-                          <span className="canggan-wuxing">
-                            ({wuxing})
-                          </span>
-                          {/* 藏干十神（显示在藏干下方） */}
-                          <div
-                            className="canggan-shishen"
-                            style={{ color: getShishenColor(shishen) }}
-                          >
-                            {shishen}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          
-          {/* 神煞 */}
-          {shenshaData && shenshaData.length > 0 && (
-            <div className="shensha-section">
-              <h3>神煞</h3>
-              <div className="shensha-list">
-                {shenshaData.map((sha, index) => (
-                  <span key={index} className="shensha-badge">{sha}</span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <CangganCard baziResult={baziResult} shenshaData={shenshaData} />
 
      {/* 五行 - 前端计算 */}
         <div className="card">
@@ -380,376 +264,45 @@ const BaziDetail = () => {
 
         {/* 大运 - 本地计算 */}
         {dayunData.dayunList && dayunData.dayunList.length > 0 && (
-          <div className="card">
-            <h2>大运排盘</h2>
-            {dayunData.qiyunAge && (
-              <div className="qiyun-info-box">
-                <div className="qiyun-title">🕐 起运时间</div>
-                <div className="qiyun-details">
-                  <span className="qiyun-value">
-                    {dayunData.qiyunAge.years}岁 {dayunData.qiyunAge.months}个月 {dayunData.qiyunAge.days}天
-                  </span>
-                  {record.gregorianDate && record.gregorianDate.year && (
-                    <span className="qiyun-date">
-                      （约{record.gregorianDate.year + dayunData.qiyunAge.years}年起运）
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-            <div className="dayun-grid">
-              {dayunData.dayunList.map((yun, index) => {
-                const ganWuxing = getGanWuxing(yun.gan);
-                const zhiWuxing = getZhiWuxing(yun.zhi);
-
-                // 判断是否是当前大运
-                const birthYear = record.gregorianDate?.year || 0;
-                const currentAge = currentYear - birthYear;
-                const isCurrent = currentAge >= yun.age && (index === dayunData.dayunList.length - 1 || currentAge < dayunData.dayunList[index + 1]?.age);
-
-                // 计算大运天干十神
-                const riGan = baziResult.dayPillar?.gan;
-                const ganShishen = getShishen(riGan, yun.gan);
-                
-                // 计算大运地支十神（通过地支本气）
-                const zhiBenQi = getZhiBenQi(yun.zhi);
-                const zhiShishen = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-                
-                // 计算大运地势和纳音
-                const dishi = calculateDiShi(yun.gan, yun.zhi);
-                const nayin = calculateNaYin(yun.gan, yun.zhi);
-
-                return (
-                  <div key={index} className={`dayun-item ${isCurrent ? 'current' : ''}`}>
-                    <div className="dayun-age">{yun.age}岁</div>
-                    
-                    {/* 干支及十神 */}
-                    <div className="dayun-ganzhi-container">
-                      {/* 天干部分 */}
-                      <div className="dayun-gan-section">
-                        {ganShishen && (
-                          <div className="dayun-gan-shishen" style={{ color: getShishenColor(ganShishen) }}>
-                            {ganShishen}
-                          </div>
-                        )}
-                        <span className="dayun-gan" style={{ color: getWuxingColor(ganWuxing) }}>
-                          {yun.gan}
-                        </span>
-                      </div>
-                      
-                      {/* 地支部分 */}
-                      <div className="dayun-zhi-section">
-                        {zhiShishen && (
-                          <div className="dayun-zhi-shishen" style={{ color: getShishenColor(zhiShishen) }}>
-                            {zhiShishen}
-                          </div>
-                        )}
-                        <span className="dayun-zhi" style={{ color: getWuxingColor(zhiWuxing) }}>
-                          {yun.zhi}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* 地势 */}
-                    {dishi && (
-                      <div className="dayun-dishi" style={{ color: getDiShiColor(dishi) }}>
-                        {dishi}
-                      </div>
-                    )}
-                    {/* 纳音 */}
-                    {nayin && (
-                      <div className="dayun-nayin" style={{ color: getNaYinColor(nayin) }}>
-                        {nayin}
-                      </div>
-                    )}
-                    <div className="dayun-year">{yun.startYear}年</div>
-                    {isCurrent && <div className="current-badge">当前</div>}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <DayunCard
+            dayunData={dayunData}
+            baziResult={baziResult}
+            birthYear={record.gregorianDate?.year}
+            currentYear={currentYear}
+          />
         )}
 
         {/* 流年 - 实时计算 */}
-        <div className="card">
-          <div className="card-header-with-control">
-            <h2>流年排盘</h2>
-            <div className="year-selector">
-              <button
-                className="year-nav-btn"
-                onClick={() => setSelectedYear(selectedYear - 10)}
-              >
-                ←
-              </button>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                className="year-select"
-              >
-                {Array.from({ length: 100 }, (_, i) => currentYear - 50 + i).map(year => (
-                  <option key={year} value={year}>{year}年</option>
-                ))}
-              </select>
-              <button
-                className="year-nav-btn"
-                onClick={() => setSelectedYear(selectedYear + 10)}
-              >
-                →
-              </button>
-              <button
-                className="btn-today"
-                onClick={() => setSelectedYear(currentYear)}
-              >
-                今年
-              </button>
-            </div>
-          </div>
-          <div className="liunian-grid">
-            {liunianData.map((nian, index) => {
-              const ganWuxing = getGanWuxing(nian.gan);
-              const zhiWuxing = getZhiWuxing(nian.zhi);
-
-              // 计算流年天干十神
-              const riGan = baziResult.dayPillar?.gan;
-              const ganShishen = getShishen(riGan, nian.gan);
-
-              return (
-                <div key={index} className={`liunian-item ${nian.isCurrent ? 'current' : ''}`}>
-                  <div className="liunian-year">{nian.year}</div>
-                  {/* 十神 */}
-                  <div className="liunian-shishen" style={{ color: getShishenColor(ganShishen) }}>
-                    {ganShishen}
-                  </div>
-                  <div className="liunian-ganzhi">
-                    <span style={{ color: getWuxingColor(ganWuxing) }}>{nian.gan}</span>
-                    <span style={{ color: getWuxingColor(zhiWuxing) }}>{nian.zhi}</span>
-                  </div>
-                  {nian.isCurrent && <div className="current-badge">当前</div>}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <LiunianCard
+          liunianData={liunianData}
+          selectedYear={selectedYear}
+          currentYear={currentYear}
+          onPrevDecade={() => setSelectedYear(selectedYear - 10)}
+          onNextDecade={() => setSelectedYear(selectedYear + 10)}
+          onSetYear={(y) => setSelectedYear(y)}
+          onToday={() => setSelectedYear(currentYear)}
+          baziResult={baziResult}
+        />
 
         {/* 流月 - 实时计算 */}
-        <div className="card">
-          <h2>流月排盘（{selectedYear}年）</h2>
-          <p className="liuyue-hint">
-            💡 五虎遁月诀：甲己之年丙作首，乙庚之岁戊为头，丙辛必定寻庚起，丁壬壬位顺行流，戊癸甲寅好追求
-            {currentLunarInfo && selectedYear === currentLunarInfo.year && (
-              <span className="current-lunar-info">
-                （当前：农历{Math.abs(currentLunarInfo.month+1)}月 - {currentLunarInfo.monthInGanZhi}）
-              </span>
-            )}
-          </p>
-          <div className="liuyue-grid">
-            {liuyueData.map((yue, index) => {
-              const ganWuxing = getGanWuxing(yue.gan);
-              const zhiWuxing = getZhiWuxing(yue.zhi);
-
-              // 计算流月天干十神
-              const riGan = baziResult.dayPillar?.gan;
-              const ganShishen = getShishen(riGan, yue.gan);
-
-              return (
-                <div key={index} className={`liuyue-item ${yue.isCurrent ? 'current' : ''}`}>
-                  <div className="liuyue-month">{yue.month}月</div>
-                  {/* 十神 */}
-                  <div className="liuyue-shishen" style={{ color: getShishenColor(ganShishen) }}>
-                    {ganShishen}
-                  </div>
-                  <div className="liuyue-ganzhi">
-                    <span style={{ color: getWuxingColor(ganWuxing) }}>{yue.gan}</span>
-                    <span style={{ color: getWuxingColor(zhiWuxing) }}>{yue.zhi}</span>
-                  </div>
-                  {yue.isCurrent && <div className="current-badge">当前</div>}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <LiuyueCard
+          liuyueData={liuyueData}
+          selectedYear={selectedYear}
+          currentLunarInfo={currentLunarInfo}
+          baziResult={baziResult}
+        />
         {/* 七列综合排盘 */}
-        <div className="card">
-          <h2>综合排盘（七列）</h2>
-          <div className="seven-grid">
-            {/* 大运列 */}
-            <div className="seven-col">
-              <div className="col-title">大运</div>
-              {(() => {
-                const list = dayunData?.dayunList || [];
-                const birthYear = record.gregorianDate?.year || 0;
-                const currentAge = currentYear - birthYear;
-                const idx = list.findIndex((yun, i) => currentAge >= yun.age && (i === list.length - 1 || currentAge < list[i + 1]?.age));
-                const cur = idx >= 0 ? list[idx] : (list[0] || null);
-                if (!cur) return <div>暂无</div>;
-                const riGan = baziResult.dayPillar?.gan;
-                const ganWuxing = getGanWuxing(cur.gan);
-                const zhiWuxing = getZhiWuxing(cur.zhi);
-                const ganSS = getShishen(riGan, cur.gan);
-                const zhiBenQi = getZhiBenQi(cur.zhi);
-                const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-                const hidden = getZhiCangGan(cur.zhi);
-                const dishi = calculateDiShi(cur.gan, cur.zhi);
-                const nayin = calculateNaYin(cur.gan, cur.zhi);
-                return (
-                  <>
-                    <div className="pillar-chars">
-                      {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
-                      <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
-                      {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
-                      <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
-                    </div>
-                    <div className="hidden-gans">
-                      {hidden.map((g, index) => {
-                        const ss = getShishen(riGan, g);
-                        const flag = index === 0 ? '本气' : '余气';
-                        return (
-                          <div key={index} className="hidden-gan-item">
-                            <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
-                            <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
-                            <span className="label">（{flag}）</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
-                    {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
-                  </>
-                );
-              })()}
-            </div>
-
-            {/* 流年列 */}
-            <div className="seven-col">
-              <div className="col-title">流年</div>
-              {(() => {
-                const cur = liunianData.find(n => n.isCurrent) || liunianData.find(n => n.year === selectedYear) || null;
-                if (!cur) return <div>暂无</div>;
-                const riGan = baziResult.dayPillar?.gan;
-                const ganWuxing = getGanWuxing(cur.gan);
-                const zhiWuxing = getZhiWuxing(cur.zhi);
-                const ganSS = getShishen(riGan, cur.gan);
-                const zhiBenQi = getZhiBenQi(cur.zhi);
-                const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-                const hidden = getZhiCangGan(cur.zhi);
-                const dishi = calculateDiShi(cur.gan, cur.zhi);
-                const nayin = calculateNaYin(cur.gan, cur.zhi);
-                return (
-                  <>
-                    <div className="pillar-chars">
-                      {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
-                      <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
-                      {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
-                      <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
-                    </div>
-                    <div className="hidden-gans">
-                      {hidden.map((g, index) => {
-                        const ss = getShishen(riGan, g);
-                        const flag = index === 0 ? '本气' : '余气';
-                        return (
-                          <div key={index} className="hidden-gan-item">
-                            <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
-                            <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
-                            <span className="label">（{flag}）</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
-                    {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
-                  </>
-                );
-              })()}
-            </div>
-
-            {/* 流月列 */}
-            <div className="seven-col">
-              <div className="col-title">流月</div>
-              {(() => {
-                const cur = liuyueData.find(m => m.isCurrent) || liuyueData[0] || null;
-                if (!cur) return <div>暂无</div>;
-                const riGan = baziResult.dayPillar?.gan;
-                const ganWuxing = getGanWuxing(cur.gan);
-                const zhiWuxing = getZhiWuxing(cur.zhi);
-                const ganSS = getShishen(riGan, cur.gan);
-                const zhiBenQi = getZhiBenQi(cur.zhi);
-                const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-                const hidden = getZhiCangGan(cur.zhi);
-                const dishi = calculateDiShi(cur.gan, cur.zhi);
-                const nayin = calculateNaYin(cur.gan, cur.zhi);
-                return (
-                  <>
-                    <div className="pillar-chars">
-                      {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
-                      <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
-                      {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
-                      <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
-                    </div>
-                    <div className="hidden-gans">
-                      {hidden.map((g, index) => {
-                        const ss = getShishen(riGan, g);
-                        const flag = index === 0 ? '本气' : '余气';
-                        return (
-                          <div key={index} className="hidden-gan-item">
-                            <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
-                            <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
-                            <span className="label">（{flag}）</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
-                    {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
-                  </>
-                );
-              })()}
-            </div>
-
-            {/* 四柱 */}
-            {['year', 'month', 'day', 'hour'].map((pillar) => {
-              const pillarLabel = { year: '年柱', month: '月柱', day: '日柱', hour: '时柱' }[pillar];
-              const pillarData = baziResult[`${pillar}Pillar`] || {};
-              const gan = pillarData.gan || '';
-              const zhi = pillarData.zhi || '';
-              const riGan = baziResult.dayPillar?.gan;
-              const ganWuxing = getGanWuxing(gan);
-              const zhiWuxing = getZhiWuxing(zhi);
-              const ganSS = getShishen(riGan, gan, pillar === 'day');
-              const zhiBenQi = getZhiBenQi(zhi);
-              const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-              const hidden = frontendHiddenGan[pillar] || [];
-              const dishi = diShiData[pillar];
-              const nayin = naYinData[pillar];
-              return (
-                <div key={pillar} className="seven-col">
-                  <div className="col-title">{pillarLabel}</div>
-                  <div className="pillar-chars">
-                    {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
-                    <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{gan}</div>
-                    {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
-                    <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{zhi}</div>
-                  </div>
-                  <div className="hidden-gans">
-                    {hidden.map((g, index) => {
-                      const ss = getShishen(riGan, g);
-                      const flag = index === 0 ? '本气' : '余气';
-                      return (
-                        <div key={index} className="hidden-gan-item">
-                          <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
-                          <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
-                          <span className="label">（{flag}）</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
-                  {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <SevenGridCard
+          baziResult={baziResult}
+          dayunData={dayunData}
+          liunianData={liunianData}
+          liuyueData={liuyueData}
+          diShiData={diShiData}
+          naYinData={naYinData}
+          selectedYear={selectedYear}
+          currentYear={currentYear}
+          frontendHiddenGan={frontendHiddenGan}
+        />
       </div>
     </div>
   );

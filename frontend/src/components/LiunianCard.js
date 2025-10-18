@@ -1,0 +1,60 @@
+import React from 'react';
+import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
+import { getShishen, getShishenColor } from '../utils/shishen-calculator';
+
+const LiunianCard = ({
+  liunianData = [],
+  selectedYear,
+  currentYear,
+  onPrevDecade,
+  onNextDecade,
+  onSetYear,
+  onToday,
+  baziResult
+}) => {
+  const riGan = baziResult?.dayPillar?.gan;
+
+  return (
+    <div className="card">
+      <div className="card-header-with-control">
+        <h2>流年排盘</h2>
+        <div className="year-selector">
+          <button className="year-nav-btn" onClick={onPrevDecade}>←</button>
+          <select
+            value={selectedYear}
+            onChange={(e) => onSetYear(parseInt(e.target.value))}
+            className="year-select"
+          >
+            {Array.from({ length: 100 }, (_, i) => currentYear - 50 + i).map(year => (
+              <option key={year} value={year}>{year}年</option>
+            ))}
+          </select>
+          <button className="year-nav-btn" onClick={onNextDecade}>→</button>
+          <button className="btn-today" onClick={onToday}>今年</button>
+        </div>
+      </div>
+      <div className="liunian-grid">
+        {liunianData.map((nian, index) => {
+          const ganWuxing = getGanWuxing(nian.gan);
+          const zhiWuxing = getZhiWuxing(nian.zhi);
+          const ganShishen = getShishen(riGan, nian.gan);
+          return (
+            <div key={index} className={`liunian-item ${nian.isCurrent ? 'current' : ''}`}>
+              <div className="liunian-year">{nian.year}</div>
+              <div className="liunian-shishen" style={{ color: getShishenColor(ganShishen) }}>
+                {ganShishen}
+              </div>
+              <div className="liunian-ganzhi">
+                <span style={{ color: getWuxingColor(ganWuxing) }}>{nian.gan}</span>
+                <span style={{ color: getWuxingColor(zhiWuxing) }}>{nian.zhi}</span>
+              </div>
+              {nian.isCurrent && <div className="current-badge">当前</div>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+export default LiunianCard;
