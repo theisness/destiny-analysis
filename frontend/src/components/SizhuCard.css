@@ -1,0 +1,92 @@
+/* 四柱卡片：保持四列布局并压缩移动端 */
+.sizhu-display-detail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 20px;
+}
+
+.pillar-detail {
+  text-align: center;
+  padding: 12px;
+  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0; /* 防止第四列在窄屏下被裁切 */
+}
+
+.pillar-name {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.pillar-chars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.pillar-chars .char {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.shishen-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+}
+
+.dishi-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 5px;
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+}
+
+.nayin-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 10px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .sizhu-display-detail {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px;
+  }
+  .pillar-detail {
+    padding: 8px;
+  }
+  .pillar-chars .char {
+    font-size: 26px;
+  }
+  .shishen-label {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+  .dishi-label,
+  .nayin-label {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 576px) {
+  .pillar-chars .char {
+    font-size: 22px;
+  }
+}

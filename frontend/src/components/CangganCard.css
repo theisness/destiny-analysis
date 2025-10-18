@@ -1,0 +1,58 @@
+/* 藏干卡片：自适应布局与简洁字体 */
+.canggan-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.canggan-item {
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 10px 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.canggan-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.canggan-values {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.canggan-item-detail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.canggan-item-detail .gan {
+  font-weight: 700;
+}
+
+.canggan-item-detail .label {
+  color: #888;
+  font-size: 11px;
+}
+
+@media (max-width: 768px) {
+  .canggan-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .canggan-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

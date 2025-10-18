@@ -1,3 +1,4 @@
+import './DayunCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
 import { getShishen, getShishenColor } from '../utils/shishen-calculator';

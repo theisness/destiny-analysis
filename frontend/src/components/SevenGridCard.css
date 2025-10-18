@@ -1,0 +1,132 @@
+.seven-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.seven-col {
+  padding: 12px;
+  text-align: center;
+  background: #ffffff;
+  min-width: 0; /* 允许列在窄屏下收缩，避免被裁切 */
+}
+
+/* 仅在标注 divider 的列显示分隔线 */
+.seven-grid .seven-col.divider {
+  border-right: 2px solid #e9ecef;
+}
+
+.col-title {
+  font-size: 14px;
+  color: #666;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.pillar-chars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.pillar-chars .char {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.shishen-label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+}
+
+.hidden-gans {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.hidden-gan-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.hidden-gan-item .gan {
+  font-weight: 700;
+}
+
+.hidden-gan-item .label {
+  color: #888;
+  font-size: 11px;
+}
+
+.dishi-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 5px;
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+}
+
+.nayin-label {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 10px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* 保持移动端依然七列，压缩字号与间距 */
+@media (max-width: 1024px) {
+  .seven-grid {
+    grid-template-columns: repeat(7, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .seven-col {
+    padding: 8px;
+  }
+  .pillar-chars .char {
+    font-size: 24px;
+  }
+  .shishen-label {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  .hidden-gan-item {
+    font-size: 11px;
+  }
+  .dishi-label,
+  .nayin-label {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .pillar-chars .char {
+    font-size: 20px;
+  }
+  .shishen-label {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+  .hidden-gan-item {
+    font-size: 10px;
+  }
+}

@@ -35,7 +35,6 @@ export const calculateDayun = (dateTime, gender, monthPillar) => {
       months: yunArray.getStartMonth(),
       days: yunArray.getStartDay()
     };
-    console.log('qiyun: ', qiyunAge)
     // 大运列表
     const dayunList = [];
     const daYuns = yunArray.getDaYun();
@@ -54,7 +53,6 @@ export const calculateDayun = (dateTime, gender, monthPillar) => {
         });
       }
     }
-    console.log('dayunlist:' ,dayunList)
 
     return {
       dayunList,

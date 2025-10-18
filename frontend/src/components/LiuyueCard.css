@@ -1,0 +1,84 @@
+/* 流月提示 */
+.liuyue-hint {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #555;
+}
+
+.liuyue-hint .current-lunar-info {
+  font-weight: 700;
+  color: #333;
+}
+
+/* 流月格子 */
+.liuyue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.liuyue-item {
+  text-align: center;
+  padding: 10px 8px;
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.liuyue-item:hover {
+  border-color: #dee2e6;
+}
+
+.liuyue-month {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.liuyue-shishen {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.liuyue-ganzhi {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+}
+
+.current-badge {
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: #ff4757;
+  color: white;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.liuyue-item.current {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  border-color: rgba(255, 107, 107, 0.6);
+  box-shadow: 0 8px 16px rgba(255, 107, 107, 0.3);
+  color: white;
+}
+
+/* 移动端：仅显示“当前流月”，保证一屏显示 */
+@media (max-width: 576px) {
+  .liuyue-grid {
+    grid-template-columns: 1fr;
+  }
+  .liuyue-item {
+    display: none;
+  }
+  .liuyue-item.current {
+    display: block;
+  }
+  .liuyue-ganzhi {
+    font-size: 18px;
+  }
+}

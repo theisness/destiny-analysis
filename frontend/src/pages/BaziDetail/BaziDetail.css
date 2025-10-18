@@ -630,7 +630,6 @@
 
 @media (max-width: 768px) {
   .info-grid,
-  .sizhu-display-detail,
   .canggan-grid {
     grid-template-columns: 1fr;
   }
@@ -658,12 +657,39 @@
   .year-selector {
     justify-content: center;
   }
+
+  /* 字体与间距移动端优化 */
+  .pillar-chars .char {
+    font-size: 28px;
+  }
+  .shishen-label {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+  .dishi-label, .nayin-label {
+    font-size: 11px;
+  }
+  .hidden-gan-item {
+    font-size: 12px;
+  }
+  .liuyue-hint {
+    font-size: 13px;
+    padding: 10px;
+  }
 }
 
+@media (max-width: 576px) {
+  .detail-header h1 {
+    font-size: 20px;
+  }
+  .pillar-chars .char {
+    font-size: 24px;
+  }
+}
 /* 七列综合排盘 */
 .seven-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0;
   border: 2px solid #e9ecef;
   border-radius: 12px;
@@ -674,6 +700,7 @@
   padding: 12px;
   text-align: center;
   background: #ffffff;
+  min-width: 0;
 }
 
 .seven-grid .seven-col.divider {
@@ -713,11 +740,11 @@
 
 @media (max-width: 1024px) {
   .seven-grid {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(7, 1fr);
   }
   .seven-grid .seven-col.divider {
-    border-right: none;
-    border-bottom: 2px solid #e9ecef;
+    border-right: 2px solid #e9ecef;
+    border-bottom: none;
   }
 }
 

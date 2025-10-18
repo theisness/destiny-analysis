@@ -121,7 +121,6 @@ const BaziDetail = () => {
 
       // 本地计算大运
       if (recordData.gregorianDate && recordData.gregorianDate.year) {
-        console.log('record: ', recordData)
         const dayunResult = calculateDayun(
           recordData.gregorianDate,
           recordData.gender,
@@ -210,7 +209,6 @@ const BaziDetail = () => {
   }
 
   const { baziResult } = record;
-  console.log(baziResult)
   return (
     <div className="bazi-detail">
       <Navbar />

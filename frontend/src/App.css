@@ -194,3 +194,35 @@
   align-items: center;
 }
 
+@media (max-width: 992px) {
+  .container {
+    padding: 16px;
+  }
+  .card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 14px;
+  }
+  .card {
+    padding: 16px;
+  }
+  .btn {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 10px;
+  }
+  .btn {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+}
+

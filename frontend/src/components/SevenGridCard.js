@@ -1,3 +1,4 @@
+import './SevenGridCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
 import { getShishen, getShishenColor } from '../utils/shishen-calculator';
@@ -33,7 +34,6 @@ const SevenGridCard = ({
             );
           }
           const ss = getShishen(riGan, g);
-          const flag = index === 0 ? '本气' : '余气';
           return (
             <div key={index} className="hidden-gan-item">
               <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
@@ -73,6 +73,7 @@ const SevenGridCard = ({
             const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
             const dishi = calculateDiShi(cur.gan, cur.zhi);
             const nayin = calculateNaYin(cur.gan, cur.zhi);
+            console.log('cur: ', cur)
             return (
               <>
                 <div className="pillar-chars">
@@ -182,7 +183,6 @@ const SevenGridCard = ({
                     );
                   }
                   const ss = getShishen(riGan, g);
-                  const flag = index === 0 ? '本气' : '余气';
                   return (
                     <div key={index} className="hidden-gan-item">
                       <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
