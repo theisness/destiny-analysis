@@ -38,7 +38,6 @@ const SevenGridCard = ({
             <div key={index} className="hidden-gan-item">
               <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
               <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
-              <span className="label">（{flag}）</span>
             </div>
           );
         })}
@@ -188,7 +187,6 @@ const SevenGridCard = ({
                     <div key={index} className="hidden-gan-item">
                       <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
                       <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
-                      <span className="label">（{flag}）</span>
                     </div>
                   );
                 })}
