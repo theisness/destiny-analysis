@@ -11,8 +11,7 @@ import {
   calculateNaYinByDate,
   getDiShiColor,
   getNaYinColor,
-  getZhiBenQi,
-  calculateShensha 
+  getZhiBenQi
 } from '../../utils/bazi-utils';
 import { 
   calculateHiddenGan, 
@@ -21,6 +20,21 @@ import {
   getZhiWuxing, 
   getWuxingColor 
 } from '../../utils/wuxing-calculator';
+import {
+  isYangGan,
+  getGanWuxingType,
+  getWuxingRelation,
+  getShishen,
+  getShishenColor
+} from '../../utils/shishen-calculator';
+import {
+  TIAN_GAN,
+  DI_ZHI,
+  calculateLiunian,
+  calculateLiuyue,
+  formatDate
+} from '../../utils/liunian-calculator';
+import { calculateShensha } from '../../utils/shensha-calculator';
 import './BaziDetail.css';
 
 const BaziDetail = () => {
@@ -78,10 +92,10 @@ const BaziDetail = () => {
   // 实时计算流年流月
   useEffect(() => {
     if (selectedYear && currentLunarInfo) {
-      setLiunianData(calculateLiunian(selectedYear));
-      setLiuyueData(calculateLiuyue(selectedYear));
+      setLiunianData(calculateLiunian(selectedYear, currentYear));
+      setLiuyueData(calculateLiuyue(selectedYear, currentLunarInfo));
     }
-  }, [selectedYear, currentLunarInfo]);
+  }, [selectedYear, currentLunarInfo, currentYear]);
 
   const fetchDetail = async () => {
     try {
@@ -161,177 +175,9 @@ const BaziDetail = () => {
     }
   };
 
-  // 判断天干阴阳
-  const isYangGan = (gan) => {
-    const yangGan = ['甲', '丙', '戊', '庚', '壬'];
-    return yangGan.includes(gan);
-  };
+  // 这里已移除十神计算相关函数，改为从shishen-calculator.js导入
 
-  // 获取天干五行
-  const getGanWuxingType = (gan) => {
-    const wuxingMap = {
-      '甲': '木', '乙': '木',
-      '丙': '火', '丁': '火',
-      '戊': '土', '己': '土',
-      '庚': '金', '辛': '金',
-      '壬': '水', '癸': '水'
-    };
-    return wuxingMap[gan] || '';
-  };
-
-  // 判断五行生克关系
-  const getWuxingRelation = (myWuxing, otherWuxing) => {
-    // 生我者为印，我生者为食伤，克我者为官，我克者为财，同我者为比劫
-    if (myWuxing === otherWuxing) return '比劫';
-
-    const shengRelation = {
-      '木': '水',  // 水生木
-      '火': '木',  // 木生火
-      '土': '火',  // 火生土
-      '金': '土',  // 土生金
-      '水': '金'   // 金生水
-    };
-
-    const keRelation = {
-      '木': '土',  // 木克土
-      '火': '金',  // 火克金
-      '土': '水',  // 土克水
-      '金': '木',  // 金克木
-      '水': '火'   // 水克火
-    };
-
-    if (shengRelation[myWuxing] === otherWuxing) return '印';
-    if (shengRelation[otherWuxing] === myWuxing) return '食伤';
-    if (keRelation[otherWuxing] === myWuxing) return '官';
-    if (keRelation[myWuxing] === otherWuxing) return '财';
-
-    return '';
-  };
-
-  // 计算十神
-  // isDayGan: 是否是日柱天干本身
-  const getShishen = (riGan, otherGan, isDayGan = false) => {
-    if (!riGan || !otherGan) return '';
-
-    // 只有日柱天干本身才显示为"日主"
-    if (isDayGan) {
-      return '日主';
-    }
-
-    const riWuxing = getGanWuxingType(riGan);
-    const otherWuxing = getGanWuxingType(otherGan);
-    const relation = getWuxingRelation(riWuxing, otherWuxing);
-
-    const riYang = isYangGan(riGan);
-    const otherYang = isYangGan(otherGan);
-    const sameYinYang = riYang === otherYang;
-
-    // 根据关系和阴阳判断具体十神
-    switch(relation) {
-      case '比劫':
-        return sameYinYang ? '比肩' : '劫财';
-      case '印':
-        return sameYinYang ? '偏印' : '正印';
-      case '食伤':
-        return sameYinYang ? '食神' : '伤官';
-      case '官':
-        return sameYinYang ? '七杀' : '正官';
-      case '财':
-        return sameYinYang ? '偏财' : '正财';
-      default:
-        return '';
-    }
-  };
-
-  // 获取十神颜色
-  const getShishenColor = (shishen) => {
-    const colorMap = {
-      '日主': '#8B0000',
-      '比肩': '#8B4513',
-      '劫财': '#A0522D',
-      '食神': '#228B22',
-      '伤官': '#32CD32',
-      '偏财': '#FFD700',
-      '正财': '#FFA500',
-      '七杀': '#DC143C',
-      '正官': '#FF6347',
-      '偏印': '#4169E1',
-      '正印': '#1E90FF'
-    };
-    return colorMap[shishen] || '#666';
-  };
-
-  const formatDate = (dateObj) => {
-    if (!dateObj || !dateObj.year) return '未知';
-    return `${dateObj.year}年${dateObj.month}月${dateObj.day}日 ${dateObj.hour || 0}时${dateObj.minute || 0}分`;
-  };
-
-  // 天干地支常量
-  const TIAN_GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-  const DI_ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-
-  // 计算流年（前后各5年）
-  const calculateLiunian = (centerYear) => {
-    const liunian = [];
-    const startYear = centerYear - 5;
-
-    for (let i = 0; i < 11; i++) {
-      const year = startYear + i;
-      const ganIndex = (year - 4) % 10;
-      const zhiIndex = (year - 4) % 12;
-
-      liunian.push({
-        year: year,
-        gan: TIAN_GAN[ganIndex],
-        zhi: DI_ZHI[zhiIndex],
-        isCurrent: year === currentYear
-      });
-    }
-
-    return liunian;
-  };
-
-  // 计算流月（五虎遁月诀）
-  const calculateLiuyue = (year) => {
-    const liuyue = [];
-    const yearGanIndex = (year - 4) % 10;
-
-    // 五虎遁月诀：甲己之年丙作首，乙庚之岁戊为头，丙辛必定寻庚起，丁壬壬位顺行流，戊癸甲寅好追求
-    const firstMonthGanMap = {
-      0: 2, 5: 2,  // 甲、己年从丙起
-      1: 4, 6: 4,  // 乙、庚年从戊起
-      2: 6, 7: 6,  // 丙、辛年从庚起
-      3: 8, 8: 8,  // 丁、壬年从壬起
-      4: 0, 9: 0   // 戊、癸年从甲起
-    };
-
-    let monthGanIndex = firstMonthGanMap[yearGanIndex];
-
-    // 获取当前农历月份（使用从API获取的准确信息）
-    let currentLunarMonth = null;
-    let currentLunarYear = null;
-
-    if (currentLunarInfo) {
-      currentLunarMonth = Math.abs(currentLunarInfo.month); // 农历月可能是负数（闰月）
-      currentLunarYear = currentLunarInfo.year;
-    }
-
-    for (let month = 1; month <= 12; month++) {
-      const isCurrentMonth = currentLunarInfo &&
-                            year === currentLunarYear &&
-                            month === currentLunarMonth+1;
-
-      liuyue.push({
-        month: month,
-        gan: TIAN_GAN[monthGanIndex % 10],
-        zhi: DI_ZHI[(month + 1) % 12],
-        isCurrent: isCurrentMonth
-      });
-      monthGanIndex++;
-    }
-
-    return liuyue;
-  };
+  // 这里已移除日期格式化、天干地支常量、流年流月计算相关函数，改为从liunian-calculator.js导入
 
   if (loading) {
     return (
