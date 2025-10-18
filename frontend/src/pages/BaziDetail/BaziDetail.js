@@ -161,10 +161,6 @@ const BaziDetail = () => {
     }
   };
 
-  // 使用从wuxing-calculator导入的函数，不再需要本地定义
-
-  // 使用从wuxing-calculator导入的函数，不再需要本地定义
-
   // 判断天干阴阳
   const isYangGan = (gan) => {
     const yangGan = ['甲', '丙', '戊', '庚', '壬'];

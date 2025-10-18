@@ -99,27 +99,10 @@ export const calculateWuxing = (baziResult, hiddenGan = null) => {
   ganWuxingAdd('day', dayPillar.gan);
   ganWuxingAdd('hour', hourPillar.gan);
   
-  // 地支五行（按照不同柱位权重）
-  const zhiWuxingAdd = (pillar, zhi) => {
-    const wx = ZHI_WUXING[zhi];
-    const weight = pillarWeights[pillar].zhi;
-    if (wx === '金') wuxing.jin += weight;
-    else if (wx === '木') wuxing.mu += weight;
-    else if (wx === '水') wuxing.shui += weight;
-    else if (wx === '火') wuxing.huo += weight;
-    else if (wx === '土') wuxing.tu += weight;
-  };
-  
-  zhiWuxingAdd('year', yearPillar.zhi);
-  zhiWuxingAdd('month', monthPillar.zhi);
-  zhiWuxingAdd('day', dayPillar.zhi);
-  zhiWuxingAdd('hour', hourPillar.zhi);
-  
   // 藏干五行（按照本气、中气、余气比例计算，并根据柱位调整权重）
   const pillars = ['year', 'month', 'day', 'hour'];
   pillars.forEach(pillar => {
     const gans = hiddenGan[pillar] || [];
-    const multiplier = pillarWeights[pillar].hiddenMultiplier;
     
     // 根据藏干数量确定权重
     let weights = [];
@@ -139,7 +122,7 @@ export const calculateWuxing = (baziResult, hiddenGan = null) => {
       if (index < weights.length) {
         const wx = GAN_WUXING[gan];
         // 根据柱位调整权重
-        const weight = weights[index] * pillarWeights[pillar].zhi * multiplier;
+        const weight = weights[index] * pillarWeights[pillar].zhi;
         if (wx === '金') wuxing.jin += weight;
         else if (wx === '木') wuxing.mu += weight;
         else if (wx === '水') wuxing.shui += weight;
@@ -148,12 +131,7 @@ export const calculateWuxing = (baziResult, hiddenGan = null) => {
       }
     });
   });
-  
-  // 保留一位小数
-  Object.keys(wuxing).forEach(key => {
-    wuxing[key] = Math.round(wuxing[key] * 10) / 10;
-  });
-  
+
   return wuxing;
 };
 
