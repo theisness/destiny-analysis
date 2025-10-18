@@ -11,12 +11,19 @@ const WuxingDisplay = ({ wuxing }) => {
   ];
 
   const total = Object.values(wuxing).reduce((sum, val) => sum + val, 0);
+  
+  // 计算每个五行元素的百分比并按降序排序
+  const sortedWuxingData = [...wuxingData].sort((a, b) => {
+    const valueA = wuxing[a.key] || 0;
+    const valueB = wuxing[b.key] || 0;
+    return valueB - valueA; // 降序排列
+  });
 
   return (
     <div className="wuxing-display">
       <h3>五行分布</h3>
       <div className="wuxing-bars">
-        {wuxingData.map(({ name, key, color }) => {
+        {sortedWuxingData.map(({ name, key, color }) => {
           const value = wuxing[key] || 0;
           const percentage = total > 0 ? (value / total) * 100 : 0;
           
@@ -24,7 +31,7 @@ const WuxingDisplay = ({ wuxing }) => {
             <div key={key} className="wuxing-item">
               <div className="wuxing-label">
                 <span style={{ color }}>{name}</span>
-                <span className="wuxing-value">{value.toFixed(1)}</span>
+                <span className="wuxing-value">{value.toFixed(2)}</span>
               </div>
               <div className="wuxing-bar-container">
                 <div
@@ -35,7 +42,7 @@ const WuxingDisplay = ({ wuxing }) => {
                   }}
                 />
               </div>
-              <span className="wuxing-percentage">{percentage.toFixed(1)}%</span>
+              <span className="wuxing-percentage">{percentage.toFixed(2)}%</span>
             </div>
           );
         })}
