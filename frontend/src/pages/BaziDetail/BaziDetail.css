@@ -676,7 +676,7 @@
   background: #ffffff;
 }
 
-.seven-col:not(:last-child) {
+.seven-grid .seven-col.divider {
   border-right: 2px solid #e9ecef;
 }
 
@@ -715,7 +715,7 @@
   .seven-grid {
     grid-template-columns: repeat(1, 1fr);
   }
-  .seven-col:not(:last-child) {
+  .seven-grid .seven-col.divider {
     border-right: none;
     border-bottom: 2px solid #e9ecef;
   }

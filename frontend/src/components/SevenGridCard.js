@@ -18,10 +18,20 @@ const SevenGridCard = ({
   const riGan = baziResult.dayPillar?.gan;
 
   const renderHiddenList = (zhi) => {
-    const hidden = getZhiCangGan(zhi);
+    const hidden = getZhiCangGan(zhi) || [];
+    const padded = [...hidden, ...Array(Math.max(0, 3 - hidden.length)).fill(null)];
     return (
       <div className="hidden-gans">
-        {hidden.map((g, index) => {
+        {padded.map((g, index) => {
+          if (!g) {
+            return (
+              <div key={`empty-${index}`} className="hidden-gan-item" style={{ visibility: 'hidden' }}>
+                <span className="gan">-</span>
+                <span className="shishen">-</span>
+                <span className="label">（-）</span>
+              </div>
+            );
+          }
           const ss = getShishen(riGan, g);
           const flag = index === 0 ? '本气' : '余气';
           return (
@@ -41,17 +51,21 @@ const SevenGridCard = ({
       <h2>综合排盘（七列）</h2>
       <div className="seven-grid">
         {/* 大运列 */}
-        <div className="seven-col">
+        <div className="seven-col divider">
           <div className="col-title">大运</div>
           {(() => {
             const list = dayunData?.dayunList || [];
-            const birthYear = dayunData?.birthYear || 0; // 可选：如果未传则用下方计算
-            const by = baziResult?.birth?.gregorianYear || 0;
-            const baseYear = birthYear || by;
             const curYear = currentYear || new Date().getFullYear();
-            const currentAge = baseYear ? curYear - baseYear : 0;
-            const idx = list.findIndex((yun, i) => currentAge >= yun.age && (i === list.length - 1 || currentAge < list[i + 1]?.age));
-            const cur = idx >= 0 ? list[idx] : (list[0] || null);
+            let cur = null;
+            for (let i = 0; i < list.length; i++) {
+              const sY = list[i]?.startYear;
+              const nextSY = list[i + 1]?.startYear;
+              if (sY && curYear >= sY && (i === list.length - 1 || (nextSY && curYear < nextSY))) {
+                cur = list[i];
+                break;
+              }
+            }
+            if (!cur) cur = list[0] || null;
             if (!cur) return <div>暂无</div>;
             const ganWuxing = getGanWuxing(cur.gan);
             const zhiWuxing = getZhiWuxing(cur.zhi);
@@ -77,7 +91,7 @@ const SevenGridCard = ({
         </div>
 
         {/* 流年列 */}
-        <div className="seven-col">
+        <div className="seven-col divider">
           <div className="col-title">流年</div>
           {(() => {
             const cur = liunianData?.find(n => n.isCurrent) || liunianData?.find(n => n.year === selectedYear) || null;
@@ -106,7 +120,7 @@ const SevenGridCard = ({
         </div>
 
         {/* 流月列 */}
-        <div className="seven-col">
+        <div className="seven-col divider">
           <div className="col-title">流月</div>
           {(() => {
             const cur = liuyueData?.find(m => m.isCurrent) || liuyueData?.[0] || null;
@@ -158,7 +172,16 @@ const SevenGridCard = ({
                 <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{zhi}</div>
               </div>
               <div className="hidden-gans">
-                {hiddenList.map((g, index) => {
+                {([...hiddenList, ...Array(Math.max(0, 3 - hiddenList.length)).fill(null)]).map((g, index) => {
+                  if (!g) {
+                    return (
+                      <div key={`empty-${pillar}-${index}`} className="hidden-gan-item" style={{ visibility: 'hidden' }}>
+                        <span className="gan">-</span>
+                        <span className="shishen">-</span>
+                        <span className="label">（-）</span>
+                      </div>
+                    );
+                  }
                   const ss = getShishen(riGan, g);
                   const flag = index === 0 ? '本气' : '余气';
                   return (
