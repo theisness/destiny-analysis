@@ -45,11 +45,32 @@
   padding: 8px 16px;
   border-radius: 8px;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .navbar-link:hover {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+}
+
+/* 当前页面高亮样式 */
+.navbar-link.active {
+  background: none; /* 保持文本高亮而非整块背景填充 */
+  color: #667eea;
+  font-weight: 700;
+}
+
+/* 下划线指示当前项 */
+.navbar-link.active::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -4px;
+  width: 60%;
+  height: 3px;
+  background: #e0e0e0;
+  border-radius: 2px;
 }
 
 .navbar-user {
@@ -79,6 +100,11 @@
   .navbar-menu {
     flex-wrap: wrap;
     justify-content: center;
+  }
+
+  /* 移动端下增强高亮可见性 */
+  .navbar-link.active::after {
+    width: 80%;
   }
 
   .navbar-user {

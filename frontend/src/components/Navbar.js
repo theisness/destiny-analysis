@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
@@ -19,9 +19,10 @@ const Navbar = () => {
           🔮 八字命理排盘
         </Link>
         <div className="navbar-menu">
-          <Link to="/dashboard" className="navbar-link">我的八字</Link>
-          <Link to="/bazi/new" className="navbar-link">新建排盘</Link>
-          <Link to="/community" className="navbar-link">社区</Link>
+          {/* 菜单项使用 NavLink 以支持当前页面高亮 */}
+          <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'navbar-link active' : 'navbar-link'}>我的八字</NavLink>
+          <NavLink to="/bazi/new" className={({ isActive }) => isActive ? 'navbar-link active' : 'navbar-link'}>新建排盘</NavLink>
+          <NavLink to="/community" className={({ isActive }) => isActive ? 'navbar-link active' : 'navbar-link'}>社区</NavLink>
           <div className="navbar-user">
             <span className="user-name">{user?.username}</span>
             <button className="btn btn-secondary btn-sm" onClick={handleLogout}>
