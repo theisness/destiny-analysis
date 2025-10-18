@@ -11,7 +11,8 @@ import {
   calculateNaYinByDate,
   getDiShiColor,
   getNaYinColor,
-  getZhiBenQi
+  getZhiBenQi,
+  getZhiCangGan
 } from '../../utils/bazi-utils';
 import { 
   calculateHiddenGan, 
@@ -174,10 +175,6 @@ const BaziDetail = () => {
       setLoading(false);
     }
   };
-
-  // 这里已移除十神计算相关函数，改为从shishen-calculator.js导入
-
-  // 这里已移除日期格式化、天干地支常量、流年流月计算相关函数，改为从liunian-calculator.js导入
 
   if (loading) {
     return (
@@ -567,6 +564,187 @@ const BaziDetail = () => {
                     <span style={{ color: getWuxingColor(zhiWuxing) }}>{yue.zhi}</span>
                   </div>
                   {yue.isCurrent && <div className="current-badge">当前</div>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        {/* 七列综合排盘 */}
+        <div className="card">
+          <h2>综合排盘（七列）</h2>
+          <div className="seven-grid">
+            {/* 大运列 */}
+            <div className="seven-col">
+              <div className="col-title">大运</div>
+              {(() => {
+                const list = dayunData?.dayunList || [];
+                const birthYear = record.gregorianDate?.year || 0;
+                const currentAge = currentYear - birthYear;
+                const idx = list.findIndex((yun, i) => currentAge >= yun.age && (i === list.length - 1 || currentAge < list[i + 1]?.age));
+                const cur = idx >= 0 ? list[idx] : (list[0] || null);
+                if (!cur) return <div>暂无</div>;
+                const riGan = baziResult.dayPillar?.gan;
+                const ganWuxing = getGanWuxing(cur.gan);
+                const zhiWuxing = getZhiWuxing(cur.zhi);
+                const ganSS = getShishen(riGan, cur.gan);
+                const zhiBenQi = getZhiBenQi(cur.zhi);
+                const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+                const hidden = getZhiCangGan(cur.zhi);
+                const dishi = calculateDiShi(cur.gan, cur.zhi);
+                const nayin = calculateNaYin(cur.gan, cur.zhi);
+                return (
+                  <>
+                    <div className="pillar-chars">
+                      {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
+                      <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
+                      {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
+                      <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
+                    </div>
+                    <div className="hidden-gans">
+                      {hidden.map((g, index) => {
+                        const ss = getShishen(riGan, g);
+                        const flag = index === 0 ? '本气' : '余气';
+                        return (
+                          <div key={index} className="hidden-gan-item">
+                            <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
+                            <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
+                            <span className="label">（{flag}）</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
+                    {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* 流年列 */}
+            <div className="seven-col">
+              <div className="col-title">流年</div>
+              {(() => {
+                const cur = liunianData.find(n => n.isCurrent) || liunianData.find(n => n.year === selectedYear) || null;
+                if (!cur) return <div>暂无</div>;
+                const riGan = baziResult.dayPillar?.gan;
+                const ganWuxing = getGanWuxing(cur.gan);
+                const zhiWuxing = getZhiWuxing(cur.zhi);
+                const ganSS = getShishen(riGan, cur.gan);
+                const zhiBenQi = getZhiBenQi(cur.zhi);
+                const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+                const hidden = getZhiCangGan(cur.zhi);
+                const dishi = calculateDiShi(cur.gan, cur.zhi);
+                const nayin = calculateNaYin(cur.gan, cur.zhi);
+                return (
+                  <>
+                    <div className="pillar-chars">
+                      {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
+                      <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
+                      {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
+                      <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
+                    </div>
+                    <div className="hidden-gans">
+                      {hidden.map((g, index) => {
+                        const ss = getShishen(riGan, g);
+                        const flag = index === 0 ? '本气' : '余气';
+                        return (
+                          <div key={index} className="hidden-gan-item">
+                            <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
+                            <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
+                            <span className="label">（{flag}）</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
+                    {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* 流月列 */}
+            <div className="seven-col">
+              <div className="col-title">流月</div>
+              {(() => {
+                const cur = liuyueData.find(m => m.isCurrent) || liuyueData[0] || null;
+                if (!cur) return <div>暂无</div>;
+                const riGan = baziResult.dayPillar?.gan;
+                const ganWuxing = getGanWuxing(cur.gan);
+                const zhiWuxing = getZhiWuxing(cur.zhi);
+                const ganSS = getShishen(riGan, cur.gan);
+                const zhiBenQi = getZhiBenQi(cur.zhi);
+                const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+                const hidden = getZhiCangGan(cur.zhi);
+                const dishi = calculateDiShi(cur.gan, cur.zhi);
+                const nayin = calculateNaYin(cur.gan, cur.zhi);
+                return (
+                  <>
+                    <div className="pillar-chars">
+                      {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
+                      <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
+                      {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
+                      <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
+                    </div>
+                    <div className="hidden-gans">
+                      {hidden.map((g, index) => {
+                        const ss = getShishen(riGan, g);
+                        const flag = index === 0 ? '本气' : '余气';
+                        return (
+                          <div key={index} className="hidden-gan-item">
+                            <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
+                            <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
+                            <span className="label">（{flag}）</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
+                    {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* 四柱 */}
+            {['year', 'month', 'day', 'hour'].map((pillar) => {
+              const pillarLabel = { year: '年柱', month: '月柱', day: '日柱', hour: '时柱' }[pillar];
+              const pillarData = baziResult[`${pillar}Pillar`] || {};
+              const gan = pillarData.gan || '';
+              const zhi = pillarData.zhi || '';
+              const riGan = baziResult.dayPillar?.gan;
+              const ganWuxing = getGanWuxing(gan);
+              const zhiWuxing = getZhiWuxing(zhi);
+              const ganSS = getShishen(riGan, gan, pillar === 'day');
+              const zhiBenQi = getZhiBenQi(zhi);
+              const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+              const hidden = frontendHiddenGan[pillar] || [];
+              const dishi = diShiData[pillar];
+              const nayin = naYinData[pillar];
+              return (
+                <div key={pillar} className="seven-col">
+                  <div className="col-title">{pillarLabel}</div>
+                  <div className="pillar-chars">
+                    {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
+                    <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{gan}</div>
+                    {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
+                    <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{zhi}</div>
+                  </div>
+                  <div className="hidden-gans">
+                    {hidden.map((g, index) => {
+                      const ss = getShishen(riGan, g);
+                      const flag = index === 0 ? '本气' : '余气';
+                      return (
+                        <div key={index} className="hidden-gan-item">
+                          <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
+                          <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
+                          <span className="label">（{flag}）</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
+                  {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
                 </div>
               );
             })}

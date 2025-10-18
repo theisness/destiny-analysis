@@ -660,3 +660,65 @@
   }
 }
 
+/* 七列综合排盘 */
+.seven-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.seven-col {
+  padding: 12px;
+  text-align: center;
+  background: #ffffff;
+}
+
+.seven-col:not(:last-child) {
+  border-right: 2px solid #e9ecef;
+}
+
+.col-title {
+  font-size: 14px;
+  color: #666;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.hidden-gans {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.hidden-gan-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.hidden-gan-item .gan {
+  font-weight: 700;
+}
+
+.hidden-gan-item .label {
+  color: #888;
+  font-size: 12px;
+}
+
+@media (max-width: 1024px) {
+  .seven-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .seven-col:not(:last-child) {
+    border-right: none;
+    border-bottom: 2px solid #e9ecef;
+  }
+}
+
+

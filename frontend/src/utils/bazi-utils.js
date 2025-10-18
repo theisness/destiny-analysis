@@ -521,3 +521,13 @@ export const calculateShensha = (dayGan, yearZhi, monthZhi, dayZhi, hourZhi = ''
   return shensha;
 };
 
+export const getZhiCangGan = (zhi) => {
+  try {
+    const cangGan = ZHI_CANG_GAN[zhi];
+    return cangGan ? [...cangGan] : [];
+  } catch (error) {
+    console.error('获取地支藏干错误:', error);
+    return [];
+  }
+};
+
