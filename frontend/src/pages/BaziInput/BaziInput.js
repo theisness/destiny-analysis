@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import { baziAPI } from '../../api/api';
@@ -27,20 +27,56 @@ const BaziInput = () => {
     minute: 0,
     isLeapMonth: false
   });
-  const [sizhu, setSizhu] = useState({
-    year: '甲子',
-    month: '甲子',
-    day: '甲子',
-    hour: '甲子'
-  });
+  const [sizhu, setSizhu] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showSizhuModal, setShowSizhuModal] = useState(false);
   const [showDateSelectModal, setShowDateSelectModal] = useState(false);
   const [possibleDates, setPossibleDates] = useState([]);
+  // 添加状态用于存储当前选择的天干和地支
+  const [currentSelection, setCurrentSelection] = useState({
+    pillar: null, // 当前正在选择的柱（year, month, day, hour）
+    gan: null,    // 当前选择的天干
+    zhi: null     // 当前选择的地支
+  });
 
+  // 打开四柱模态框时，重置当前选择，确保初始不选中
+  useEffect(() => {
+    if (showSizhuModal) {
+      setCurrentSelection({ pillar: null, gan: '', zhi: '' });
+    }
+  }, [showSizhuModal]);
   const TIAN_GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
   const DI_ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+  
+  // 天干地支的有效组合映射
+  const GAN_ZHI_VALID_COMBINATIONS = {
+    '甲': ['子', '寅', '辰', '午', '申', '戌'],
+    '乙': ['丑', '卯', '巳', '未', '酉', '亥'],
+    '丙': ['子', '寅', '辰', '午', '申', '戌'],
+    '丁': ['丑', '卯', '巳', '未', '酉', '亥'],
+    '戊': ['子', '寅', '辰', '午', '申', '戌'],
+    '己': ['丑', '卯', '巳', '未', '酉', '亥'],
+    '庚': ['子', '寅', '辰', '午', '申', '戌'],
+    '辛': ['丑', '卯', '巳', '未', '酉', '亥'],
+    '壬': ['子', '寅', '辰', '午', '申', '戌'],
+    '癸': ['丑', '卯', '巳', '未', '酉', '亥']
+  };
+  
+  const ZHI_GAN_VALID_COMBINATIONS = {
+    '子': ['甲', '丙', '戊', '庚', '壬'],
+    '丑': ['乙', '丁', '己', '辛', '癸'],
+    '寅': ['甲', '丙', '戊', '庚', '壬'],
+    '卯': ['乙', '丁', '己', '辛', '癸'],
+    '辰': ['甲', '丙', '戊', '庚', '壬'],
+    '巳': ['乙', '丁', '己', '辛', '癸'],
+    '午': ['甲', '丙', '戊', '庚', '壬'],
+    '未': ['乙', '丁', '己', '辛', '癸'],
+    '申': ['甲', '丙', '戊', '庚', '壬'],
+    '酉': ['乙', '丁', '己', '辛', '癸'],
+    '戌': ['甲', '丙', '戊', '庚', '壬'],
+    '亥': ['乙', '丁', '己', '辛', '癸']
+  };
 
   // 计算可能的日期范围
   const calculatePossibleDates = async () => {
@@ -362,15 +398,15 @@ const BaziInput = () => {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => setShowSizhuModal(true)}
+              onClick={() => { setCurrentSelection({ pillar: null, gan: '', zhi: '' }); setShowSizhuModal(true); }}
             >
               选择四柱
             </button>
             <div className="sizhu-display">
-              <span>年柱: {sizhu.year}</span>
-              <span>月柱: {sizhu.month}</span>
-              <span>日柱: {sizhu.day}</span>
-              <span>时柱: {sizhu.hour}</span>
+              <span>年柱: {sizhu.year || '未选择'}</span>
+              <span>月柱: {sizhu.month || '未选择'}</span>
+              <span>日柱: {sizhu.day || '未选择'}</span>
+              <span>时柱: {sizhu.hour || '未选择'}</span>
             </div>
             
             {/* 显示选择的对应日期 */}
@@ -510,8 +546,12 @@ const BaziInput = () => {
               {['year', 'month', 'day', 'hour'].map((pillar) => {
                 const pillarName = { year: '年柱', month: '月柱', day: '日柱', hour: '时柱' }[pillar];
                 const currentValue = sizhu[pillar];
-                const gan = currentValue ? currentValue[0] : '甲';
-                const zhi = currentValue ? currentValue[1] : '子';
+                // 初始状态为未选择状态，不默认选择甲子
+                const gan = currentValue ? currentValue[0] : '';
+                const zhi = currentValue ? currentValue[1] : '';
+                // 支持部分选择的高亮：如果尚未组成干支，则使用当前正在选择的部分
+                const selectedGan = gan || (currentSelection.pillar === pillar ? (currentSelection.gan || '') : '');
+                const selectedZhi = zhi || (currentSelection.pillar === pillar ? (currentSelection.zhi || '') : '');
                 
                 return (
                   <div key={pillar} className="pillar-selector-new">
@@ -520,35 +560,67 @@ const BaziInput = () => {
                       <div className="selector-group">
                         <label>天干</label>
                         <div className="button-grid">
-                          {TIAN_GAN.map(g => (
-                            <button
-                              key={g}
-                              type="button"
-                              className={`gan-btn ${gan === g ? 'active' : ''}`}
-                              onClick={() => setSizhu({ ...sizhu, [pillar]: g + zhi })}
-                            >
-                              {g}
-                            </button>
-                          ))}
+                          {TIAN_GAN.map(g => {
+                            const isDisabled = selectedZhi && !ZHI_GAN_VALID_COMBINATIONS[selectedZhi].includes(g);
+                            return (
+                              <button
+                                key={g}
+                                type="button"
+                                className={`gan-btn ${selectedGan === g ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
+                                onClick={() => {
+                                  if (selectedZhi) {
+                                    setSizhu({ ...sizhu, [pillar]: g + selectedZhi });
+                                  }
+                                  setCurrentSelection({ pillar, gan: g, zhi: selectedZhi || '' });
+                                }}
+                              >
+                                {g}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                       <div className="selector-group">
                         <label>地支</label>
                         <div className="button-grid">
-                          {DI_ZHI.map(z => (
-                            <button
-                              key={z}
-                              type="button"
-                              className={`zhi-btn ${zhi === z ? 'active' : ''}`}
-                              onClick={() => setSizhu({ ...sizhu, [pillar]: gan + z })}
-                            >
-                              {z}
-                            </button>
-                          ))}
+                          {DI_ZHI.map(z => {
+                            const isDisabled = selectedGan && !GAN_ZHI_VALID_COMBINATIONS[selectedGan].includes(z);
+                            return (
+                              <button
+                                key={z}
+                                type="button"
+                                className={`zhi-btn ${selectedZhi === z ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
+                                onClick={() => {
+                                  if (selectedGan) {
+                                    setSizhu({ ...sizhu, [pillar]: selectedGan + z });
+                                  }
+                                  setCurrentSelection({ pillar, gan: selectedGan || '', zhi: z });
+                                }}
+                              >
+                                {z}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
-                    <div className="current-value">{currentValue}</div>
+                    <div className="pillar-actions">
+                      <div className="current-value">{currentValue || '未选择'}</div>
+                      {currentValue && (
+                        <button 
+                          type="button" 
+                          className="btn-clear-pillar"
+                          onClick={() => {
+                            const newSizhu = { ...sizhu };
+                            delete newSizhu[pillar];
+                            setSizhu(newSizhu);
+                            setCurrentSelection({ pillar, gan: '', zhi: '' });
+                          }}
+                        >
+                          清空
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -559,8 +631,8 @@ const BaziInput = () => {
               </button>
               <button 
                 className="btn btn-primary" 
+                disabled={!['year','month','day','hour'].every(p => !!(sizhu[p] && sizhu[p].length === 2))}
                 onClick={() => {
-                  // 计算可能的日期
                   calculatePossibleDates();
                   setShowSizhuModal(false);
                 }}

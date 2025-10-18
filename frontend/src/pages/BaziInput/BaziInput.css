@@ -299,15 +299,65 @@
   transform: scale(1.1);
 }
 
-.current-value {
+/* 添加禁用状态样式 */
+.button-grid .gan-btn.disabled,
+.button-grid .zhi-btn.disabled {
+  opacity: 0.4;
+  background-color: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+  border-color: #ddd;
+  transform: none;
+  box-shadow: none;
+}
+
+.button-grid .gan-btn:not(.disabled):hover,
+.button-grid .zhi-btn:not(.disabled):hover {
+  border-color: #764ba2;
+  background-color: #f5f0ff;
+}
+
+.button-grid .gan-btn.active:not(.disabled),
+.button-grid .zhi-btn.active:not(.disabled) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.pillar-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 15px;
+}
+
+.current-value {
   text-align: center;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
-  padding: 10px;
+  padding: 8px;
   background: white;
   border-radius: 8px;
   color: #667eea;
+  flex: 1;
+}
+
+.btn-clear-pillar {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  color: #666;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  margin-left: 10px;
+}
+
+.btn-clear-pillar:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+  color: #dc3545;
 }
 
 /* 日期选择模态框样式 */
