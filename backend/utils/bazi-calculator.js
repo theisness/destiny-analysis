@@ -132,35 +132,77 @@ const calculateBazi = (dateTime, gender) => {
 const calculateWuxing = (yearPillar, monthPillar, dayPillar, hourPillar, hiddenGan) => {
   const wuxing = { jin: 0, mu: 0, shui: 0, huo: 0, tu: 0 };
   
-  // 天干五行
-  [yearPillar.gan, monthPillar.gan, dayPillar.gan, hourPillar.gan].forEach(gan => {
+  // 四柱权重配置
+  const pillarWeights = {
+    year: { gan: 0.075, zhi: 0.075, hiddenMultiplier: 1.0 },
+    month: { gan: 0.10, zhi: 0.30, hiddenMultiplier: 1.5 },
+    day: { gan: 0.15, zhi: 0.15, hiddenMultiplier: 1.0 },
+    hour: { gan: 0.075, zhi: 0.075, hiddenMultiplier: 1.0 }
+  };
+  
+  // 天干五行（按照不同柱位权重）
+  const ganWuxingAdd = (pillar, gan) => {
     const wx = GAN_WUXING[gan];
-    if (wx === '金') wuxing.jin += 1.2;
-    else if (wx === '木') wuxing.mu += 1.2;
-    else if (wx === '水') wuxing.shui += 1.2;
-    else if (wx === '火') wuxing.huo += 1.2;
-    else if (wx === '土') wuxing.tu += 1.2;
-  });
+    const weight = pillarWeights[pillar].gan;
+    if (wx === '金') wuxing.jin += weight;
+    else if (wx === '木') wuxing.mu += weight;
+    else if (wx === '水') wuxing.shui += weight;
+    else if (wx === '火') wuxing.huo += weight;
+    else if (wx === '土') wuxing.tu += weight;
+  };
   
-  // 地支五行
-  [yearPillar.zhi, monthPillar.zhi, dayPillar.zhi, hourPillar.zhi].forEach(zhi => {
+  ganWuxingAdd('year', yearPillar.gan);
+  ganWuxingAdd('month', monthPillar.gan);
+  ganWuxingAdd('day', dayPillar.gan);
+  ganWuxingAdd('hour', hourPillar.gan);
+  
+  // 地支五行（按照不同柱位权重）
+  const zhiWuxingAdd = (pillar, zhi) => {
     const wx = ZHI_WUXING[zhi];
-    if (wx === '金') wuxing.jin += 1;
-    else if (wx === '木') wuxing.mu += 1;
-    else if (wx === '水') wuxing.shui += 1;
-    else if (wx === '火') wuxing.huo += 1;
-    else if (wx === '土') wuxing.tu += 1;
-  });
+    const weight = pillarWeights[pillar].zhi;
+    if (wx === '金') wuxing.jin += weight;
+    else if (wx === '木') wuxing.mu += weight;
+    else if (wx === '水') wuxing.shui += weight;
+    else if (wx === '火') wuxing.huo += weight;
+    else if (wx === '土') wuxing.tu += weight;
+  };
   
-  // 藏干五行（权重较小）
-  Object.values(hiddenGan).forEach(gans => {
-    gans.forEach(gan => {
-      const wx = GAN_WUXING[gan];
-      if (wx === '金') wuxing.jin += 0.3;
-      else if (wx === '木') wuxing.mu += 0.3;
-      else if (wx === '水') wuxing.shui += 0.3;
-      else if (wx === '火') wuxing.huo += 0.3;
-      else if (wx === '土') wuxing.tu += 0.3;
+  zhiWuxingAdd('year', yearPillar.zhi);
+  zhiWuxingAdd('month', monthPillar.zhi);
+  zhiWuxingAdd('day', dayPillar.zhi);
+  zhiWuxingAdd('hour', hourPillar.zhi);
+  
+  // 藏干五行（按照本气、中气、余气比例计算，并根据柱位调整权重）
+  const pillars = ['year', 'month', 'day', 'hour'];
+  pillars.forEach(pillar => {
+    const gans = hiddenGan[pillar] || [];
+    const multiplier = pillarWeights[pillar].hiddenMultiplier;
+    
+    // 根据藏干数量确定权重
+    let weights = [];
+    if (gans.length === 1) {
+      // 藏一干：本气100%
+      weights = [1.0];
+    } else if (gans.length === 2) {
+      // 藏二干：本气70%、中气30%
+      weights = [0.7, 0.3];
+    } else if (gans.length === 3) {
+      // 藏三干：本气60%、中气30%、余气10%
+      weights = [0.6, 0.3, 0.1];
+    }
+    
+    // 应用权重计算五行
+    gans.forEach((gan, index) => {
+      if (index < weights.length) {
+        const wx = GAN_WUXING[gan];
+        // 根据柱位调整权重
+        const weight = weights[index] * pillarWeights[pillar].zhi * multiplier;
+        if (wx === '金') wuxing.jin += weight;
+        else if (wx === '木') wuxing.mu += weight;
+        else if (wx === '水') wuxing.shui += weight;
+        else if (wx === '火') wuxing.huo += weight;
+        else if (wx === '土') wuxing.tu += weight;
+      }
     });
   });
   

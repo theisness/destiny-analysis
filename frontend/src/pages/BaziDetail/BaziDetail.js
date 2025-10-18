@@ -375,7 +375,7 @@ const BaziDetail = () => {
   }
 
   const { baziResult } = record;
-
+  console.log(baziResult)
   return (
     <div className="bazi-detail">
       <Navbar />
