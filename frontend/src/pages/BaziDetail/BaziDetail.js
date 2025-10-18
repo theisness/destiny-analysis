@@ -14,6 +14,13 @@ import {
   getZhiBenQi,
   calculateShensha 
 } from '../../utils/bazi-utils';
+import { 
+  calculateHiddenGan, 
+  calculateWuxing, 
+  getGanWuxing, 
+  getZhiWuxing, 
+  getWuxingColor 
+} from '../../utils/wuxing-calculator';
 import './BaziDetail.css';
 
 const BaziDetail = () => {
@@ -49,6 +56,10 @@ const BaziDetail = () => {
   // 神煞数据（本地计算）
   const [shenshaData, setShenshaData] = useState([]);
 
+  // 前端计算的五行数据
+  const [wuxingData, setWuxingData] = useState({ jin: 0, mu: 0, shui: 0, huo: 0, tu: 0 });
+  const [frontendHiddenGan, setFrontendHiddenGan] = useState({});
+
   useEffect(() => {
     fetchDetail();
     fetchCurrentLunar();
@@ -78,6 +89,14 @@ const BaziDetail = () => {
       const response = await baziAPI.getById(id);
       const recordData = response.data.data;
       setRecord(recordData);
+      
+      // 前端计算藏干和五行比例
+      if (recordData.baziResult) {
+        const hiddenGan = calculateHiddenGan(recordData.baziResult);
+        const wuxing = calculateWuxing(recordData.baziResult, hiddenGan);
+        setFrontendHiddenGan(hiddenGan);
+        setWuxingData(wuxing);
+      }
 
       // 本地计算大运
       if (recordData.gregorianDate && recordData.gregorianDate.year) {
@@ -142,38 +161,9 @@ const BaziDetail = () => {
     }
   };
 
-  const getWuxingColor = (element) => {
-    const colorMap = {
-      '金': '#FFD700',
-      '木': '#228B22',
-      '水': '#1E90FF',
-      '火': '#FF4500',
-      '土': '#8B4513'
-    };
-    return colorMap[element] || '#333';
-  };
+  // 使用从wuxing-calculator导入的函数，不再需要本地定义
 
-  const getGanWuxing = (gan) => {
-    const ganWuxing = {
-      '甲': '木', '乙': '木',
-      '丙': '火', '丁': '火',
-      '戊': '土', '己': '土',
-      '庚': '金', '辛': '金',
-      '壬': '水', '癸': '水'
-    };
-    return ganWuxing[gan] || '';
-  };
-
-  const getZhiWuxing = (zhi) => {
-    const zhiWuxing = {
-      '寅': '木', '卯': '木',
-      '巳': '火', '午': '火',
-      '申': '金', '酉': '金',
-      '亥': '水', '子': '水',
-      '辰': '土', '戌': '土', '丑': '土', '未': '土'
-    };
-    return zhiWuxing[zhi] || '';
-  };
+  // 使用从wuxing-calculator导入的函数，不再需要本地定义
 
   // 判断天干阴阳
   const isYangGan = (gan) => {
@@ -543,9 +533,10 @@ const BaziDetail = () => {
           )}
         </div>
 
-        {/* 五行 */}
+     {/* 五行 - 前端计算 */}
         <div className="card">
-          <WuxingDisplay wuxing={baziResult.wuxing} />
+          <h2>五行分析 </h2>
+          <WuxingDisplay wuxing={wuxingData} />
         </div>
 
         {/* 大运 - 本地计算 */}
