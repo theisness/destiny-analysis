@@ -24,6 +24,7 @@ const SevenGridCard = ({
   const riGan = baziResult.dayPillar?.gan;
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 576;
   const visibleColsCount = 4 + (showDayun ? 1 : 0) + (showLiunian ? 1 : 0) + (showLiuyue ? 1 : 0);
+  const gridTrackMin = isMobile ? 60 : 0;
 
   const renderHiddenList = (zhi) => {
     const hidden = getZhiCangGan(zhi) || [];
@@ -82,10 +83,10 @@ const SevenGridCard = ({
   return (
     <div className="card">
       <div className="card-header-with-control">
-        <h2>综合排盘（七列）</h2>
+        <h2>八字排盘</h2>
         {titleExtra}
       </div>
-      <div className="seven-grid" style={{ gridTemplateColumns: `repeat(${visibleColsCount}, minmax(0, 1fr))` }}>
+      <div className="seven-grid" style={{ gridTemplateColumns: `repeat(${visibleColsCount}, minmax(${gridTrackMin}px, 1fr))` }}>
         {/* 大运列（勾选后显示） */}
         {showDayun && (
           <div className="seven-col divider">

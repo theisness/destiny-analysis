@@ -4,7 +4,8 @@
   gap: 0;
   border: 2px solid #e9ecef;
   border-radius: 12px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .seven-col {
@@ -24,6 +25,8 @@
   color: #666;
   font-weight: 600;
   margin-bottom: 8px;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .pillar-chars {
@@ -45,6 +48,8 @@
   padding: 4px 8px;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 6px;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .hidden-gans {
@@ -78,6 +83,8 @@
   padding: 3px 6px;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 4px;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .nayin-label {
@@ -89,6 +96,8 @@
   border-radius: 6px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   text-align: center;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 /* 保持移动端依然七列，压缩字号与间距 */
