@@ -1,15 +1,16 @@
-/* 四柱卡片：保持四列布局并压缩移动端 */
+/* 四柱卡片：表格式布局，含藏干与十神、地势、纳音 */
 .sizhu-display-detail {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 20px;
+  gap: 12px;
 }
 
 .pillar-detail {
   text-align: center;
-  padding: 12px;
-  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-  border-radius: 12px;
+  padding: 12px 10px;
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -18,50 +19,73 @@
 
 .pillar-name {
   font-size: 14px;
-  color: #666;
-  margin-bottom: 10px;
-  font-weight: 600;
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 .pillar-chars {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin-bottom: 10px;
 }
 
 .pillar-chars .char {
-  font-size: 36px;
-  font-weight: bold;
+  font-size: 32px;
+  font-weight: 700;
 }
 
 .shishen-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  margin-bottom: 5px;
-  padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 6px;
+  /*padding: 3px 6px;*/
+  /*margin-bottom: 4px;*/
+  background: rgba(0, 0, 0, 0.04);
+  /*border-radius: 6px;*/
+}
+
+/* 藏干与十神列表 */
+.hidden-gans {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.hidden-gan-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.hidden-gan-item .gan {
+  font-weight: 700;
+}
+
+.hidden-gan-item .label {
+  color: #888;
+  font-size: 11px;
 }
 
 .dishi-label {
   font-size: 12px;
   font-weight: 600;
-  margin-top: 5px;
+  margin-top: 6px;
   padding: 3px 6px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.03);
   border-radius: 4px;
 }
 
 .nayin-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  margin-top: 10px;
+  margin-top: 6px;
   padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.04);
   border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 @media (max-width: 768px) {
@@ -70,23 +94,24 @@
     gap: 8px;
   }
   .pillar-detail {
-    padding: 8px;
+    padding: 8px 6px;
   }
   .pillar-chars .char {
-    font-size: 26px;
+    font-size: 24px;
   }
   .shishen-label {
     font-size: 12px;
-    padding: 3px 6px;
   }
-  .dishi-label,
-  .nayin-label {
+  .hidden-gan-item {
     font-size: 11px;
   }
 }
 
 @media (max-width: 576px) {
   .pillar-chars .char {
-    font-size: 22px;
+    font-size: 20px;
+  }
+  .shishen-label {
+    font-size: 11px;
   }
 }
