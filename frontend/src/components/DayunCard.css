@@ -31,15 +31,20 @@
   color: #666;
 }
 
-/* 大运格子：横向单行滑动 */
+/* 大运格子：横向单行滑动，按屏幕宽度计算列宽 */
 .dayun-grid {
+  /* 列与间距定义 */
+  --gap: 12px;
+  --cols: 5; /* 桌面默认显示 5 列 */
+  --dayun-col-width: calc((100% - (var(--gap) * (var(--cols) - 1))) / var(--cols));
+
   display: flex;
   flex-wrap: nowrap;
-  gap: 12px;
+  gap: var(--gap);
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
+  scroll-snap-type: x mandatory; /* 滑动时自动对齐 */
   padding-bottom: 8px;
 }
 
@@ -53,7 +58,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  flex: 0 0 200px; /* 桌面默认宽度 */
+  flex: 0 0 var(--dayun-col-width); /* 根据屏幕宽度计算列宽 */
   scroll-snap-align: start;
 }
 
@@ -148,8 +153,8 @@
 
 /* 移动端：横向滑动且最少显示 3 列 */
 @media (max-width: 576px) {
-  .dayun-item {
-    flex: 0 0 33.33vw; /* 保证至少同时显示三列 */
+  .dayun-grid {
+    --cols: 3; /* 移动端固定显示 3 列 */
   }
   .dayun-gan,
   .dayun-zhi {
