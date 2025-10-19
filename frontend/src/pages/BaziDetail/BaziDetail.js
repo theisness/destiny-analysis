@@ -80,6 +80,8 @@ const BaziDetail = () => {
   // 前端计算的五行数据
   const [wuxingData, setWuxingData] = useState({ jin: 0, mu: 0, shui: 0, huo: 0, tu: 0 });
   const [frontendHiddenGan, setFrontendHiddenGan] = useState({});
+  // 视图切换：四柱 / 七列
+  const [viewMode, setViewMode] = useState('sizhu');
 
   useEffect(() => {
     fetchDetail();
@@ -209,6 +211,14 @@ const BaziDetail = () => {
   }
 
   const { baziResult } = record;
+  const toggleControl = (
+    <button
+      className="btn btn-secondary"
+      onClick={() => setViewMode(viewMode === 'sizhu' ? 'seven' : 'sizhu')}
+    >
+      切换：{viewMode === 'sizhu' ? '综合排盘（七列）' : '四柱排盘'}
+    </button>
+  );
   return (
     <div className="bazi-detail">
       <Navbar />
@@ -248,13 +258,34 @@ const BaziDetail = () => {
           </div>
         </div>
 
-        {/* 四柱 */}
-        <SizhuCard baziResult={baziResult} diShiData={diShiData} naYinData={naYinData} />
+        {/* 排盘切换：四柱 / 七列 */}
+        {viewMode === 'sizhu' ? (
+          <SizhuCard
+            baziResult={baziResult}
+            diShiData={diShiData}
+            naYinData={naYinData}
+            frontendHiddenGan={frontendHiddenGan}
+            titleExtra={toggleControl}
+          />
+        ) : (
+          <SevenGridCard
+            baziResult={baziResult}
+            dayunData={dayunData}
+            liunianData={liunianData}
+            liuyueData={liuyueData}
+            diShiData={diShiData}
+            naYinData={naYinData}
+            selectedYear={selectedYear}
+            currentYear={currentYear}
+            frontendHiddenGan={frontendHiddenGan}
+            titleExtra={toggleControl}
+          />
+        )}
 
         {/* 藏干 */}
         <CangganCard baziResult={baziResult} shenshaData={shenshaData} />
 
-     {/* 五行 - 前端计算 */}
+        {/* 五行 - 前端计算 */}
         <div className="card">
           <h2>五行分析 </h2>
           <WuxingDisplay wuxing={wuxingData} />
@@ -289,18 +320,8 @@ const BaziDetail = () => {
           currentLunarInfo={currentLunarInfo}
           baziResult={baziResult}
         />
-        {/* 七列综合排盘 */}
-        <SevenGridCard
-          baziResult={baziResult}
-          dayunData={dayunData}
-          liunianData={liunianData}
-          liuyueData={liuyueData}
-          diShiData={diShiData}
-          naYinData={naYinData}
-          selectedYear={selectedYear}
-          currentYear={currentYear}
-          frontendHiddenGan={frontendHiddenGan}
-        />
+
+        {/* 已移除底部重复的七列综合排盘 */}
       </div>
     </div>
   );

@@ -13,7 +13,8 @@ const SevenGridCard = ({
   naYinData,
   selectedYear,
   currentYear,
-  frontendHiddenGan = {}
+  frontendHiddenGan = {},
+  titleExtra
 }) => {
   if (!baziResult) return null;
   const riGan = baziResult.dayPillar?.gan;
@@ -47,7 +48,10 @@ const SevenGridCard = ({
 
   return (
     <div className="card">
-      <h2>综合排盘（七列）</h2>
+      <div className="card-header-with-control">
+        <h2>综合排盘（七列）</h2>
+        {titleExtra}
+      </div>
       <div className="seven-grid">
         {/* 大运列 */}
         <div className="seven-col divider">
