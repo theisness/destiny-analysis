@@ -102,8 +102,6 @@
 
 /* 保持移动端依然七列，压缩字号与间距 */
 @media (max-width: 1024px) {
-  .seven-grid {
-  }
 }
 
 @media (max-width: 768px) {
