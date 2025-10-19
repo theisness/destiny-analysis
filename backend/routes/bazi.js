@@ -236,16 +236,17 @@ router.get('/:id', protect, async (req, res) => {
     }
 
     // 权限判断：
-    // 1) 非社区记录：仅创建者可见
+    // 1) 非社区记录：仅创建者或管理员可见
     // 2) 社区记录：管理员可见；public可见；restricted仅允许名单内可见
-    if (!record.addToCommunity && record.userId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: '无权访问此记录' });
-    }
-    if (record.addToCommunity) {
-      const type = record.shareSettings?.type || 'public';
-      const allowed = record.shareSettings?.allowedUserIds || [];
-      if (req.user.admin !== 1 && type === 'restricted' && !allowed.map(id => id.toString()).includes(req.user._id.toString())) {
+    if(record.userId.toString() !== req.user._id.toString() && req.user.admin !== 1) {
+      if (!record.addToCommunity) {
         return res.status(403).json({ success: false, message: '无权访问此记录' });
+      } else {
+        const type = record.shareSettings?.type || 'public';
+        const allowed = record.shareSettings?.allowedUserIds || [];
+        if (type === 'restricted' && !allowed.map(id => id.toString()).includes(req.user._id.toString())) {
+          return res.status(403).json({ success: false, message: '无权访问此记录' });
+        }
       }
     }
 
