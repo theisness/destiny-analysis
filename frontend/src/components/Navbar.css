@@ -17,6 +17,13 @@
   align-items: center;
 }
 
+/* 新增：品牌与移动端用户区域的头部行 */
+.navbar-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .navbar-brand {
   font-size: 24px;
   font-weight: bold;
@@ -75,9 +82,9 @@
 
 .navbar-user {
   display: flex;
-  gap: 15px;
+  gap: 8px;
   align-items: center;
-  padding-left: 20px;
+  padding-left: 10px;
   border-left: 2px solid #e0e0e0;
 }
 
@@ -87,7 +94,7 @@
 }
 
 .btn-sm {
-  padding: 6px 12px;
+  padding: 6px 3px;
   font-size: 14px;
 }
 
@@ -95,6 +102,12 @@
   .navbar-content {
     flex-direction: column;
     gap: 15px;
+  }
+
+  /* 移动端：标题与用户区域在同一行，左右分布 */
+  .navbar-head {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .navbar-menu {
@@ -105,13 +118,6 @@
   /* 移动端下增强高亮可见性 */
   .navbar-link.active::after {
     width: 80%;
-  }
-
-  .navbar-user {
-    border-left: none;
-    border-top: 2px solid #e0e0e0;
-    padding-left: 0;
-    padding-top: 10px;
   }
 }
 
