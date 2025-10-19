@@ -25,6 +25,19 @@ const DayunCard = ({ dayunData, baziResult, birthYear, currentYear }) => {
   return (
     <div className="card">
       <h2>大运列表</h2>
+      {dayunData.qiyunAge && (
+        <div className="qiyun-info-box">
+          <div className="qiyun-title">🕐 起运时间</div>
+          <div className="qiyun-details">
+            <span className="qiyun-value">
+              {dayunData.qiyunAge.years}岁 {dayunData.qiyunAge.months}个月 {dayunData.qiyunAge.days}天
+            </span>
+            {birthYear && (
+              <span className="qiyun-date">（约{birthYear + (dayunData.qiyunAge?.years || 0)}年起运）</span>
+            )}
+          </div>
+        </div>
+      )}
       {/* 起运信息 */}
       {dayunData.qiyun && (
         <div className="qiyun-info-box">

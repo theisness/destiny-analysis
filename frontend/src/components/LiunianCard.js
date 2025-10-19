@@ -30,8 +30,8 @@ const LiunianCard = ({
 
   return (
     <div className="card">
+      <h2>流年排盘</h2>
       <div className="card-header-with-control">
-        <h2>流年排盘</h2>
         <div className="year-selector">
           <button className="year-nav-btn" onClick={onPrevDecade}>←</button>
           <select
