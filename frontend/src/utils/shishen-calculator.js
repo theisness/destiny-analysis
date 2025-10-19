@@ -1,6 +1,10 @@
 /**
- * 十神计算工具函数
+ * 十神计算与颜色工具
+ * - 颜色按来源天干的五行取色
+ * - “正/偏”区分深浅：正色更深、偏色更浅
  */
+
+import { getWuxingColor } from './wuxing-calculator';
 
 // 判断天干阴阳
 export const isYangGan = (gan) => {
@@ -84,7 +88,7 @@ export const getShishen = (riGan, otherGan, isDayGan = false) => {
   }
 };
 
-// 获取十神颜色
+// 旧版：获取十神颜色（固定映射，保留作兜底）
 export const getShishenColor = (shishen) => {
   const colorMap = {
     '日主': '#8B0000',
@@ -100,4 +104,44 @@ export const getShishenColor = (shishen) => {
     '正印': '#1E90FF'
   };
   return colorMap[shishen] || '#666';
+};
+
+// 辅助：颜色明暗调整（percent>0变浅，percent<0变深）
+const shadeColor = (hex, percent) => {
+  try {
+    const cleaned = (hex || '').replace('#', '');
+    if (cleaned.length !== 6) return hex || '#666';
+    const num = parseInt(cleaned, 16);
+    let r = (num >> 16) & 0xFF;
+    let g = (num >> 8) & 0xFF;
+    let b = num & 0xFF;
+    const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
+    if (percent > 0) {
+      r = clamp(r + (255 - r) * percent);
+      g = clamp(g + (255 - g) * percent);
+      b = clamp(b + (255 - b) * percent);
+    } else if (percent < 0) {
+      const p = -percent;
+      r = clamp(r * (1 - p));
+      g = clamp(g * (1 - p));
+      b = clamp(b * (1 - p));
+    }
+    const toHex = (c) => c.toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  } catch (e) {
+    return hex || '#666';
+  }
+};
+
+// 判断“正/偏”
+const isZheng = (ss) => ss === '日主' || ss === '日元' || ss === '比肩' || ss === '食神' || (ss && ss.startsWith('正'));
+
+// 新版：按来源天干五行 + 正/偏明暗，计算十神颜色
+export const getShishenColorBySource = (shishen, sourceGan) => {
+  if (!shishen || !sourceGan) return '#666';
+  const element = getGanWuxingType(sourceGan);
+  const base = getWuxingColor(element);
+  // 正色更深、偏色更浅
+  const percent = isZheng(shishen) ? -0.15 : 0.18; // 深15%，浅18%
+  return shadeColor(base, percent);
 };

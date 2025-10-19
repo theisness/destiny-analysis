@@ -1,7 +1,7 @@
 import './SevenGridCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
-import { getShishen, getShishenColor } from '../utils/shishen-calculator';
+import { getShishen , getShishenColorBySource } from '../utils/shishen-calculator';
 import { calculateDiShi, calculateNaYin, getDiShiColor, getNaYinColor, getZhiBenQi, getZhiCangGan } from '../utils/bazi-utils';
 
 const SevenGridCard = ({
@@ -37,7 +37,7 @@ const SevenGridCard = ({
           return (
             <div key={index} className="hidden-gan-item">
               <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
-              <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
+              <span className="shishen" style={{ color: getShishenColorBySource(ss, g) }}>{ss}</span>
             </div>
           );
         })}
@@ -77,9 +77,8 @@ const SevenGridCard = ({
             return (
               <>
                 <div className="pillar-chars">
-                  {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
+                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{ganSS}</div>}
                   <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
-                  {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
                   <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
                 </div>
                 {renderHiddenList(cur.zhi)}
@@ -106,9 +105,8 @@ const SevenGridCard = ({
             return (
               <>
                 <div className="pillar-chars">
-                  {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
+                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{ganSS}</div>}
                   <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
-                  {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
                   <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
                 </div>
                 {renderHiddenList(cur.zhi)}
@@ -135,9 +133,8 @@ const SevenGridCard = ({
             return (
               <>
                 <div className="pillar-chars">
-                  {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
+                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{ganSS}</div>}
                   <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
-                  {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
                   <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
                 </div>
                 {renderHiddenList(cur.zhi)}
@@ -166,9 +163,8 @@ const SevenGridCard = ({
             <div key={pillar} className="seven-col">
               <div className="col-title">{pillarLabel}</div>
               <div className="pillar-chars">
-                {ganSS && <div className="shishen-label" style={{ color: getShishenColor(ganSS) }}>{ganSS}</div>}
+                {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, gan) }}>{ganSS}</div>}
                 <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{gan}</div>
-                {zhiSS && <div className="shishen-label" style={{ color: getShishenColor(zhiSS) }}>{zhiSS}</div>}
                 <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{zhi}</div>
               </div>
               <div className="hidden-gans">
@@ -186,7 +182,7 @@ const SevenGridCard = ({
                   return (
                     <div key={index} className="hidden-gan-item">
                       <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
-                      <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
+                      <span className="shishen" style={{ color: getShishenColorBySource(ss, g) }}>{ss}</span>
                     </div>
                   );
                 })}

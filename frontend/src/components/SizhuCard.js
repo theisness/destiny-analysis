@@ -1,7 +1,7 @@
 import './SizhuCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
-import { getShishen, getShishenColor } from '../utils/shishen-calculator';
+import { getShishen , getShishenColorBySource } from '../utils/shishen-calculator';
 import { getDiShiColor, getNaYinColor, getZhiBenQi, getZhiCangGan } from '../utils/bazi-utils';
 
 const SizhuCard = ({ baziResult, diShiData, naYinData }) => {
@@ -31,7 +31,7 @@ const SizhuCard = ({ baziResult, diShiData, naYinData }) => {
               <div className="pillar-name">{pillarName}</div>
               <div className="pillar-chars">
                 {ganShishen && (
-                  <div className="shishen-label" style={{ color: getShishenColor(ganShishen) }}>
+                  <div className="shishen-label" style={{ color: getShishenColorBySource(ganShishen, pillarData.gan) }}>
                     {ganShishen}
                   </div>
                 )}
@@ -59,7 +59,7 @@ const SizhuCard = ({ baziResult, diShiData, naYinData }) => {
                   return (
                     <div key={`${pillar}-hidden-${index}`} className="hidden-gan-item">
                       <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
-                      <span className="shishen" style={{ color: getShishenColor(ss) }}>{ss}</span>
+                      <span className="shishen" style={{ color: getShishenColorBySource(ss, g) }}>{ss}</span>
                     </div>
                   );
                 })}

@@ -1,7 +1,7 @@
 import './LiuyueCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
-import { getShishen, getShishenColor } from '../utils/shishen-calculator';
+import { getShishen, getShishenColorBySource } from '../utils/shishen-calculator';
 
 const LiuyueCard = ({
   liuyueData = [],
@@ -30,7 +30,7 @@ const LiuyueCard = ({
           return (
             <div key={index} className={`liuyue-item ${yue.isCurrent ? 'current' : ''}`}>
               <div className="liuyue-month">{yue.month}月</div>
-              <div className="liuyue-shishen" style={{ color: getShishenColor(ganShishen) }}>
+              <div className="liuyue-shishen" style={{ color: getShishenColorBySource(ganShishen, yue.gan) }}>
                 {ganShishen}
               </div>
               <div className="liuyue-ganzhi">

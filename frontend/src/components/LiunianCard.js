@@ -1,7 +1,7 @@
 import './LiunianCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
-import { getShishen, getShishenColor } from '../utils/shishen-calculator';
+import { getShishen, getShishenColorBySource } from '../utils/shishen-calculator';
 
 const LiunianCard = ({
   liunianData = [],
@@ -42,7 +42,7 @@ const LiunianCard = ({
           return (
             <div key={index} className={`liunian-item ${nian.isCurrent ? 'current' : ''}`}>
               <div className="liunian-year">{nian.year}</div>
-              <div className="liunian-shishen" style={{ color: getShishenColor(ganShishen) }}>
+              <div className="liunian-shishen" style={{ color: getShishenColorBySource(ganShishen, nian.gan) }}>
                 {ganShishen}
               </div>
               <div className="liunian-ganzhi">

@@ -1,7 +1,7 @@
 import './DayunCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
-import { getShishen, getShishenColor } from '../utils/shishen-calculator';
+import { getShishen, getShishenColorBySource } from '../utils/shishen-calculator';
 import { getZhiBenQi, calculateDiShi, calculateNaYin, getDiShiColor, getNaYinColor } from '../utils/bazi-utils';
 
 const DayunCard = ({
@@ -58,7 +58,7 @@ const DayunCard = ({
                 {/* 天干部分 */}
                 <div className="dayun-gan-section">
                   {ganShishen && (
-                    <div className="dayun-gan-shishen" style={{ color: getShishenColor(ganShishen) }}>
+                    <div className="dayun-gan-shishen" style={{ color: getShishenColorBySource(ganShishen, yun.gan) }}>
                       {ganShishen}
                     </div>
                   )}
@@ -70,7 +70,7 @@ const DayunCard = ({
                 {/* 地支部分 */}
                 <div className="dayun-zhi-section">
                   {zhiShishen && (
-                    <div className="dayun-zhi-shishen" style={{ color: getShishenColor(zhiShishen) }}>
+                    <div className="dayun-zhi-shishen" style={{ color: getShishenColorBySource(zhiShishen, zhiBenQi) }}>
                       {zhiShishen}
                     </div>
                   )}

@@ -26,7 +26,7 @@ import {
   getGanWuxingType,
   getWuxingRelation,
   getShishen,
-  getShishenColor
+  getShishenColorBySource
 } from '../../utils/shishen-calculator';
 import {
   TIAN_GAN,

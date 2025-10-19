@@ -1,7 +1,7 @@
 import './CangganCard.css'
 import React from 'react';
 import { getGanWuxing, getWuxingColor } from '../utils/wuxing-calculator';
-import { getShishen, getShishenColor } from '../utils/shishen-calculator';
+import { getShishen } from '../utils/shishen-calculator';
 
 const CangganCard = ({ baziResult, shenshaData }) => {
   if (!baziResult) return null;
