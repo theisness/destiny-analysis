@@ -1,6 +1,6 @@
 .seven-grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  /* grid-template-columns: repeat(7, minmax(0, 1fr)); */
   gap: 0;
   border: 2px solid #e9ecef;
   border-radius: 12px;
@@ -94,7 +94,7 @@
 /* 保持移动端依然七列，压缩字号与间距 */
 @media (max-width: 1024px) {
   .seven-grid {
-    grid-template-columns: repeat(7, 1fr) !important;
+    /* grid-template-columns: repeat(7, 1fr) !important; */
   }
 }
 

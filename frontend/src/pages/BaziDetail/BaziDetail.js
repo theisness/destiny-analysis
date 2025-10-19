@@ -80,8 +80,11 @@ const BaziDetail = () => {
   // 前端计算的五行数据
   const [wuxingData, setWuxingData] = useState({ jin: 0, mu: 0, shui: 0, huo: 0, tu: 0 });
   const [frontendHiddenGan, setFrontendHiddenGan] = useState({});
-  // 视图切换：四柱 / 七列
-  const [viewMode, setViewMode] = useState('sizhu');
+  
+  // 七列卡片显示控制：大运/流年/流月 勾选后显示
+  const [showDayun, setShowDayun] = useState(false);
+  const [showLiunian, setShowLiunian] = useState(false);
+  const [showLiuyue, setShowLiuyue] = useState(false);
 
   useEffect(() => {
     fetchDetail();
@@ -211,28 +214,25 @@ const BaziDetail = () => {
   }
 
   const { baziResult } = record;
-  const toggleControl = (
-    <div className="view-toggle">
-      <label
-        className="toggle-switch"
-        role="switch"
-        aria-checked={viewMode === 'seven'}
-        aria-label="切换排盘视图"
-      >
-        <input
-          type="checkbox"
-          checked={viewMode === 'seven'}
-          onChange={(e) => setViewMode(e.target.checked ? 'seven' : 'sizhu')}
-        />
-        <span className="switch-track">
-          <span className="switch-thumb" />
-        </span>
-        <span className="switch-label">
-          切换排盘视图
-        </span>
+
+  // 标题栏勾选控制：大运/流年/流月
+  const titleExtraControls = (
+    <div className="year-selector" style={{ gap: 12 }}>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <input type="checkbox" checked={showDayun} onChange={(e) => setShowDayun(e.target.checked)} />
+        <span>大运</span>
+      </label>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <input type="checkbox" checked={showLiunian} onChange={(e) => setShowLiunian(e.target.checked)} />
+        <span>流年</span>
+      </label>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <input type="checkbox" checked={showLiuyue} onChange={(e) => setShowLiuyue(e.target.checked)} />
+        <span>流月</span>
       </label>
     </div>
   );
+
   return (
     <div className="bazi-detail">
       <Navbar />
@@ -272,29 +272,22 @@ const BaziDetail = () => {
           </div>
         </div>
 
-        {/* 排盘切换：四柱 / 七列 */}
-        {viewMode === 'sizhu' ? (
-          <SizhuCard
-            baziResult={baziResult}
-            diShiData={diShiData}
-            naYinData={naYinData}
-            frontendHiddenGan={frontendHiddenGan}
-            titleExtra={toggleControl}
-          />
-        ) : (
-          <SevenGridCard
-            baziResult={baziResult}
-            dayunData={dayunData}
-            liunianData={liunianData}
-            liuyueData={liuyueData}
-            diShiData={diShiData}
-            naYinData={naYinData}
-            selectedYear={selectedYear}
-            currentYear={currentYear}
-            frontendHiddenGan={frontendHiddenGan}
-            titleExtra={toggleControl}
-          />
-        )}
+        {/* 七列综合排盘（仅七列卡片） */}
+        <SevenGridCard
+          baziResult={baziResult}
+          dayunData={dayunData}
+          liunianData={liunianData}
+          liuyueData={liuyueData}
+          diShiData={diShiData}
+          naYinData={naYinData}
+          selectedYear={selectedYear}
+          currentYear={currentYear}
+          frontendHiddenGan={frontendHiddenGan}
+          titleExtra={titleExtraControls}
+          showDayun={showDayun}
+          showLiunian={showLiunian}
+          showLiuyue={showLiuyue}
+        />
 
         {/* 藏干 */}
         <CangganCard baziResult={baziResult} shenshaData={shenshaData} />

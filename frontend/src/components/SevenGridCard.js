@@ -14,11 +14,16 @@ const SevenGridCard = ({
   selectedYear,
   currentYear,
   frontendHiddenGan = {},
-  titleExtra
+  titleExtra,
+  // 新增：三列显示控制（默认为不显示，勾选后显示）
+  showDayun = false,
+  showLiunian = false,
+  showLiuyue = false
 }) => {
   if (!baziResult) return null;
   const riGan = baziResult.dayPillar?.gan;
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 576;
+  const visibleColsCount = 4 + (showDayun ? 1 : 0) + (showLiunian ? 1 : 0) + (showLiuyue ? 1 : 0);
 
   const renderHiddenList = (zhi) => {
     const hidden = getZhiCangGan(zhi) || [];
@@ -80,104 +85,109 @@ const SevenGridCard = ({
         <h2>综合排盘（七列）</h2>
         {titleExtra}
       </div>
-      <div className="seven-grid">
-        {/* 大运列 */}
-        <div className="seven-col divider">
-          <div className="col-title">大运</div>
-          {(() => {
-            const list = dayunData?.dayunList || [];
-            const curYear = currentYear || new Date().getFullYear();
-            let cur = null;
-            for (let i = 0; i < list.length; i++) {
-              const sY = list[i]?.startYear;
-              const nextSY = list[i + 1]?.startYear;
-              if (sY && curYear >= sY && (i === list.length - 1 || (nextSY && curYear < nextSY))) {
-                cur = list[i];
-                break;
+      <div className="seven-grid" style={{ gridTemplateColumns: `repeat(${visibleColsCount}, minmax(0, 1fr))` }}>
+        {/* 大运列（勾选后显示） */}
+        {showDayun && (
+          <div className="seven-col divider">
+            <div className="col-title">大运</div>
+            {(() => {
+              const list = dayunData?.dayunList || [];
+              const curYear = currentYear || new Date().getFullYear();
+              let cur = null;
+              for (let i = 0; i < list.length; i++) {
+                const sY = list[i]?.startYear;
+                const nextSY = list[i + 1]?.startYear;
+                if (sY && curYear >= sY && (i === list.length - 1 || (nextSY && curYear < nextSY))) {
+                  cur = list[i];
+                  break;
+                }
               }
-            }
-            if (!cur) cur = list[0] || null;
-            if (!cur) return <div>暂无</div>;
-            const ganWuxing = getGanWuxing(cur.gan);
-            const zhiWuxing = getZhiWuxing(cur.zhi);
-            const ganSS = getShishen(riGan, cur.gan);
-            const zhiBenQi = getZhiBenQi(cur.zhi);
-            const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-            const dishi = calculateDiShi(cur.gan, cur.zhi);
-            const nayin = calculateNaYin(cur.gan, cur.zhi);
-            console.log('cur: ', cur)
-            return (
-              <>
-                <div className="pillar-chars">
-                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
-                  <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
-                  <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
-                </div>
-                {renderHiddenList(cur.zhi)}
-                {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
-                {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
-              </>
-            );
-          })()}
-        </div>
+              if (!cur) cur = list[0] || null;
+              if (!cur) return <div>暂无</div>;
+              const ganWuxing = getGanWuxing(cur.gan);
+              const zhiWuxing = getZhiWuxing(cur.zhi);
+              const ganSS = getShishen(riGan, cur.gan);
+              const zhiBenQi = getZhiBenQi(cur.zhi);
+              const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+              const dishi = calculateDiShi(cur.gan, cur.zhi);
+              const nayin = calculateNaYin(cur.gan, cur.zhi);
+              return (
+                <>
+                  <div className="pillar-chars">
+                    {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
+                    <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
+                    <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
+                  </div>
+                  {renderHiddenList(cur.zhi)}
+                  {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
+                  {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
+                </>
+              );
+            })()}
+          </div>
+        )}
 
-        {/* 流年列 */}
-        <div className="seven-col divider">
-          <div className="col-title">流年</div>
-          {(() => {
-            const cur = liunianData?.find(n => n.isCurrent) || liunianData?.find(n => n.year === selectedYear) || null;
-            if (!cur) return <div>暂无</div>;
-            const ganWuxing = getGanWuxing(cur.gan);
-            const zhiWuxing = getZhiWuxing(cur.zhi);
-            const ganSS = getShishen(riGan, cur.gan);
-            const zhiBenQi = getZhiBenQi(cur.zhi);
-            const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-            const dishi = calculateDiShi(cur.gan, cur.zhi);
-            const nayin = calculateNaYin(cur.gan, cur.zhi);
-            return (
-              <>
-                <div className="pillar-chars">
-                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
-                  <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
-                  <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
-                </div>
-                {renderHiddenList(cur.zhi)}
-                {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
-                {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
-              </>
-            );
-          })()}
-        </div>
+        {/* 流年列（勾选后显示） */}
+        {showLiunian && (
+          <div className="seven-col divider">
+            <div className="col-title">流年</div>
+            {(() => {
+              const cur = liunianData?.find(n => n.isCurrent) || liunianData?.find(n => n.year === selectedYear) || null;
+              if (!cur) return <div>暂无</div>;
+              const ganWuxing = getGanWuxing(cur.gan);
+              const zhiWuxing = getZhiWuxing(cur.zhi);
+              const ganSS = getShishen(riGan, cur.gan);
+              const zhiBenQi = getZhiBenQi(cur.zhi);
+              const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+              const dishi = calculateDiShi(cur.gan, cur.zhi);
+              const nayin = calculateNaYin(cur.gan, cur.zhi);
+              return (
+                <>
+                  <div className="pillar-chars">
+                    {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
+                    <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
+                    <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
+                  </div>
+                  {renderHiddenList(cur.zhi)}
+                  {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
+                  {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
+                </>
+              );
+            })()}
+          </div>
+        )}
 
-        {/* 流月列 */}
-        <div className="seven-col divider">
-          <div className="col-title">流月</div>
-          {(() => {
-            const cur = liuyueData?.find(m => m.isCurrent) || liuyueData?.[0] || null;
-            if (!cur) return <div>暂无</div>;
-            const ganWuxing = getGanWuxing(cur.gan);
-            const zhiWuxing = getZhiWuxing(cur.zhi);
-            const ganSS = getShishen(riGan, cur.gan);
-            const zhiBenQi = getZhiBenQi(cur.zhi);
-            const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-            const dishi = calculateDiShi(cur.gan, cur.zhi);
-            const nayin = calculateNaYin(cur.gan, cur.zhi);
-            return (
-              <>
-                <div className="pillar-chars">
-                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
-                  <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
-                  <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
-                </div>
-                {renderHiddenList(cur.zhi)}
-                {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
-                {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
-              </>
-            );
-          })()}
-        </div>
+        {/* 流月列（勾选后显示） */}
+        {showLiuyue && (
+          <div className="seven-col divider">
+            <div className="col-title">流月</div>
+            {(() => {
+              const cur = liuyueData?.find(m => m.isCurrent) || liuyueData?.[0] || null;
+              if (!cur) return <div>暂无</div>;
+              const ganWuxing = getGanWuxing(cur.gan);
+              const zhiWuxing = getZhiWuxing(cur.zhi);
+              const ganSS = getShishen(riGan, cur.gan);
+              const zhiBenQi = getZhiBenQi(cur.zhi);
+              const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+              const dishi = calculateDiShi(cur.gan, cur.zhi);
+              const nayin = calculateNaYin(cur.gan, cur.zhi);
+              return (
+                <>
+                  <div className="pillar-chars">
+                    {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
+                    <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
+                    <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
+                  </div>
+                  {renderHiddenList(cur.zhi)}
+                  {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
+                  {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
+                </>
+              );
+            })()}
+          </div>
+        )}
 
-        {/* 四柱列：年/月/日/时 */}
+        {/* 四柱列：年/月/日/时（始终显示） */}
         {['year', 'month', 'day', 'hour'].map((pillar) => {
           const pillarLabel = { year: '年柱', month: '月柱', day: '日柱', hour: '时柱' }[pillar];
           const pillarData = baziResult[`${pillar}Pillar`] || {};
