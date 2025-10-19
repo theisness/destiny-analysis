@@ -3,7 +3,7 @@ import { commentsAPI, uploadAPI } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import './CommentsSection.css';
 
-const BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api','') : 'http://localhost:5000';
+const BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'http://localhost:5000';
 const DEFAULT_AVATAR = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#667eea"/><stop offset="100%" stop-color="#764ba2"/></linearGradient></defs><circle cx="32" cy="32" r="32" fill="url(#g)"/><circle cx="32" cy="26" r="12" fill="white" opacity="0.9"/><path d="M14 54c4-10 14-14 18-14s14 4 18 14" fill="white" opacity="0.9"/></svg>';
 
 const CommentsSection = ({ baziId }) => {

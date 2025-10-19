@@ -22,8 +22,9 @@ app.use(express.urlencoded({ extended: true }));
 const logger = require('./middleware/logger');
 app.use(logger);
 
-// 静态文件（上传）
-app.use('/files', express.static(path.join(__dirname, 'public', 'files')));
+// 静态文件（上传） 
+// 兼容get请求
+app.use('/api/files', express.static(path.join(__dirname, 'public', 'files')));
 
 // 路由
 app.use('/api/auth', require('./routes/auth'));
