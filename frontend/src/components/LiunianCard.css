@@ -18,6 +18,7 @@
 }
 
 .year-nav-btn {
+  color: #667eea;
   padding: 6px 10px;
   border-radius: 6px;
   border: 1px solid #e9ecef;
@@ -26,6 +27,7 @@
 }
 
 .year-nav-btn:hover {
+  color: #667eea;
   background: #f8f9fa;
 }
 
@@ -42,6 +44,7 @@
 }
 
 .btn-today {
+  color: #007bff;
   padding: 6px 10px;
   border-radius: 6px;
   border: 1px solid #e9ecef;

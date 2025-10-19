@@ -24,6 +24,7 @@ const DayunCard = ({ dayunData, baziResult, birthYear, currentYear }) => {
 
   return (
     <div className="card">
+      <h2>大运列表</h2>
       {/* 起运信息 */}
       {dayunData.qiyun && (
         <div className="qiyun-info-box">
