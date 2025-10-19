@@ -341,28 +341,6 @@
   margin-top: 4px;
 }
 
-/* 神煞 */
-.shensha-section {
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 2px solid #e9ecef;
-}
-
-.shensha-section h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-}
-
-.shensha-section h3::before {
-  content: '✨';
-  margin-right: 8px;
-  font-size: 18px;
-}
-
 .shensha-list {
   display: flex;
   flex-wrap: wrap;

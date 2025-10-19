@@ -83,7 +83,7 @@ const SevenGridCard = ({
   return (
     <div className="card">
       <div className="card-header-with-control">
-        <h2>八字排盘</h2>
+        <h2>八字综合排盘</h2>
         {titleExtra}
       </div>
       <div className="seven-grid" style={{ gridTemplateColumns: `repeat(${visibleColsCount}, minmax(${gridTrackMin}px, 1fr))` }}>

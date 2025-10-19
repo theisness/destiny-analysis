@@ -9,10 +9,9 @@ const CangganCard = ({ baziResult, shenshaData }) => {
 
   return (
     <div className="card">
-      <h2>神煞</h2>
+      <h2>✨神煞</h2>
       {shenshaData && shenshaData.length > 0 && (
         <div className="shensha-section">
-          <h3>神煞</h3>
           <div className="shensha-list">
             {shenshaData.map((sha, index) => (
               <span key={index} className="shensha-badge">{sha}</span>
