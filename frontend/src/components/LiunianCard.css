@@ -54,18 +54,36 @@
 }
 
 /* 流年格子 */
+/* 流年卡片容器 */
+.liunian-card {
+  margin-top: 16px;
+}
+
+/* 年份提示 */
+.liunian-hint {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #555;
+}
+
+.liunian-hint .current-year-info {
+  font-weight: 700;
+  color: #333;
+}
+
+/* 年格子布局 */
 .liunian-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
 }
 
 .liunian-item {
+  padding: 12px 10px;
   text-align: center;
-  padding: 10px 8px;
   background: #ffffff;
   border: 2px solid #e9ecef;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
@@ -74,7 +92,7 @@
 }
 
 .liunian-year {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #333;
   margin-bottom: 6px;
@@ -104,7 +122,7 @@
 }
 
 .liunian-item.current {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  background: linear-gradient(135deg, #ffd6d6 0%, #ffc0c8 100%);
   border-color: rgba(255, 107, 107, 0.6);
   box-shadow: 0 8px 16px rgba(255, 107, 107, 0.3);
   color: white;

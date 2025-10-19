@@ -152,7 +152,7 @@ export const getZhiBenQi = (zhi) => {
  */
 export const getWuxingColor = (element) => {
   const colorMap = {
-    '金': '#FFD700',
+    '金': '#B8860B',
     '木': '#228B22',
     '水': '#1E90FF',
     '火': '#FF4500',
@@ -177,4 +177,19 @@ export const getGanWuxing = (gan) => {
  */
 export const getZhiWuxing = (zhi) => {
   return ZHI_WUXING[zhi] || '';
+};
+
+/**
+ * 获取纳音颜色
+ * @param {string} nayin - 纳音
+ * @returns {string} 颜色代码
+ */
+export const getNaYinColor = (nayin) => {
+  // 根据纳音五行分类
+  if (nayin.includes('金')) return '#B8860B';  // 金色（调暗）
+  if (nayin.includes('木')) return '#228B22';  // 绿色
+  if (nayin.includes('水')) return '#1E90FF';  // 蓝色
+  if (nayin.includes('火')) return '#FF4500';  // 红色
+  if (nayin.includes('土')) return '#8B4513';  // 褐色
+  return '#666';
 };

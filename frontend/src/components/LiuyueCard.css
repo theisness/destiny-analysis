@@ -61,7 +61,7 @@
 }
 
 .liuyue-item.current {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  background: linear-gradient(135deg, #ffd6d6 0%, #ffc0c8 100%);
   border-color: rgba(255, 107, 107, 0.6);
   box-shadow: 0 8px 16px rgba(255, 107, 107, 0.3);
   color: white;
