@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import Navbar from '../../components/Navbar';
-import { useAuth } from '../../context/AuthContext';
-import { authAPI, uploadAPI } from '../../api/api';
+import React, { useEffect, useState } from 'react';
 import './Profile.css';
+import Navbar from '../../components/Navbar';
+import { useAuth  } from '../../context/AuthContext';
+import { authAPI,uploadAPI } from '../../api/api';
+import { BASE_URL } from '../../config';
 
-const BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api','') : 'http://localhost:5000';
-const DEFAULT_AVATAR = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#667eea"/><stop offset="100%" stop-color="#764ba2"/></linearGradient></defs><circle cx="32" cy="32" r="32" fill="url(#g)"/><circle cx="32" cy="26" r="12" fill="white" opacity="0.9"/><path d="M14 54c4-10 14-14 18-14s14 4 18 14" fill="white" opacity="0.9"/></svg>';
+const DEFAULT_AVATAR = `${BASE_URL}/uploads/profile/default-avatar.png`;
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, refreshCurrentUser } = useAuth();
   const [form, setForm] = useState({
     avatarUrl: user?.avatarUrl || '',
     nickname: user?.nickname || '',
@@ -22,7 +22,10 @@ const Profile = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
 
   const handleUpload = async (e) => {
@@ -46,6 +49,18 @@ const Profile = () => {
       if (!payload.birthday) delete payload.birthday;
       const res = await authAPI.updateProfile(payload);
       setMessage('保存成功');
+            // 重新拉取并刷新用户信息（更新上下文和当前表单）
+      const refreshed = await refreshCurrentUser();
+      if (refreshed) {
+        setForm({
+          avatarUrl: refreshed.avatarUrl || '',
+          nickname: refreshed.nickname || '',
+          gender: refreshed.gender || '保密',
+          birthday: refreshed.birthday ? refreshed.birthday.substring(0, 10) : '',
+          birthdayPrivate: !!refreshed.birthdayPrivate,
+          bio: refreshed.bio || ''
+        });
+      }
     } catch (err) {
       setMessage(err.response?.data?.message || '保存失败');
     } finally {

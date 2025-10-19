@@ -89,7 +89,7 @@
   color: #333;
 }
 
-.input-group input,
+.input-group input:not([type="checkbox"]),
 .input-group select {
   width: 100%;
   padding: 12px;

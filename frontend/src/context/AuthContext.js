@@ -86,13 +86,28 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/auth';
   };
 
+  // 刷新当前用户信息（用于资料更新后同步上下文）
+  const refreshCurrentUser = async () => {
+    try {
+      const res = await authAPI.getCurrentUser();
+      const u = res.data.user;
+      localStorage.setItem('user', JSON.stringify(u));
+      setUser(u);
+      return u;
+    } catch (err) {
+      console.error('刷新用户信息失败:', err);
+      return null;
+    }
+  };
+
   const value = {
     user,
     loading,
     error,
     register,
     login,
-    logout
+    logout,
+    refreshCurrentUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
