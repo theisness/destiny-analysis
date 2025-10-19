@@ -102,6 +102,9 @@ export const calculateDiShi = (gan, zhi) => {
     if (zhiIndex === -1) return '';
     
     const changShengList = CHANG_SHENG_MAP[wuxing];
+    console.log('wuxing:', wuxing);
+    console.log('zhiIndex:', zhiIndex);
+    console.log('changShengList:', changShengList);
     return changShengList[zhiIndex] || '';
   } catch (error) {
     console.error('计算地势错误:', error);
@@ -171,11 +174,12 @@ export const calculateDiShiByDate = (dateTime) => {
     const dayGanZhi = lunar.getDayInGanZhi();
     const timeGanZhi = lunar.getTimeInGanZhi();
     
+    const dayStem = dayGanZhi[0];
     return {
-      year: calculateDiShi(yearGanZhi[0], yearGanZhi[1]),
-      month: calculateDiShi(monthGanZhi[0], monthGanZhi[1]),
-      day: calculateDiShi(dayGanZhi[0], dayGanZhi[1]),
-      hour: calculateDiShi(timeGanZhi[0], timeGanZhi[1])
+     year: calculateDiShi(dayStem, yearGanZhi[1]),
+     month: calculateDiShi(dayStem, monthGanZhi[1]),
+     day: calculateDiShi(dayStem, dayGanZhi[1]),
+     hour: calculateDiShi(dayStem, timeGanZhi[1])
     };
   } catch (error) {
     console.error('使用lunar库计算地势错误:', error);

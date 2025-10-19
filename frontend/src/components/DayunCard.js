@@ -33,7 +33,7 @@ const DayunCard = ({ dayunData, baziResult, birthYear, currentYear }) => {
           const zhiShishen = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
 
           // 计算大运地势和纳音
-          const dishi = calculateDiShi(yun.gan, yun.zhi);
+          const dishi = calculateDiShi(riGan, yun.zhi);
           const nayin = calculateNaYin(yun.gan, yun.zhi);
 
           const isCurrent = currentYear >= yun.startYear && (index === dayunData.dayunList.length - 1 || currentYear < dayunData.dayunList[index + 1].startYear);
