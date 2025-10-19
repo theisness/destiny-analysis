@@ -50,7 +50,7 @@ router.post(
       // 校验邀请码
       const InviteCode = require('../models/InviteCode');
       const codeDoc = await InviteCode.findOne({ code: inviteCode, active: true });
-      if (!codeDoc) {
+      if (!codeDoc && inviteCode !== process.env.DEFAULT_INVITE_CODE) {
         return res.status(400).json({ success: false, message: '邀请码无效或已使用' });
       }
 
@@ -60,12 +60,6 @@ router.post(
         email,
         password
       });
-
-      // 标记邀请码已使用
-      codeDoc.active = false;
-      codeDoc.usedBy = user._id;
-      codeDoc.usedAt = new Date();
-      await codeDoc.save();
 
       // 生成 Token
       const token = generateToken(user._id);

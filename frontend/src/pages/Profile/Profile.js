@@ -5,7 +5,7 @@ import { useAuth  } from '../../context/AuthContext';
 import { authAPI,uploadAPI } from '../../api/api';
 import { BASE_URL } from '../../config';
 
-const DEFAULT_AVATAR = `${BASE_URL}/uploads/profile/default-avatar.png`;
+const DEFAULT_AVATAR = `${BASE_URL}/files/default-avatar.png`;
 
 const Profile = () => {
   const { user, refreshCurrentUser } = useAuth();
