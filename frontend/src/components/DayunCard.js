@@ -1,5 +1,5 @@
 import './DayunCard.css'
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
 import { getShishen, getShishenColorBySource, abbrShishen } from '../utils/shishen-calculator';
 import { getZhiBenQi, calculateDiShi, calculateNaYin, getDiShiColor, getNaYinColor } from '../utils/bazi-utils';
@@ -7,6 +7,18 @@ import { getZhiBenQi, calculateDiShi, calculateNaYin, getDiShiColor, getNaYinCol
 const DayunCard = ({ dayunData, baziResult, birthYear, currentYear }) => {
   const riGan = baziResult?.dayPillar?.gan;
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 576;
+  const gridRef = useRef(null);
+  
+  // 初始化时自动定位到当前大运（居中显示）
+  useEffect(() => {
+    const container = gridRef.current;
+    if (!container) return;
+    const currentEl = container.querySelector('.dayun-item.current');
+    if (currentEl) {
+      const target = currentEl.offsetLeft - container.clientWidth / 2 + currentEl.clientWidth / 2;
+      container.scrollLeft = Math.max(target, 0);
+    }
+  }, [dayunData, currentYear]);
 
   if (!dayunData || !dayunData.dayunList || dayunData.dayunList.length === 0) return null;
 
@@ -24,7 +36,7 @@ const DayunCard = ({ dayunData, baziResult, birthYear, currentYear }) => {
       )}
 
       {/* 大运列表 */}
-      <div className="dayun-grid">
+      <div className="dayun-grid" ref={gridRef}>
         {dayunData.dayunList.map((yun, index) => {
           const ganWuxing = getGanWuxing(yun.gan);
           const zhiWuxing = getZhiWuxing(yun.zhi);

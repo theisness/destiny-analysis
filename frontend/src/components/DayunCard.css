@@ -31,11 +31,16 @@
   color: #666;
 }
 
-/* 大运格子 */
+/* 大运格子：横向单行滑动 */
 .dayun-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 15px;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  padding-bottom: 8px;
 }
 
 .dayun-item {
@@ -48,6 +53,8 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 0 0 200px; /* 桌面默认宽度 */
+  scroll-snap-align: start;
 }
 
 .dayun-age {
@@ -139,16 +146,10 @@
   border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
-/* 移动端：仅显示“当前大运”，保证一屏显示 */
+/* 移动端：横向滑动且最少显示 3 列 */
 @media (max-width: 576px) {
-  .dayun-grid {
-    grid-template-columns: 1fr;
-  }
   .dayun-item {
-    display: none;
-  }
-  .dayun-item.current {
-    display: flex;
+    flex: 0 0 33.33vw; /* 保证至少同时显示三列 */
   }
   .dayun-gan,
   .dayun-zhi {
