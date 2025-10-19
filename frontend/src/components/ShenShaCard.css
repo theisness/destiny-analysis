@@ -56,3 +56,43 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* 神煞分类区域 */
+.shensha-categories {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.shensha-category {
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 10px 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
+.category-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.category-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shensha-empty {
+  color: #666;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .shensha-categories {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}

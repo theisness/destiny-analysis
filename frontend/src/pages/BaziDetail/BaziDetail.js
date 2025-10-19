@@ -35,10 +35,10 @@ import {
   calculateLiuyue,
   formatDate
 } from '../../utils/liunian-calculator';
-import { calculateShensha } from '../../utils/shensha-calculator';
+import { calculateShenshaCategorized } from '../../utils/shensha-calculator';
 import './BaziDetail.css';
 import SizhuCard from '../../components/SizhuCard';
-import CangganCard from '../../components/CangganCard';
+import ShenShaCard from '../../components/ShenShaCard';
 import SevenGridCard from '../../components/SevenGridCard';
 import LiunianCard from '../../components/LiunianCard';
 import LiuyueCard from '../../components/LiuyueCard';
@@ -75,7 +75,7 @@ const BaziDetail = () => {
   });
   
   // 神煞数据（本地计算）
-  const [shenshaData, setShenshaData] = useState([]);
+  const [shenshaData, setShenshaData] = useState({});
 
   // 前端计算的五行数据
   const [wuxingData, setWuxingData] = useState({ jin: 0, mu: 0, shui: 0, huo: 0, tu: 0 });
@@ -164,10 +164,10 @@ const BaziDetail = () => {
         });
       }
       
-      // 本地计算神煞
+      // 本地计算神煞（分类）
       if (recordData.baziResult) {
         const baziResult = recordData.baziResult;
-        const localShensha = calculateShensha(
+        const localShensha = calculateShenshaCategorized(
           baziResult.dayPillar.gan,
           baziResult.yearPillar.zhi,
           baziResult.monthPillar.zhi,
@@ -290,7 +290,7 @@ const BaziDetail = () => {
         />
 
         {/* 藏干 */}
-        <CangganCard baziResult={baziResult} shenshaData={shenshaData} />
+        <ShenShaCard baziResult={baziResult} shenshaData={shenshaData} />
 
         {/* 五行 - 前端计算 */}
         <div className="card">
