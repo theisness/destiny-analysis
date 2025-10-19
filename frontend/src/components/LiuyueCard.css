@@ -10,11 +10,20 @@
   color: #333;
 }
 
-/* 流月格子 */
+/* 流月格子：横向单行滑动，按屏幕宽度计算列宽 */
 .liuyue-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 10px;
+  --gap: 10px;
+  --cols: 5; /* 桌面固定显示 5 列 */
+  --liuyue-col-width: calc((100% - (var(--gap) * (var(--cols) - 1))) / var(--cols));
+
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--gap);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory; /* 滑动自动对齐 */
+  padding-bottom: 8px;
 }
 
 .liuyue-item {
@@ -24,6 +33,8 @@
   border: 2px solid #e9ecef;
   border-radius: 10px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  flex: 0 0 var(--liuyue-col-width); /* 按容器宽度计算列宽 */
+  scroll-snap-align: start;
 }
 
 .liuyue-item:hover {
@@ -67,16 +78,10 @@
   color: white;
 }
 
-/* 移动端：仅显示“当前流月”，保证一屏显示 */
+/* 移动端：横向滑动，固定同时显示 3 列 */
 @media (max-width: 576px) {
   .liuyue-grid {
-    grid-template-columns: 1fr;
-  }
-  .liuyue-item {
-    display: none;
-  }
-  .liuyue-item.current {
-    display: block;
+    --cols: 3;
   }
   .liuyue-ganzhi {
     font-size: 18px;

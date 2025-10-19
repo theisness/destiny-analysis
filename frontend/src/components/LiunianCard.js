@@ -1,5 +1,5 @@
 import './LiunianCard.css'
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
 import { getShishen, getShishenColorBySource, abbrShishen } from '../utils/shishen-calculator';
 
@@ -15,6 +15,18 @@ const LiunianCard = ({
 }) => {
   const riGan = baziResult?.dayPillar?.gan;
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 576;
+  const gridRef = useRef(null);
+
+  // 初始化时自动定位到当前流年（居中显示）
+  useEffect(() => {
+    const container = gridRef.current;
+    if (!container) return;
+    const currentEl = container.querySelector('.liunian-item.current');
+    if (currentEl) {
+      const target = currentEl.offsetLeft - container.clientWidth / 2 + currentEl.clientWidth / 2;
+      container.scrollLeft = Math.max(target, 0);
+    }
+  }, [liunianData, selectedYear, currentYear]);
 
   return (
     <div className="card">
@@ -35,7 +47,7 @@ const LiunianCard = ({
           <button className="btn-today" onClick={onToday}>今年</button>
         </div>
       </div>
-      <div className="liunian-grid">
+      <div className="liunian-grid" ref={gridRef}>
         {liunianData.map((nian, index) => {
           const ganWuxing = getGanWuxing(nian.gan);
           const zhiWuxing = getZhiWuxing(nian.zhi);

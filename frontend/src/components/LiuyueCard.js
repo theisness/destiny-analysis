@@ -1,5 +1,5 @@
 import './LiuyueCard.css'
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
 import { getShishen, getShishenColorBySource, abbrShishen } from '../utils/shishen-calculator';
 
@@ -11,6 +11,18 @@ const LiuyueCard = ({
 }) => {
   const riGan = baziResult?.dayPillar?.gan;
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 576;
+  const gridRef = useRef(null);
+
+  // 初始化时自动定位到当前流月（居中显示）
+  useEffect(() => {
+    const container = gridRef.current;
+    if (!container) return;
+    const currentEl = container.querySelector('.liuyue-item.current');
+    if (currentEl) {
+      const target = currentEl.offsetLeft - container.clientWidth / 2 + currentEl.clientWidth / 2;
+      container.scrollLeft = Math.max(target, 0);
+    }
+  }, [liuyueData, selectedYear, currentLunarInfo]);
 
   return (
     <div className="card">
@@ -23,7 +35,7 @@ const LiuyueCard = ({
           </span>
         )}
       </p>
-      <div className="liuyue-grid">
+      <div className="liuyue-grid" ref={gridRef}>
         {liuyueData.map((yue, index) => {
           const ganWuxing = getGanWuxing(yue.gan);
           const zhiWuxing = getZhiWuxing(yue.zhi);

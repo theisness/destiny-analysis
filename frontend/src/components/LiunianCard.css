@@ -53,13 +53,7 @@
   background: #f8f9fa;
 }
 
-/* 流年格子 */
-/* 流年卡片容器 */
-.liunian-card {
-  margin-top: 16px;
-}
-
-/* 年份提示 */
+/* 流年提示 */
 .liunian-hint {
   margin-bottom: 12px;
   font-size: 13px;
@@ -71,20 +65,31 @@
   color: #333;
 }
 
-/* 年格子布局 */
+/* 流年格子：横向单行滑动，按屏幕宽度计算列宽 */
 .liunian-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 10px;
+  --gap: 10px;
+  --cols: 5; /* 桌面固定显示 5 列 */
+  --liunian-col-width: calc((100% - (var(--gap) * (var(--cols) - 1))) / var(--cols));
+
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--gap);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory; /* 滑动自动对齐 */
+  padding-bottom: 8px;
 }
 
 .liunian-item {
-  padding: 12px 10px;
   text-align: center;
+  padding: 10px 8px;
   background: #ffffff;
   border: 2px solid #e9ecef;
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  flex: 0 0 var(--liunian-col-width); /* 按容器宽度计算列宽 */
+  scroll-snap-align: start;
 }
 
 .liunian-item:hover {
@@ -128,16 +133,10 @@
   color: white;
 }
 
-/* 移动端：仅显示“当前流年”，保证一屏显示 */
+/* 移动端：横向滑动，固定同时显示 3 列 */
 @media (max-width: 576px) {
   .liunian-grid {
-    grid-template-columns: 1fr;
-  }
-  .liunian-item {
-    display: none;
-  }
-  .liunian-item.current {
-    display: block;
+    --cols: 3;
   }
   .liunian-ganzhi {
     font-size: 18px;
