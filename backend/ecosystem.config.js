@@ -4,7 +4,7 @@ module.exports = {
       name: 'destiny-backend',
       script: 'server.js',
       instances: 2,
-      exec_mode: 'fork',
+      exec_mode: 'cluster',
       autorestart: true,
       watch: false,
       max_memory_restart: '512M',
