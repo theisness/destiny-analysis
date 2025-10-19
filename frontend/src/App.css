@@ -221,3 +221,10 @@
   }
 }
 
+
+/* 复选框美化 */
+input[type="checkbox"]{accent-color:#667eea}
+.styled-checkbox{appearance:none;width:18px;height:18px;border:2px solid #667eea;border-radius:4px;display:inline-block;position:relative;cursor:pointer;background:#fff}
+.styled-checkbox:checked{background:#667eea;border-color:#667eea}
+.styled-checkbox:checked::after{content:"";position:absolute;left:4px;top:1px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+

@@ -81,7 +81,7 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
       <h2>分享设置</h2>
       <div className="share-grid">
         <label className="row">
-          <input type="checkbox" checked={addToCommunity} onChange={(e) => setAddToCommunity(e.target.checked)} />
+          <input className="styled-checkbox" type="checkbox" checked={addToCommunity} onChange={(e) => setAddToCommunity(e.target.checked)} />
           <span>加入社区展示</span>
         </label>
         {addToCommunity && (

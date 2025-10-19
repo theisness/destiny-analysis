@@ -4,6 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import { authAPI, uploadAPI } from '../../api/api';
 import './Profile.css';
 
+const BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api','') : 'http://localhost:5000';
+const DEFAULT_AVATAR = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#667eea"/><stop offset="100%" stop-color="#764ba2"/></linearGradient></defs><circle cx="32" cy="32" r="32" fill="url(#g)"/><circle cx="32" cy="26" r="12" fill="white" opacity="0.9"/><path d="M14 54c4-10 14-14 18-14s14 4 18 14" fill="white" opacity="0.9"/></svg>';
+
 const Profile = () => {
   const { user } = useAuth();
   const [form, setForm] = useState({
@@ -58,13 +61,14 @@ const Profile = () => {
         <div className="profile-card">
           <div className="avatar-section">
             <div className="avatar-preview">
-              {form.avatarUrl ? (
-                <img src={process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL.replace('/api','')}${form.avatarUrl}` : `http://localhost:5000${form.avatarUrl}`} alt="avatar" />
-              ) : (
-                <div className="avatar-placeholder">无头像</div>
-              )}
+              <img src={form.avatarUrl ? `${BASE_URL}${form.avatarUrl}` : DEFAULT_AVATAR} alt="avatar" />
             </div>
-            <input type="file" accept="image/*" onChange={handleUpload} />
+            <div className="avatar-actions">
+              <label className="btn btn-secondary btn-sm file-label">
+                更换头像
+                <input type="file" accept="image/*" onChange={handleUpload} />
+              </label>
+            </div>
           </div>
 
           <div className="grid grid-2">
@@ -86,7 +90,7 @@ const Profile = () => {
             </div>
             <div className="input-group">
               <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input type="checkbox" name="birthdayPrivate" checked={form.birthdayPrivate} onChange={handleChange} /> 生日对他人隐藏
+                <input className="styled-checkbox" type="checkbox" name="birthdayPrivate" checked={form.birthdayPrivate} onChange={handleChange} /> 生日对他人隐藏
               </label>
             </div>
             <div className="input-group" style={{ gridColumn: '1 / -1' }}>

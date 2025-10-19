@@ -1,13 +1,26 @@
 .comment-editor{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-.editor-actions{display:flex;justify-content:space-between;align-items:center}
+.comment-input{padding:10px;border:1px solid #e5e7eb;border-radius:8px;resize:vertical;outline:none;transition:border-color .2s, box-shadow .2s}
+.comment-input:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.15)}
+.editor-toolbar{display:flex;align-items:center;gap:10px}
+.icon-btn{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#f3f4f6;border:1px solid #e5e7eb;cursor:pointer;transition:transform .15s, box-shadow .15s}
+.icon-btn:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.1)}
+.toolbar-spacer{flex:1}
+.emoji-picker{margin-top:6px;padding:6px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;display:flex;flex-wrap:wrap;gap:6px}
+.emoji-btn{padding:6px 8px;border:none;border-radius:8px;background:#fff;cursor:pointer}
 .comments-list{display:flex;flex-direction:column;gap:12px}
 .comment-item{border:1px solid #e5e7eb;border-radius:8px;padding:10px}
 .comment-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .user{display:flex;align-items:center;gap:8px}
-.user .avatar{width:28px;height:28px;border-radius:50%;background:#eee}
+.user .avatar{width:28px;height:28px;border-radius:50%;background:#eee;border:1px solid #ddd}
+.user .name{font-weight:600}
+.user .dot{color:#999}
+.user .time{color:#666;font-size:12px}
 .images{display:flex;gap:8px;flex-wrap:wrap}
-.images img{width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #ddd}
+.images img{width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #ddd;cursor:pointer;transition:transform .15s}
+.images img:hover{transform:scale(1.02)}
 .comment-actions{display:flex;gap:12px;margin-top:6px}
 .btn-like{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:16px;padding:4px 10px;cursor:pointer}
 .btn-like.liked{background:#ffe4e6;border-color:#fb7185}
 .loading,.error,.empty{color:#666}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:1000}
+.lightbox-img{max-width:92vw;max-height:92vh;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
