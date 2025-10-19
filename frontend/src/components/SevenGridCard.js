@@ -22,17 +22,23 @@ const SevenGridCard = ({
 
   const renderHiddenList = (zhi) => {
     const hidden = getZhiCangGan(zhi) || [];
-    const padded = [...hidden, ...Array(Math.max(0, 3 - hidden.length)).fill(null)];
+    const actualHidden = hidden.filter(Boolean);
     if (isMobile) {
-      const actualHidden = hidden.filter(Boolean);
+      const count = actualHidden.length;
       return (
         <div className="hidden-gans-two-line">
-          <div className="hidden-gan-line">
+          <div
+            className="hidden-gan-line"
+            style={{ gridTemplateColumns: `repeat(${Math.max(1, count)}, max-content)`, justifyContent: 'center' }}
+          >
             {actualHidden.map((g, idx) => (
               <span key={`m-gan-${idx}`} className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
             ))}
           </div>
-          <div className="hidden-ss-line">
+          <div
+            className="hidden-ss-line"
+            style={{ gridTemplateColumns: `repeat(${Math.max(1, count)}, max-content)`, justifyContent: 'center' }}
+          >
             {actualHidden.map((g, idx) => {
               const ss = getShishen(riGan, g);
               return (
@@ -43,6 +49,7 @@ const SevenGridCard = ({
         </div>
       );
     }
+    const padded = [...actualHidden, ...Array(Math.max(0, 3 - actualHidden.length)).fill(null)];
     return (
       <div className="hidden-gans">
         {padded.map((g, index) => {
@@ -102,7 +109,7 @@ const SevenGridCard = ({
             return (
               <>
                 <div className="pillar-chars">
-                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{ganSS}</div>}
+                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
                   <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
                   <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
                 </div>
@@ -130,7 +137,7 @@ const SevenGridCard = ({
             return (
               <>
                 <div className="pillar-chars">
-                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{ganSS}</div>}
+                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
                   <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
                   <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
                 </div>
@@ -158,7 +165,7 @@ const SevenGridCard = ({
             return (
               <>
                 <div className="pillar-chars">
-                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{ganSS}</div>}
+                  {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, cur.gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
                   <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{cur.gan}</div>
                   <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{cur.zhi}</div>
                 </div>
@@ -193,21 +200,33 @@ const SevenGridCard = ({
                 <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{zhi}</div>
               </div>
               {isMobile ? (
-                <div className="hidden-gans-two-line">
-                  <div className="hidden-gan-line">
-                    {hiddenList.filter(Boolean).map((g, idx) => (
-                      <span key={`m-gan-${idx}`} className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
-                    ))}
-                  </div>
-                  <div className="hidden-ss-line">
-                    {hiddenList.filter(Boolean).map((g, idx) => {
-                      const ss = getShishen(riGan, g);
-                      return (
-                        <span key={`m-ss-${idx}`} className="shishen" style={{ color: getShishenColorBySource(ss, g) }}>{abbrShishen(ss)}</span>
-                      );
-                    })}
-                  </div>
-                </div>
+                (() => {
+                  const actualHidden = hiddenList.filter(Boolean);
+                  const count = actualHidden.length;
+                  return (
+                    <div className="hidden-gans-two-line">
+                      <div
+                        className="hidden-gan-line"
+                        style={{ gridTemplateColumns: `repeat(${Math.max(1, count)}, max-content)`, justifyContent: 'center' }}
+                      >
+                        {actualHidden.map((g, idx) => (
+                          <span key={`m-gan-${idx}`} className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
+                        ))}
+                      </div>
+                      <div
+                        className="hidden-ss-line"
+                        style={{ gridTemplateColumns: `repeat(${Math.max(1, count)}, max-content)`, justifyContent: 'center' }}
+                      >
+                        {actualHidden.map((g, idx) => {
+                          const ss = getShishen(riGan, g);
+                          return (
+                            <span key={`m-ss-${idx}`} className="shishen" style={{ color: getShishenColorBySource(ss, g) }}>{abbrShishen(ss)}</span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()
               ) : (
                 <div className="hidden-gans">
                   {([...hiddenList, ...Array(Math.max(0, 3 - hiddenList.length)).fill(null)]).map((g, index) => {

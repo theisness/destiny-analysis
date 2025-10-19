@@ -130,3 +130,42 @@
     font-size: 10px;
   }
 }
+
+/* 移动端两行栅格：藏干与十神各一行（3列对齐） */
+.hidden-gans-two-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.hidden-gan-line,
+.hidden-ss-line {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  justify-items: center; /* 列内居中 */
+  align-items: center;   /* 垂直居中 */
+}
+
+.hidden-gans-two-line .gan,
+.hidden-gans-two-line .shishen {
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .hidden-gans-two-line .gan,
+  .hidden-gans-two-line .shishen {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hidden-gans-two-line .gan,
+  .hidden-gans-two-line .shishen {
+    font-size: 10px;
+  }
+}

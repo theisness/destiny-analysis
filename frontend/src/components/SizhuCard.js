@@ -13,14 +13,21 @@ const SizhuCard = ({ baziResult, diShiData, naYinData, frontendHiddenGan = {}, t
     const actualHidden = (hiddenList || []).filter(Boolean);
     const padded = [...actualHidden, ...Array(Math.max(0, 3 - actualHidden.length)).fill(null)];
     if (isMobile) {
+      const count = actualHidden.length;
       return (
         <div className="hidden-gans-two-line">
-          <div className="hidden-gan-line">
+          <div
+            className="hidden-gan-line"
+            style={{ gridTemplateColumns: `repeat(${Math.max(1, count)}, max-content)`, justifyContent: 'center' }}
+          >
             {actualHidden.map((g, idx) => (
               <span key={`m-gan-${idx}`} className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
             ))}
           </div>
-          <div className="hidden-ss-line">
+          <div
+            className="hidden-ss-line"
+            style={{ gridTemplateColumns: `repeat(${Math.max(1, count)}, max-content)`, justifyContent: 'center' }}
+          >
             {actualHidden.map((g, idx) => {
               const ss = getShishen(riGan, g);
               return (
