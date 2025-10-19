@@ -1,7 +1,7 @@
 import './SevenGridCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
-import { getShishen , getShishenColorBySource } from '../utils/shishen-calculator';
+import { getShishen , getShishenColorBySource, abbrShishen } from '../utils/shishen-calculator';
 import { calculateDiShi, calculateNaYin, getDiShiColor, getNaYinColor, getZhiBenQi, getZhiCangGan } from '../utils/bazi-utils';
 
 const SevenGridCard = ({
@@ -18,10 +18,31 @@ const SevenGridCard = ({
 }) => {
   if (!baziResult) return null;
   const riGan = baziResult.dayPillar?.gan;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 576;
 
   const renderHiddenList = (zhi) => {
     const hidden = getZhiCangGan(zhi) || [];
     const padded = [...hidden, ...Array(Math.max(0, 3 - hidden.length)).fill(null)];
+    if (isMobile) {
+      const actualHidden = hidden.filter(Boolean);
+      return (
+        <div className="hidden-gans-two-line">
+          <div className="hidden-gan-line">
+            {actualHidden.map((g, idx) => (
+              <span key={`m-gan-${idx}`} className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
+            ))}
+          </div>
+          <div className="hidden-ss-line">
+            {actualHidden.map((g, idx) => {
+              const ss = getShishen(riGan, g);
+              return (
+                <span key={`m-ss-${idx}`} className="shishen" style={{ color: getShishenColorBySource(ss, g) }}>{abbrShishen(ss)}</span>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="hidden-gans">
         {padded.map((g, index) => {
@@ -167,30 +188,48 @@ const SevenGridCard = ({
             <div key={pillar} className="seven-col">
               <div className="col-title">{pillarLabel}</div>
               <div className="pillar-chars">
-                {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, gan) }}>{ganSS}</div>}
+                {ganSS && <div className="shishen-label" style={{ color: getShishenColorBySource(ganSS, gan) }}>{isMobile ? abbrShishen(ganSS) : ganSS}</div>}
                 <div className="char" style={{ color: getWuxingColor(ganWuxing) }}>{gan}</div>
                 <div className="char" style={{ color: getWuxingColor(zhiWuxing) }}>{zhi}</div>
               </div>
-              <div className="hidden-gans">
-                {([...hiddenList, ...Array(Math.max(0, 3 - hiddenList.length)).fill(null)]).map((g, index) => {
-                  if (!g) {
+              {isMobile ? (
+                <div className="hidden-gans-two-line">
+                  <div className="hidden-gan-line">
+                    {hiddenList.filter(Boolean).map((g, idx) => (
+                      <span key={`m-gan-${idx}`} className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
+                    ))}
+                  </div>
+                  <div className="hidden-ss-line">
+                    {hiddenList.filter(Boolean).map((g, idx) => {
+                      const ss = getShishen(riGan, g);
+                      return (
+                        <span key={`m-ss-${idx}`} className="shishen" style={{ color: getShishenColorBySource(ss, g) }}>{abbrShishen(ss)}</span>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="hidden-gans">
+                  {([...hiddenList, ...Array(Math.max(0, 3 - hiddenList.length)).fill(null)]).map((g, index) => {
+                    if (!g) {
+                      return (
+                        <div key={`empty-${pillar}-${index}`} className="hidden-gan-item" style={{ visibility: 'hidden' }}>
+                          <span className="gan">-</span>
+                          <span className="shishen">-</span>
+                          <span className="label">（-）</span>
+                        </div>
+                      );
+                    }
+                    const ss = getShishen(riGan, g);
                     return (
-                      <div key={`empty-${pillar}-${index}`} className="hidden-gan-item" style={{ visibility: 'hidden' }}>
-                        <span className="gan">-</span>
-                        <span className="shishen">-</span>
-                        <span className="label">（-）</span>
+                      <div key={index} className="hidden-gan-item">
+                        <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
+                        <span className="shishen" style={{ color: getShishenColorBySource(ss, g) }}>{ss}</span>
                       </div>
                     );
-                  }
-                  const ss = getShishen(riGan, g);
-                  return (
-                    <div key={index} className="hidden-gan-item">
-                      <span className="gan" style={{ color: getWuxingColor(getGanWuxing(g)) }}>{g}</span>
-                      <span className="shishen" style={{ color: getShishenColorBySource(ss, g) }}>{ss}</span>
-                    </div>
-                  );
-                })}
-              </div>
+                  })}
+                </div>
+              )}
               {dishi && <div className="dishi-label" style={{ color: getDiShiColor(dishi) }}>{dishi}</div>}
               {nayin && <div className="nayin-label" style={{ color: getNaYinColor(nayin) }}>{nayin}</div>}
             </div>

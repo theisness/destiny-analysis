@@ -1,7 +1,7 @@
 import './LiunianCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
-import { getShishen, getShishenColorBySource } from '../utils/shishen-calculator';
+import { getShishen, getShishenColorBySource, abbrShishen } from '../utils/shishen-calculator';
 
 const LiunianCard = ({
   liunianData = [],
@@ -14,6 +14,7 @@ const LiunianCard = ({
   baziResult
 }) => {
   const riGan = baziResult?.dayPillar?.gan;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 576;
 
   return (
     <div className="card">
@@ -43,7 +44,7 @@ const LiunianCard = ({
             <div key={index} className={`liunian-item ${nian.isCurrent ? 'current' : ''}`}>
               <div className="liunian-year">{nian.year}</div>
               <div className="liunian-shishen" style={{ color: getShishenColorBySource(ganShishen, nian.gan) }}>
-                {ganShishen}
+                {isMobile ? abbrShishen(ganShishen) : ganShishen}
               </div>
               <div className="liunian-ganzhi">
                 <span style={{ color: getWuxingColor(ganWuxing) }}>{nian.gan}</span>

@@ -106,6 +106,24 @@ export const getShishenColor = (shishen) => {
   return colorMap[shishen] || '#666';
 };
 
+// 移动端：十神单字缩写映射
+export const abbrShishen = (shishen) => {
+  const map = {
+    '日主': '主',
+    '比肩': '比',
+    '劫财': '劫',
+    '食神': '食',
+    '伤官': '伤',
+    '偏财': '财',
+    '正财': '才',
+    '七杀': '杀',
+    '正官': '官',
+    '偏印': '枭',
+    '正印': '印'
+  };
+  return map[shishen] || shishen;
+};
+
 // 辅助：颜色明暗调整（percent>0变浅，percent<0变深）
 const shadeColor = (hex, percent) => {
   try {

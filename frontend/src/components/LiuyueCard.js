@@ -1,7 +1,7 @@
 import './LiuyueCard.css'
 import React from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
-import { getShishen, getShishenColorBySource } from '../utils/shishen-calculator';
+import { getShishen, getShishenColorBySource, abbrShishen } from '../utils/shishen-calculator';
 
 const LiuyueCard = ({
   liuyueData = [],
@@ -10,6 +10,7 @@ const LiuyueCard = ({
   baziResult
 }) => {
   const riGan = baziResult?.dayPillar?.gan;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 576;
 
   return (
     <div className="card">
@@ -31,7 +32,7 @@ const LiuyueCard = ({
             <div key={index} className={`liuyue-item ${yue.isCurrent ? 'current' : ''}`}>
               <div className="liuyue-month">{yue.month}月</div>
               <div className="liuyue-shishen" style={{ color: getShishenColorBySource(ganShishen, yue.gan) }}>
-                {ganShishen}
+                {isMobile ? abbrShishen(ganShishen) : ganShishen}
               </div>
               <div className="liuyue-ganzhi">
                 <span style={{ color: getWuxingColor(ganWuxing) }}>{yue.gan}</span>
