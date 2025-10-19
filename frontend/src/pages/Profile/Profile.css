@@ -12,7 +12,7 @@
 .input-group input,.input-group select,.input-group textarea{padding:10px;border:1px solid #d1d5db;border-radius:8px;transition:border-color .2s, box-shadow .2s}
 .input-group input:focus,.input-group select:focus,.input-group textarea:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.12);outline:none}
 .actions{display:flex;justify-content:flex-end;margin-top:12px}
-.btn{padding:8px 14px;border:none;border-radius:8px;cursor:pointer}
+.btn{padding:8px 6px;border:none;border-radius:8px;cursor:pointer}
 .btn-primary{background:#2563eb;color:#fff}
 .message{margin-top:8px;color:#2563eb}
 @media(max-width:640px){
