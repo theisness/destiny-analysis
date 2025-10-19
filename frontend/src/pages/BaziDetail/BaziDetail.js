@@ -212,12 +212,26 @@ const BaziDetail = () => {
 
   const { baziResult } = record;
   const toggleControl = (
-    <button
-      className="btn btn-secondary"
-      onClick={() => setViewMode(viewMode === 'sizhu' ? 'seven' : 'sizhu')}
-    >
-      切换：{viewMode === 'sizhu' ? '综合排盘（七列）' : '四柱排盘'}
-    </button>
+    <div className="view-toggle">
+      <label
+        className="toggle-switch"
+        role="switch"
+        aria-checked={viewMode === 'seven'}
+        aria-label="切换排盘视图"
+      >
+        <input
+          type="checkbox"
+          checked={viewMode === 'seven'}
+          onChange={(e) => setViewMode(e.target.checked ? 'seven' : 'sizhu')}
+        />
+        <span className="switch-track">
+          <span className="switch-thumb" />
+        </span>
+        <span className="switch-label">
+          切换排盘视图
+        </span>
+      </label>
+    </div>
   );
   return (
     <div className="bazi-detail">
