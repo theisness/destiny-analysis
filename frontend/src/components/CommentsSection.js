@@ -16,6 +16,7 @@ const CommentsSection = ({ baziId }) => {
   const [posting, setPosting] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState('');
+  const [previewUrls, setPreviewUrls] = useState([]);
 
   useEffect(() => {
     fetchComments();
@@ -46,9 +47,19 @@ const CommentsSection = ({ baziId }) => {
     }
   };
 
+  useEffect(() => {
+    const urls = files.map(f => URL.createObjectURL(f));
+    setPreviewUrls(urls);
+    return () => { urls.forEach(u => URL.revokeObjectURL(u)); };
+  }, [files]);
+
   const handleFileChange = (e) => {
     const f = Array.from(e.target.files || []);
     setFiles(f.slice(0, 4)); // 最多4张
+  };
+
+  const removeFile = (idx) => {
+    setFiles(prev => prev.filter((_, i) => i !== idx));
   };
 
   const handlePost = async () => {
@@ -108,6 +119,16 @@ const CommentsSection = ({ baziId }) => {
           <div className="toolbar-spacer" />
           <button className="btn btn-primary" onClick={handlePost} disabled={posting}>发布</button>
         </div>
+        {files.length > 0 && (
+          <div className="selected-images">
+            {previewUrls.map((src, idx) => (
+              <div key={idx} className="selected-image">
+                <img src={src} alt="预览" onClick={() => setLightboxSrc(src)} />
+                <button type="button" className="remove-img" onClick={() => removeFile(idx)}>×</button>
+              </div>
+            ))}
+          </div>
+        )}
         {showEmoji && (
           <div className="emoji-picker">
             {EMOJIS.map(e => (
