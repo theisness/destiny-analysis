@@ -34,6 +34,7 @@ const Navbar = () => {
           <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'navbar-link active' : 'navbar-link'}>我的八字</NavLink>
           <NavLink to="/bazi/new" className={({ isActive }) => isActive ? 'navbar-link active' : 'navbar-link'}>新建排盘</NavLink>
           <NavLink to="/community" className={({ isActive }) => isActive ? 'navbar-link active' : 'navbar-link'}>社区</NavLink>
+          <NavLink to="/profile" className={({ isActive }) => isActive ? 'navbar-link active' : 'navbar-link'}>个人资料</NavLink>
           {!isMobile && (
             <div className="navbar-user">
               <span className="user-name">{user?.username}</span>

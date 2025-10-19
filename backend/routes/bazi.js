@@ -235,12 +235,18 @@ router.get('/:id', protect, async (req, res) => {
       });
     }
 
-    // 确保只有创建者可以查看（除非是社区记录）
-    if (record.userId.toString() !== req.user._id.toString() && !record.addToCommunity) {
-      return res.status(403).json({
-        success: false,
-        message: '无权访问此记录'
-      });
+    // 权限判断：
+    // 1) 非社区记录：仅创建者可见
+    // 2) 社区记录：管理员可见；public可见；restricted仅允许名单内可见
+    if (!record.addToCommunity && record.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: '无权访问此记录' });
+    }
+    if (record.addToCommunity) {
+      const type = record.shareSettings?.type || 'public';
+      const allowed = record.shareSettings?.allowedUserIds || [];
+      if (req.user.admin !== 1 && type === 'restricted' && !allowed.map(id => id.toString()).includes(req.user._id.toString())) {
+        return res.status(403).json({ success: false, message: '无权访问此记录' });
+      }
     }
 
     res.json({
@@ -257,37 +263,78 @@ router.get('/:id', protect, async (req, res) => {
 });
 
 /**
+ * @route   PATCH /api/bazi/:id
+ * @desc    编辑八字记录（分享设置、基本信息等）
+ * @access  Private
+ */
+router.patch('/:id', protect, async (req, res) => {
+  try {
+    const record = await BaziRecord.findById(req.params.id);
+    if (!record) return res.status(404).json({ success: false, message: '记录不存在' });
+    if (record.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: '无权编辑此记录' });
+    }
+
+    const allowedFields = ['name', 'gender', 'addToCommunity', 'shareSettings'];
+    const update = {};
+    for (const key of allowedFields) {
+      if (req.body[key] !== undefined) update[key] = req.body[key];
+    }
+
+    // 规范 shareSettings
+    if (update.shareSettings) {
+      const s = update.shareSettings;
+      update.shareSettings = {
+        type: s.type === 'restricted' ? 'restricted' : 'public',
+        allowedUserIds: Array.isArray(s.allowedUserIds) ? s.allowedUserIds : []
+      };
+    }
+
+    const updated = await BaziRecord.findByIdAndUpdate(req.params.id, { $set: update }, { new: true });
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    console.error('编辑八字错误:', error);
+    res.status(500).json({ success: false, message: '编辑失败' });
+  }
+});
+
+/**
  * @route   GET /api/bazi/community
- * @desc    获取社区中的所有八字记录
+ * @desc    获取社区中的所有八字记录（按分享权限过滤）
  * @access  Private
  */
 router.get('/community/list', protect, async (req, res) => {
   try {
     const { search } = req.query;
-    
-    let query = { addToCommunity: true };
-    
-    // 如果有搜索关键词
-    if (search) {
-      query.name = { $regex: search, $options: 'i' };
+
+    const baseQuery = { addToCommunity: true };
+    if (search) baseQuery.name = { $regex: search, $options: 'i' };
+
+    // 管理员可查看全部
+    if (req.user.admin === 1) {
+      const records = await BaziRecord.find(baseQuery)
+        .populate('userId', 'username')
+        .sort({ name: 1 })
+        .select('-__v');
+      return res.json({ success: true, count: records.length, data: records });
     }
 
-    const records = await BaziRecord.find(query)
+    // 非管理员：只看 public 或 restricted 且包含当前用户
+    const records = await BaziRecord.find({
+      ...baseQuery,
+      $or: [
+        { 'shareSettings.type': { $in: [null, 'public'] } },
+        { 'shareSettings.type': 'restricted', 'shareSettings.allowedUserIds': req.user._id }
+      ]
+    })
       .populate('userId', 'username')
       .sort({ name: 1 })
       .select('-__v');
 
-    res.json({
-      success: true,
-      count: records.length,
-      data: records
-    });
+    res.json({ success: true, count: records.length, data: records });
   } catch (error) {
     console.error('获取社区八字错误:', error);
-    res.status(500).json({
-      success: false,
-      message: '获取社区记录失败'
-    });
+    res.status(500).json({ success: false, message: '获取社区记录失败' });
   }
 });
 

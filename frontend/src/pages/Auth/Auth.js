@@ -9,7 +9,8 @@ const Auth = () => {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    inviteCode: ''
   });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
@@ -63,6 +64,9 @@ const Auth = () => {
       } else if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = '两次输入的密码不一致';
       }
+      if (!formData.inviteCode) {
+        newErrors.inviteCode = '请输入邀请码';
+      }
     }
 
     setErrors(newErrors);
@@ -88,7 +92,8 @@ const Auth = () => {
         result = await register({
           username: formData.username,
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          inviteCode: formData.inviteCode
         });
       }
 
@@ -187,6 +192,22 @@ const Auth = () => {
             </div>
           )}
 
+          {!isLogin && (
+            <div className="input-group">
+              <label>邀请码</label>
+              <input
+                type="text"
+                name="inviteCode"
+                value={formData.inviteCode}
+                onChange={handleChange}
+                className={errors.inviteCode ? 'error' : ''}
+                placeholder="请输入邀请码"
+              />
+              {errors.inviteCode && (
+                <span className="error-message">{errors.inviteCode}</span>
+              )}
+            </div>
+          )}
           {message && (
             <div className="message error-message">{message}</div>
           )}

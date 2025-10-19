@@ -110,7 +110,7 @@ const SevenGridCard = ({
               const ganSS = getShishen(riGan, cur.gan);
               const zhiBenQi = getZhiBenQi(cur.zhi);
               const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-              const dishi = calculateDiShi(cur.gan, cur.zhi);
+              const dishi = calculateDiShi(riGan, cur.zhi);
               const nayin = calculateNaYin(cur.gan, cur.zhi);
               return (
                 <>
@@ -140,7 +140,7 @@ const SevenGridCard = ({
               const ganSS = getShishen(riGan, cur.gan);
               const zhiBenQi = getZhiBenQi(cur.zhi);
               const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-              const dishi = calculateDiShi(cur.gan, cur.zhi);
+              const dishi = calculateDiShi(riGan, cur.zhi);
               const nayin = calculateNaYin(cur.gan, cur.zhi);
               return (
                 <>
@@ -170,7 +170,7 @@ const SevenGridCard = ({
               const ganSS = getShishen(riGan, cur.gan);
               const zhiBenQi = getZhiBenQi(cur.zhi);
               const zhiSS = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
-              const dishi = calculateDiShi(cur.gan, cur.zhi);
+              const dishi = calculateDiShi(riGan, cur.zhi);
               const nayin = calculateNaYin(cur.gan, cur.zhi);
               return (
                 <>

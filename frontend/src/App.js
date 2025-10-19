@@ -7,6 +7,7 @@ import BaziInput from './pages/BaziInput/BaziInput';
 import BaziDetail from './pages/BaziDetail/BaziDetail';
 import Community from './pages/Community/Community';
 import './App.css';
+import Profile from './pages/Profile/Profile';
 
 // 私有路由组件
 const PrivateRoute = ({ children }) => {
@@ -55,6 +56,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Community />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <Profile />
                 </PrivateRoute>
               }
             />

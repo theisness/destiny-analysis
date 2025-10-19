@@ -43,6 +43,8 @@ import SevenGridCard from '../../components/SevenGridCard';
 import LiunianCard from '../../components/LiunianCard';
 import LiuyueCard from '../../components/LiuyueCard';
 import DayunCard from '../../components/DayunCard';
+import ShareSettingsSection from '../../components/ShareSettingsSection';
+import CommentsSection from '../../components/CommentsSection';
 
 const BaziDetail = () => {
   const { id } = useParams();
@@ -272,6 +274,7 @@ const BaziDetail = () => {
           </div>
         </div>
 
+        <ShareSettingsSection record={record} onUpdated={(data) => setRecord(prev => ({ ...prev, ...data }))} />
         {/* 七列综合排盘（仅七列卡片） */}
         <SevenGridCard
           baziResult={baziResult}
@@ -327,6 +330,8 @@ const BaziDetail = () => {
           currentLunarInfo={currentLunarInfo}
           baziResult={baziResult}
         />
+
+        <CommentsSection baziId={record._id} />
 
         {/* 已移除底部重复的七列综合排盘 */}
       </div>

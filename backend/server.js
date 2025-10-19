@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./config/db');
 
 // 加载环境变量
@@ -21,9 +22,15 @@ app.use(express.urlencoded({ extended: true }));
 const logger = require('./middleware/logger');
 app.use(logger);
 
+// 静态文件（上传）
+app.use('/files', express.static(path.join(__dirname, 'public', 'files')));
+
 // 路由
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/bazi', require('./routes/bazi'));
+app.use('/api/upload', require('./routes/upload'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/comments', require('./routes/comments'));
 
 // 根路由
 app.get('/', (req, res) => {

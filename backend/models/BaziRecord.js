@@ -101,6 +101,15 @@ const BaziRecordSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // 分享设置：public-所有人可看；restricted-部分人可看
+  shareSettings: {
+    type: {
+      type: String,
+      enum: ['public', 'restricted'],
+      default: 'public'
+    },
+    allowedUserIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  },
   createdAt: {
     type: Date,
     default: Date.now

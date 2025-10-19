@@ -47,13 +47,36 @@ export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   
   // 获取当前用户信息
-  getCurrentUser: () => api.get('/auth/current')
+  getCurrentUser: () => api.get('/auth/current'),
+
+  // 更新个人信息
+  updateProfile: (data) => api.patch('/auth/profile', data)
+};
+
+// 文件上传 API（使用 FormData）
+export const uploadAPI = {
+  uploadFiles: (files) => {
+    const form = new FormData();
+    for (const f of files) form.append('files', f);
+    return api.post('/upload', form, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  }
+};
+
+// 用户相关 API
+export const usersAPI = {
+  search: (q) => api.get(`/users/search?q=${encodeURIComponent(q)}`),
+  getById: (id) => api.get(`/users/${id}`)
 };
 
 // 八字相关 API
 export const baziAPI = {
   // 创建八字记录
   create: (baziData) => api.post('/bazi', baziData),
+  
+  // 编辑八字记录
+  update: (id, data) => api.patch(`/bazi/${id}` , data),
   
   // 获取当前用户的所有八字记录
   getAll: () => api.get('/bazi'),
@@ -69,6 +92,15 @@ export const baziAPI = {
   
   // 获取当前农历信息
   getCurrentLunar: () => api.get('/bazi/current-lunar')
+};
+
+// 评论相关 API
+export const commentsAPI = {
+  list: (baziId) => api.get(`/comments/${baziId}`),
+  create: (data) => api.post('/comments', data),
+  update: (id, data) => api.patch(`/comments/${id}`, data),
+  delete: (id) => api.delete(`/comments/${id}`),
+  like: (id) => api.post(`/comments/${id}/like`)
 };
 
 export default api;

@@ -22,7 +22,8 @@ router.post(
   [
     body('username').trim().isLength({ min: 2, max: 30 }).withMessage('用户名需要2-30个字符'),
     body('email').isEmail().normalizeEmail().withMessage('请输入有效的邮箱地址'),
-    body('password').isLength({ min: 6 }).withMessage('密码至少需要6个字符')
+    body('password').isLength({ min: 6 }).withMessage('密码至少需要6个字符'),
+    body('inviteCode').trim().isLength({ min: 1, max: 255 }).withMessage('请输入有效的邀请码')
   ],
   async (req, res) => {
     // 验证输入
@@ -34,7 +35,7 @@ router.post(
       });
     }
 
-    const { username, email, password } = req.body;
+    const { username, email, password, inviteCode } = req.body;
 
     try {
       // 检查用户是否已存在
@@ -46,12 +47,25 @@ router.post(
         });
       }
 
+      // 校验邀请码
+      const InviteCode = require('../models/InviteCode');
+      const codeDoc = await InviteCode.findOne({ code: inviteCode, active: true });
+      if (!codeDoc) {
+        return res.status(400).json({ success: false, message: '邀请码无效或已使用' });
+      }
+
       // 创建新用户
       user = await User.create({
         username,
         email,
         password
       });
+
+      // 标记邀请码已使用
+      codeDoc.active = false;
+      codeDoc.usedBy = user._id;
+      codeDoc.usedAt = new Date();
+      await codeDoc.save();
 
       // 生成 Token
       const token = generateToken(user._id);
@@ -63,7 +77,14 @@ router.post(
         user: {
           id: user._id,
           username: user.username,
-          email: user.email
+          email: user.email,
+          admin: user.admin,
+          avatarUrl: user.avatarUrl,
+          nickname: user.nickname,
+          gender: user.gender,
+          birthday: user.birthday,
+          birthdayPrivate: user.birthdayPrivate,
+          bio: user.bio
         }
       });
     } catch (error) {
@@ -130,7 +151,14 @@ router.post(
         user: {
           id: user._id,
           username: user.username,
-          email: user.email
+          email: user.email,
+          admin: user.admin,
+          avatarUrl: user.avatarUrl,
+          nickname: user.nickname,
+          gender: user.gender,
+          birthday: user.birthday,
+          birthdayPrivate: user.birthdayPrivate,
+          bio: user.bio
         }
       });
     } catch (error) {
@@ -158,7 +186,14 @@ router.get('/current', protect, async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
+        admin: user.admin,
+        avatarUrl: user.avatarUrl,
+        nickname: user.nickname,
+        gender: user.gender,
+        birthday: user.birthday,
+        birthdayPrivate: user.birthdayPrivate,
+        bio: user.bio
       }
     });
   } catch (error) {
@@ -167,6 +202,42 @@ router.get('/current', protect, async (req, res) => {
       success: false,
       message: '服务器错误'
     });
+  }
+});
+
+/**
+ * @route   PATCH /api/auth/profile
+ * @desc    更新当前登录用户的个人信息
+ * @access  Private
+ */
+router.patch('/profile', protect, async (req, res) => {
+  try {
+    const update = {};
+    const allowedFields = ['avatarUrl', 'nickname', 'gender', 'birthday', 'birthdayPrivate', 'bio'];
+    for (const key of allowedFields) {
+      if (req.body[key] !== undefined) update[key] = req.body[key];
+    }
+    const user = await User.findByIdAndUpdate(req.user.id, update, { new: true });
+    res.json({
+      success: true,
+      message: '更新成功',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+        admin: user.admin,
+        avatarUrl: user.avatarUrl,
+        nickname: user.nickname,
+        gender: user.gender,
+        birthday: user.birthday,
+        birthdayPrivate: user.birthdayPrivate,
+        bio: user.bio
+      }
+    });
+  } catch (error) {
+    console.error('更新个人信息错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
   }
 });
 

@@ -27,6 +27,18 @@ const UserSchema = new mongoose.Schema({
     minlength: [6, '密码至少6个字符'],
     select: false
   },
+  // 管理员标识：1为管理员，可查看所有八字
+  admin: {
+    type: Number,
+    default: 0
+  },
+  // 个人信息
+  avatarUrl: { type: String, default: '' },
+  nickname: { type: String, default: '' },
+  gender: { type: String, enum: ['男', '女', '保密'], default: '保密' },
+  birthday: { type: Date },
+  birthdayPrivate: { type: Boolean, default: false },
+  bio: { type: String, default: '' },
   createdAt: {
     type: Date,
     default: Date.now
@@ -36,9 +48,8 @@ const UserSchema = new mongoose.Schema({
 // 密码加密中间件
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
-  
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
