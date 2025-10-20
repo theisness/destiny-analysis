@@ -637,7 +637,7 @@ const BaziInput = () => {
         <div className="modal-overlay" onClick={() => setShowDateSelectModal(false)}>
           <div className="modal-content date-select-modal" onClick={(e) => e.stopPropagation()}>
             <h2>选择对应的日期时间</h2>
-            <p className="modal-hint">根据您选择的四柱，以下是可能的日期时间范围（向前500年、向后20年）</p>
+            <p className="modal-hint">根据您选择的四柱，以下是可能的日期时间范围（向前120年）</p>
             <div className="date-options">
               {possibleDates.length > 0 ? (
                 possibleDates.map((dateOption, index) => (
