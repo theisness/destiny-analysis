@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import './CommentsSection.css';
 import { BASE_URL, DEFAULT_AVATAR } from '../config';
+import SecureImage from './SecureImage';
 
 const CommentsSection = ({ baziId }) => {
   const { user } = useAuth();
@@ -151,7 +152,7 @@ const CommentsSection = ({ baziId }) => {
                 <div className="comment-head">
                   <div className="user">
                     <Link to={`/users/${c.user?._id}`} className="user-link">
-                      <img className="avatar" src={getAvatarSrc(c.user)} alt="" />
+                      <SecureImage className="avatar" src={getAvatarSrc(c.user)} alt="" />
                     </Link>
                     <Link to={`/users/${c.user?._id}`} className="name user-link">{c.user?.nickname || c.user?.username}</Link>
                     <span className="dot">·</span>
@@ -162,7 +163,7 @@ const CommentsSection = ({ baziId }) => {
                 {Array.isArray(c.images) && c.images.length > 0 && (
                   <div className="images">
                     {c.images.map((img, idx) => (
-                      <img key={idx} src={getFileSrc(img)} alt="" onClick={() => setLightboxSrc(getFileSrc(img))} />
+                      <SecureImage key={idx} src={getFileSrc(img)} alt="" onClick={(e) => setLightboxSrc(e.currentTarget.src)} />
                     ))}
                   </div>
                 )}
@@ -180,7 +181,7 @@ const CommentsSection = ({ baziId }) => {
         </div>
       )}
       {lightboxSrc && (
-        <div className="lightbox" onClick={() => setLightboxSrc('')}>
+        <div className="lightbox" onClick={() => { if (lightboxSrc.startsWith('blob:')) URL.revokeObjectURL(lightboxSrc); setLightboxSrc(''); }}>
           <img className="lightbox-img" src={lightboxSrc} alt="preview" />
         </div>
       )}

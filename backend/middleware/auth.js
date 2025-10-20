@@ -2,7 +2,11 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // 白名单
-const whitelist = ['/default-avatar.png'];
+const whitelist = [
+  '/api/files/default-avatar.png',
+  '/api/auth/register',
+  '/api/auth/login',
+];
 
 // JWT 验证中间件
 const protect = async (req, res, next) => {

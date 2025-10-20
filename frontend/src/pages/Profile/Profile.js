@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar';
 import { useAuth  } from '../../context/AuthContext';
 import { authAPI,uploadAPI } from '../../api/api';
 import { BASE_URL } from '../../config';
+import SecureImage from '../../components/SecureImage';
 
 const DEFAULT_AVATAR = `${BASE_URL}/files/default-avatar.png`;
 
@@ -76,7 +77,7 @@ const Profile = () => {
         <div className="profile-card">
           <div className="avatar-section">
             <div className="avatar-preview">
-              <img src={form.avatarUrl ? `${BASE_URL}${form.avatarUrl}` : DEFAULT_AVATAR} alt="avatar" />
+              <SecureImage src={form.avatarUrl ? `${BASE_URL}${form.avatarUrl}` : DEFAULT_AVATAR} alt="avatar" />
             </div>
             <div className="avatar-actions">
               <label className="btn btn-secondary btn-sm file-label">

@@ -21,17 +21,17 @@ app.use(express.urlencoded({ extended: true }));
 // 日志中间件 - 记录所有接口的输入输出
 const logger = require('./middleware/logger');
 app.use(logger);
-
-// 路由
-app.use('/api/auth', require('./routes/auth'));
 // 经过protect中间件的路由
 const { protect } = require('./middleware/auth');
-app.use('/api/bazi', protect, require('./routes/bazi'));
-app.use('/api/upload', protect, require('./routes/upload'));
-app.use('/api/users', protect, require('./routes/users'));
-app.use('/api/comments', protect, require('./routes/comments'));
+app.use('/', protect);
+// 路由
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/bazi', require('./routes/bazi'));
+app.use('/api/upload', require('./routes/upload'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/comments', require('./routes/comments'));
 // 静态文件
-app.use('/api/files', protect, express.static(path.join(__dirname, 'public', 'files')));
+app.use('/api/files', express.static(path.join(__dirname, 'public', 'files')));
 
 
 // 根路由

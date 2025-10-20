@@ -3,7 +3,6 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
-const { protect } = require('../middleware/auth');
 
 // 生成 JWT Token
 const generateToken = (id) => {
@@ -170,7 +169,7 @@ router.post(
  * @desc    获取当前登录用户信息
  * @access  Private
  */
-router.get('/current', protect, async (req, res) => {
+router.get('/current', async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     
@@ -204,7 +203,7 @@ router.get('/current', protect, async (req, res) => {
  * @desc    更新当前登录用户的个人信息
  * @access  Private
  */
-router.patch('/profile', protect, async (req, res) => {
+router.patch('/profile', async (req, res) => {
   try {
     const update = {};
     const allowedFields = ['avatarUrl', 'nickname', 'gender', 'birthday', 'birthdayPrivate', 'bio'];

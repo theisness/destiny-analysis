@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar';
 import { usersAPI } from '../../api/api';
 import { BASE_URL, DEFAULT_AVATAR } from '../../config';
 import './UserProfile.css';
+import SecureImage from '../../components/SecureImage';
 
 
 
@@ -51,7 +52,7 @@ const UserProfile = () => {
         ) : (
           <div className="card user-card">
             <div className="user-main">
-              <img className="avatar" src={getAvatarSrc(profile)} alt="avatar" />
+              <SecureImage className="avatar" src={getAvatarSrc(profile)} alt="avatar" />
               <div className="info">
                 <div className="name">{profile.nickname || profile.username}</div>
                 <div className="sub">@{profile.username}</div>

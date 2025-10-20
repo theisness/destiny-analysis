@@ -48,6 +48,7 @@ import ShareSettingsSection from '../../components/ShareSettingsSection';
 import CommentsSection from '../../components/CommentsSection';
 import { BASE_URL, DEFAULT_AVATAR } from '../../config';
 import { useAuth } from '../../context/AuthContext';
+import SecureImage from '../../components/SecureImage';
 
 const BaziDetail = () => {
   const { id } = useParams();
@@ -270,7 +271,7 @@ const BaziDetail = () => {
               <span className="info-label">八字发布者：</span>
               <span className="info-value publisher-info">
                 <Link to={publisher?._id ? `/users/${publisher._id}` : '#'} className="publisher-link">
-                  <img className="avatar" src={getAvatarSrc(publisher)} alt="" />
+                  <SecureImage className="avatar" src={getAvatarSrc(publisher)} alt="" />
                 </Link>
                 <Link to={publisher?._id ? `/users/${publisher._id}` : '#'} className="publisher-name">
                   {publisher?.nickname || publisher?.username || '—'}
