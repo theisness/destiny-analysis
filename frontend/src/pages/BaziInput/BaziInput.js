@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import { baziAPI } from '../../api/api';
 import './BaziInput.css';
+import { Solar } from 'lunar-javascript';
 
 const BaziInput = () => {
   const navigate = useNavigate();
@@ -84,31 +85,12 @@ const BaziInput = () => {
   const calculatePossibleDates = async () => {
     try {
       setSizhuCalculating(true);
-      
-      // 调用后端 API 根据四柱反推日期
-      const response = await fetch('/api/bazi/reverse-calculate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          sizhu: sizhu
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setPossibleDates(data.dates || []);
-        setShowDateSelectModal(true);
-      } else {
-        // 如果后端 API 不可用，使用前端简化计算
-        calculatePossibleDatesLocal();
-      }
+      const data = await reverseCalculateDatesFrontend(sizhu);
+      setPossibleDates(data || []);
+      setShowDateSelectModal(true);
     } catch (error) {
       console.error('反推日期失败:', error);
-      // 降级到本地计算
-      calculatePossibleDatesLocal();
+      setError('反推日期失败');
     } finally {
       setSizhuCalculating(false);
     }
@@ -655,7 +637,7 @@ const BaziInput = () => {
         <div className="modal-overlay" onClick={() => setShowDateSelectModal(false)}>
           <div className="modal-content date-select-modal" onClick={(e) => e.stopPropagation()}>
             <h2>选择对应的日期时间</h2>
-            <p className="modal-hint">根据您选择的四柱，以下是可能的日期时间范围（最近120年）</p>
+            <p className="modal-hint">根据您选择的四柱，以下是可能的日期时间范围（向前500年、向后20年）</p>
             <div className="date-options">
               {possibleDates.length > 0 ? (
                 possibleDates.map((dateOption, index) => (
@@ -709,4 +691,75 @@ const BaziInput = () => {
 };
 
 export default BaziInput;
+
+
+// 计算可能的日期范围
+const reverseCalculateDatesFrontend = async (sizhu) => {
+  const results = [];
+  if (!sizhu || !sizhu.year || !sizhu.month || !sizhu.day || !sizhu.hour) return results;
+
+  // 从时柱地支推算时辰（每个地支对应两个小时：子时为 0-1 点，以 0 表示）
+  const zhiList = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+  const hourZhi = sizhu.hour[1];
+  const hourIndex = zhiList.indexOf(hourZhi);
+  if (hourIndex === -1) return results;
+  const hour = hourIndex * 2;
+
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 120; // 向前 120 年
+  const endYear = currentYear;
+
+  // 逐年、逐月、逐日检查（按 60 天分段遍历以减少计算量）
+  for (let year = endYear; year >= startYear; year--) {
+    for (let month = 12; month >= 1; month--) {
+      const daysInMonth = new Date(year, month, 0).getDate();
+      for (let startDay = 1; startDay <= daysInMonth; startDay += 60) {
+        for (let dayOffset = 0; dayOffset < 60 && startDay + dayOffset <= daysInMonth; dayOffset++) {
+          const day = startDay + dayOffset;
+          try {
+            const solar = Solar.fromYmdHms(year, month, day, hour, 0, 0);
+            const lunar = solar.getLunar();
+            const yearGanZhi = lunar.getYearInGanZhi();
+            const monthGanZhi = lunar.getMonthInGanZhi();
+            const dayGanZhi = lunar.getDayInGanZhi();
+            const timeGanZhi = lunar.getTimeInGanZhi();
+
+            if (
+              yearGanZhi === sizhu.year &&
+              monthGanZhi === sizhu.month &&
+              dayGanZhi === sizhu.day &&
+              timeGanZhi === sizhu.hour
+            ) {
+              results.push({
+                year,
+                month,
+                day,
+                hour,
+                minute: 0,
+                lunarYear: lunar.getYear(),
+                lunarMonth: lunar.getMonth(),
+                lunarDay: lunar.getDay(),
+                isLeapMonth: lunar.getMonth() < 0
+              });
+              // 限制结果上限，避免长时间阻塞
+              if (results.length >= 5) {
+                return results;
+              }
+            }
+          } catch (e) {
+            // 跳过非法日期或计算异常
+          }
+        }
+      }
+      // 每月让出事件循环，避免 UI 阻塞
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    // 每年让出事件循环
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  return results;
+};
 
