@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
 const User = require('../models/User');
 
 /**
@@ -8,7 +7,7 @@ const User = require('../models/User');
  * @desc    搜索用户（用于分享设置）
  * @access  Private
  */
-router.get('/search', protect, async (req, res) => {
+router.get('/search', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     if (!q) return res.json({ success: true, users: [] });
@@ -26,7 +25,7 @@ router.get('/search', protect, async (req, res) => {
  * @desc    获取用户公开信息
  * @access  Private
  */
-router.get('/:id', protect, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('_id username nickname avatarUrl gender bio birthday birthdayPrivate');
     // 判断生日是否公开

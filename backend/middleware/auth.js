@@ -1,10 +1,17 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// 白名单
+const whitelist = ['/default-avatar.png'];
+
 // JWT 验证中间件
 const protect = async (req, res, next) => {
   let token;
-
+  // 检查白名单
+  console.log(req.path);
+  if (whitelist.includes(req.path)) {
+    return next();
+  }
   // 检查 Authorization header
   if (
     req.headers.authorization &&

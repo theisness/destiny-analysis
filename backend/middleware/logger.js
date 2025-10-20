@@ -11,6 +11,7 @@ const logger = (req, res, next) => {
     时间: new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }),
     方法: req.method,
     路径: req.url,
+    path: req.path,
     IP: req.ip || req.connection.remoteAddress,
     请求头: {
       'Content-Type': req.headers['content-type'],

@@ -47,6 +47,7 @@ import DayunCard from '../../components/DayunCard';
 import ShareSettingsSection from '../../components/ShareSettingsSection';
 import CommentsSection from '../../components/CommentsSection';
 import { BASE_URL, DEFAULT_AVATAR } from '../../config';
+import { useAuth } from '../../context/AuthContext';
 
 const BaziDetail = () => {
   const { id } = useParams();
@@ -55,6 +56,9 @@ const BaziDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [publisher, setPublisher] = useState(null);
+
+  const { user } = useAuth();
+  const getAvatarSrc = (u) => (u?.avatarUrl ? `${BASE_URL}${u.avatarUrl}` : DEFAULT_AVATAR);
 
   // 流年流月选择
   const currentYear = new Date().getFullYear();
@@ -299,7 +303,9 @@ const BaziDetail = () => {
           </div>
         </div>
 
-        <ShareSettingsSection record={record} onUpdated={(data) => setRecord(prev => ({ ...prev, ...data }))} />
+        {user && (user.admin === 1 || (record?.userId && user.id === record.userId)) && (
+          <ShareSettingsSection record={record} onUpdated={(data) => setRecord(prev => ({ ...prev, ...data }))} />
+        )}
         {/* 七列综合排盘（仅七列卡片） */}
         <SevenGridCard
           baziResult={baziResult}
@@ -358,15 +364,11 @@ const BaziDetail = () => {
 
         <CommentsSection baziId={record._id} />
 
-        {/* 已移除底部重复的七列综合排盘 */}
+
       </div>
     </div>
   );
 };
 
 export default BaziDetail;
-
-
-
-const getAvatarSrc = (u) => (u?.avatarUrl ? `${BASE_URL}${u.avatarUrl}` : DEFAULT_AVATAR);
 

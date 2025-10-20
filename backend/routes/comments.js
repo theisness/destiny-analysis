@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/auth');
 const BaziRecord = require('../models/BaziRecord');
 const Comment = require('../models/Comment');
 const Action = require('../models/Action');
@@ -21,7 +20,7 @@ function canViewRecord(record, user) {
  * @desc    获取指定八字的评论列表
  * @access  Private
  */
-router.get('/:baziId', protect, async (req, res) => {
+router.get('/:baziId', async (req, res) => {
   try {
     const record = await BaziRecord.findById(req.params.baziId);
     if (!record) return res.status(404).json({ success: false, message: '八字记录不存在' });
@@ -66,7 +65,7 @@ router.get('/:baziId', protect, async (req, res) => {
  * @desc    发布评论
  * @access  Private
  */
-router.post('/', protect, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { baziId, content, mentions, images, replyToCommentId } = req.body;
     if (!baziId) return res.status(400).json({ success: false, message: '缺少baziId' });
@@ -96,7 +95,7 @@ router.post('/', protect, async (req, res) => {
  * @desc    修改评论
  * @access  Private
  */
-router.patch('/:id', protect, async (req, res) => {
+router.patch('/:id', async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);
     if (!comment) return res.status(404).json({ success: false, message: '评论不存在' });
@@ -117,7 +116,7 @@ router.patch('/:id', protect, async (req, res) => {
  * @desc    删除评论（本人或管理员）
  * @access  Private
  */
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);
     if (!comment) return res.status(404).json({ success: false, message: '评论不存在' });
@@ -137,7 +136,7 @@ router.delete('/:id', protect, async (req, res) => {
  * @desc    点赞/取消点赞
  * @access  Private
  */
-router.post('/:id/like', protect, async (req, res) => {
+router.post('/:id/like', async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);
     if (!comment) return res.status(404).json({ success: false, message: '评论不存在' });

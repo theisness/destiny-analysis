@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const BaziRecord = require('../models/BaziRecord');
-const { protect } = require('../middleware/auth');
 const { solarToLunar, lunarToSolar } = require('../utils/lunar-converter');
 const { calculateBazi, calculateFromSizhu } = require('../utils/bazi-calculator');
 
@@ -14,7 +13,6 @@ const { calculateBazi, calculateFromSizhu } = require('../utils/bazi-calculator'
 router.post(
   '/',
   [
-    protect,
     body('name').trim().notEmpty().withMessage('请输入姓名'),
     body('gender').isIn(['男', '女']).withMessage('请选择性别'),
     body('inputType').isIn(['gregorian', 'lunar', 'sizhu']).withMessage('输入类型无效')
@@ -166,7 +164,7 @@ router.post(
  * @desc    获取当前用户的所有八字记录
  * @access  Private
  */
-router.get('/', protect, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const records = await BaziRecord.find({ userId: req.user._id })
       .sort({ createdAt: -1 })
@@ -189,7 +187,7 @@ router.get('/', protect, async (req, res) => {
 /**
  * @route   GET /api/bazi/current-lunar
  * @desc    获取当前的农历信息
- * @access  Public
+ * @access  Private
  */
 router.get('/current-lunar', async (req, res) => {
   try {
@@ -224,7 +222,7 @@ router.get('/current-lunar', async (req, res) => {
  * @desc    获取指定八字记录的详细信息
  * @access  Private
  */
-router.get('/:id', protect, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const record = await BaziRecord.findById(req.params.id);
 
@@ -268,7 +266,7 @@ router.get('/:id', protect, async (req, res) => {
  * @desc    编辑八字记录（分享设置、基本信息等）
  * @access  Private
  */
-router.patch('/:id', protect, async (req, res) => {
+router.patch('/:id', async (req, res) => {
   try {
     const record = await BaziRecord.findById(req.params.id);
     if (!record) return res.status(404).json({ success: false, message: '记录不存在' });
@@ -304,7 +302,7 @@ router.patch('/:id', protect, async (req, res) => {
  * @desc    获取社区中的所有八字记录（按分享权限过滤）
  * @access  Private
  */
-router.get('/community/list', protect, async (req, res) => {
+router.get('/community/list', async (req, res) => {
   try {
     const { search } = req.query;
 
@@ -344,7 +342,7 @@ router.get('/community/list', protect, async (req, res) => {
  * @desc    根据四柱反推可能的日期
  * @access  Private
  */
-router.post('/reverse-calculate', protect, async (req, res) => {
+router.post('/reverse-calculate', async (req, res) => {
   try {
     const { sizhu } = req.body;
 
@@ -443,7 +441,7 @@ router.post('/reverse-calculate', protect, async (req, res) => {
  * @desc    删除八字记录
  * @access  Private
  */
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const record = await BaziRecord.findById(req.params.id);
 

@@ -3,7 +3,6 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { protect } = require('../middleware/auth');
 
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, '..', 'public', 'files');
@@ -32,7 +31,7 @@ const upload = multer({
  * @desc    上传文件
  * @access  Private
  */
-router.post('/', protect, upload.array('files', 10), (req, res) => {
+router.post('/', upload.array('files', 10), (req, res) => {
   const files = (req.files || []).map(f => ({
     filename: f.filename,
     url: `/files/${f.filename}`,
