@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { commentsAPI, uploadAPI } from '../api/api';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import './CommentsSection.css';
-
-const BASE_URL = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL : 'http://localhost:5000/api';
-const DEFAULT_AVATAR = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#667eea"/><stop offset="100%" stop-color="#764ba2"/></linearGradient></defs><circle cx="32" cy="32" r="32" fill="url(#g)"/><circle cx="32" cy="26" r="12" fill="white" opacity="0.9"/><path d="M14 54c4-10 14-14 18-14s14 4 18 14" fill="white" opacity="0.9"/></svg>';
+import { BASE_URL, DEFAULT_AVATAR } from '../config';
 
 const CommentsSection = ({ baziId }) => {
   const { user } = useAuth();
@@ -17,6 +16,7 @@ const CommentsSection = ({ baziId }) => {
   const [showEmoji, setShowEmoji] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState('');
   const [previewUrls, setPreviewUrls] = useState([]);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     fetchComments();
@@ -150,8 +150,10 @@ const CommentsSection = ({ baziId }) => {
               <div key={c.id} className="comment-item">
                 <div className="comment-head">
                   <div className="user">
-                    <img className="avatar" src={getAvatarSrc(c.user)} alt="" />
-                    <span className="name">{c.user?.nickname || c.user?.username}</span>
+                    <Link to={`/users/${c.user?._id}`} className="user-link">
+                      <img className="avatar" src={getAvatarSrc(c.user)} alt="" />
+                    </Link>
+                    <Link to={`/users/${c.user?._id}`} className="name user-link">{c.user?.nickname || c.user?.username}</Link>
                     <span className="dot">·</span>
                     <span className="time">{formatTime(c.createdAt)}</span>
                   </div>
@@ -169,7 +171,7 @@ const CommentsSection = ({ baziId }) => {
                     ❤ {c.likeCount || 0}
                   </button>
                   {(user?.admin === 1 || user?.id === c.user?._id) && (
-                    <button className="btn btn-secondary btn-sm" onClick={() => handleDelete(c.id)}>删除</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => setConfirmDeleteId(c.id)}>删除</button>
                   )}
                 </div>
               </div>
@@ -180,6 +182,18 @@ const CommentsSection = ({ baziId }) => {
       {lightboxSrc && (
         <div className="lightbox" onClick={() => setLightboxSrc('')}>
           <img className="lightbox-img" src={lightboxSrc} alt="preview" />
+        </div>
+      )}
+      {confirmDeleteId && (
+        <div className="modal-mask" onClick={() => setConfirmDeleteId(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">确认删除</div>
+            <div className="modal-body">确定要删除这条评论吗？此操作不可恢复。</div>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setConfirmDeleteId(null)}>取消</button>
+              <button className="btn btn-primary" onClick={async () => { await handleDelete(confirmDeleteId); setConfirmDeleteId(null); }}>删除</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

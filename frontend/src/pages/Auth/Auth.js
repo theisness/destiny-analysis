@@ -14,6 +14,8 @@ const Auth = () => {
   });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const { register, login, user } = useAuth();
   const navigate = useNavigate();
@@ -123,7 +125,7 @@ const Auth = () => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>🔮 八字命理排盘系统</h1>
+          <h1>☯ 八字命理排盘系统</h1>
           <p>{isLogin ? '登录您的账户' : '创建新账户'}</p>
         </div>
 
@@ -162,14 +164,19 @@ const Auth = () => {
 
           <div className="input-group">
             <label>密码</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={errors.password ? 'error' : ''}
-              placeholder="请输入密码"
-            />
+            <div className="input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className={errors.password ? 'error' : ''}
+                placeholder="请输入密码"
+              />
+              <button type="button" className="toggle-visibility" onClick={() => setShowPassword(v => !v)}>
+                {showPassword ? '隐藏' : '显示'}
+              </button>
+            </div>
             {errors.password && (
               <span className="error-message">{errors.password}</span>
             )}
@@ -178,14 +185,19 @@ const Auth = () => {
           {!isLogin && (
             <div className="input-group">
               <label>确认密码</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={errors.confirmPassword ? 'error' : ''}
-                placeholder="请再次输入密码"
-              />
+              <div className="input-wrapper">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={errors.confirmPassword ? 'error' : ''}
+                  placeholder="请再次输入密码"
+                />
+                <button type="button" className="toggle-visibility" onClick={() => setShowConfirmPassword(v => !v)}>
+                  {showConfirmPassword ? '隐藏' : '显示'}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <span className="error-message">{errors.confirmPassword}</span>
               )}

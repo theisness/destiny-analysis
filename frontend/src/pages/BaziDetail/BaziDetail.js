@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import WuxingDisplay from '../../components/WuxingDisplay';
 import { baziAPI } from '../../api/api';
+import { usersAPI } from '../../api/api';
 import { calculateDayun, calculateDayunManual } from '../../utils/dayun-calculator';
 import { 
   calculateDiShi, 
@@ -45,6 +46,7 @@ import LiuyueCard from '../../components/LiuyueCard';
 import DayunCard from '../../components/DayunCard';
 import ShareSettingsSection from '../../components/ShareSettingsSection';
 import CommentsSection from '../../components/CommentsSection';
+import { BASE_URL, DEFAULT_AVATAR } from '../../config';
 
 const BaziDetail = () => {
   const { id } = useParams();
@@ -52,6 +54,7 @@ const BaziDetail = () => {
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [publisher, setPublisher] = useState(null);
 
   // 流年流月选择
   const currentYear = new Date().getFullYear();
@@ -117,6 +120,15 @@ const BaziDetail = () => {
       const response = await baziAPI.getById(id);
       const recordData = response.data.data;
       setRecord(recordData);
+      // 获取发布者信息
+      if (recordData?.userId) {
+        try {
+          const uRes = await usersAPI.getById(recordData.userId);
+          setPublisher(uRes.data.user);
+        } catch (e) {
+          // ignore
+        }
+      }
       
       // 前端计算藏干和五行比例
       if (recordData.baziResult) {
@@ -251,6 +263,19 @@ const BaziDetail = () => {
           <h2>基本信息</h2>
           <div className="info-grid">
             <div className="info-item">
+              <span className="info-label">八字发布者：</span>
+              <span className="info-value publisher-info">
+                <Link to={publisher?._id ? `/users/${publisher._id}` : '#'} className="publisher-link">
+                  <img className="avatar" src={getAvatarSrc(publisher)} alt="" />
+                </Link>
+                <Link to={publisher?._id ? `/users/${publisher._id}` : '#'} className="publisher-name">
+                  {publisher?.nickname || publisher?.username || '—'}
+                </Link>
+              </span>
+            </div>
+            {/* 换行 */}
+            <br />
+            <div className="info-item">
               <span className="info-label">姓名：</span>
               <span className="info-value">{record.name}</span>
             </div>
@@ -340,4 +365,8 @@ const BaziDetail = () => {
 };
 
 export default BaziDetail;
+
+
+
+const getAvatarSrc = (u) => (u?.avatarUrl ? `${BASE_URL}${u.avatarUrl}` : DEFAULT_AVATAR);
 

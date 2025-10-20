@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { baziAPI, usersAPI } from '../api/api';
 import './ShareSettingsSection.css';
+import { DEFAULT_AVATAR } from '../config';
 
 const ShareSettingsSection = ({ record, onUpdated }) => {
   const [addToCommunity, setAddToCommunity] = useState(!!record.addToCommunity);
@@ -105,7 +106,7 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
               <div className="search-results">
                 {searchResults.map(u => (
                   <div key={u._id} className="result-item" onClick={() => addUser(u)}>
-                    <img className="avatar" src={u.avatarUrl ? (process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}${u.avatarUrl}` : `http://localhost:5000/api/${u.avatarUrl}`) : ''} alt="" />
+                    <img className="avatar" src={u.avatarUrl ? (process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}${u.avatarUrl}` : `http://localhost:5000/api/${u.avatarUrl}`) : DEFAULT_AVATAR} alt="" />
                     <div className="info">
                       <div className="name">{u.nickname || u.username}</div>
                       <div className="sub">@{u.username}</div>

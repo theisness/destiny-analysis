@@ -55,7 +55,10 @@ const Community = () => {
   const getPinyinInitial = (name) => {
     if (!name) return '#';
     try {
-      const py = pinyin(name[0], {
+      const firstChar = name[0];
+      // 特殊处理：将“行”固定映射为 X
+      if (firstChar === '行') return 'X';
+      const py = pinyin(firstChar, {
         style: pinyin.STYLE_FIRST_LETTER
       });
       const initial = py[0][0].toUpperCase();

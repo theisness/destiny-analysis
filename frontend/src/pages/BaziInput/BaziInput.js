@@ -39,7 +39,9 @@ const BaziInput = () => {
     gan: null,    // 当前选择的天干
     zhi: null     // 当前选择的地支
   });
-
+  // 四柱反推计算中的状态
+  const [sizhuCalculating, setSizhuCalculating] = useState(false);
+  
   // 打开四柱模态框时，重置当前选择，确保初始不选中
   useEffect(() => {
     if (showSizhuModal) {
@@ -81,7 +83,7 @@ const BaziInput = () => {
   // 计算可能的日期范围
   const calculatePossibleDates = async () => {
     try {
-      setLoading(true);
+      setSizhuCalculating(true);
       
       // 调用后端 API 根据四柱反推日期
       const response = await fetch('/api/bazi/reverse-calculate', {
@@ -108,7 +110,7 @@ const BaziInput = () => {
       // 降级到本地计算
       calculatePossibleDatesLocal();
     } finally {
-      setLoading(false);
+      setSizhuCalculating(false);
     }
   };
 
@@ -539,9 +541,14 @@ const BaziInput = () => {
 
       {/* 四柱选择模态框 */}
       {showSizhuModal && (
-        <div className="modal-overlay" onClick={() => setShowSizhuModal(false)}>
+        <div className="modal-overlay" onClick={() => !sizhuCalculating && setShowSizhuModal(false)}>
           <div className="modal-content sizhu-modal" onClick={(e) => e.stopPropagation()}>
             <h2>选择四柱</h2>
+            {sizhuCalculating && (
+              <div className="modal-hint" style={{marginTop: '8px', color: '#667eea', fontWeight: 600}}>
+                计算中...
+              </div>
+            )}
             <div className="sizhu-selectors-new">
               {['year', 'month', 'day', 'hour'].map((pillar) => {
                 const pillarName = { year: '年柱', month: '月柱', day: '日柱', hour: '时柱' }[pillar];
@@ -631,13 +638,12 @@ const BaziInput = () => {
               </button>
               <button 
                 className="btn btn-primary" 
-                disabled={!['year','month','day','hour'].every(p => !!(sizhu[p] && sizhu[p].length === 2))}
+                disabled={sizhuCalculating || !['year','month','day','hour'].every(p => !!(sizhu[p] && sizhu[p].length === 2))}
                 onClick={() => {
-                  calculatePossibleDates();
-                  setShowSizhuModal(false);
+                  calculatePossibleDates().finally(() => setShowSizhuModal(false));
                 }}
               >
-                确认并选择日期
+                {sizhuCalculating ? '计算中...' : '确认并选择日期'}
               </button>
             </div>
           </div>

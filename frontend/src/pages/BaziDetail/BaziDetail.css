@@ -789,4 +789,22 @@
   font-size: 14px;
 }
 
+.publisher-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.publisher-info .avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  object-fit: cover;
+}
+
+.publisher-info .publisher-name {
+  font-weight: 600;
+}
+
 
