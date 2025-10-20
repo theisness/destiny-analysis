@@ -105,7 +105,7 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
               <div className="search-results">
                 {searchResults.map(u => (
                   <div key={u._id} className="result-item" onClick={() => addUser(u)}>
-                    <img className="avatar" src={u.avatarUrl ? (process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL.replace('/api','')}${u.avatarUrl}` : `http://localhost:5000${u.avatarUrl}`) : ''} alt="" />
+                    <img className="avatar" src={u.avatarUrl ? (process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}${u.avatarUrl}` : `http://localhost:5000/api/${u.avatarUrl}`) : ''} alt="" />
                     <div className="info">
                       <div className="name">{u.nickname || u.username}</div>
                       <div className="sub">@{u.username}</div>
