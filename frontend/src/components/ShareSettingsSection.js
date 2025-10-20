@@ -12,6 +12,8 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [showPublicConfirm, setShowPublicConfirm] = useState(false);
+  const [ackRisk, setAckRisk] = useState(false);
 
   // 初始化受限名单详情
   useEffect(() => {
@@ -57,6 +59,14 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
     setAllowedUsers(prev => prev.filter(u => u._id !== id));
   };
 
+  const handleSelectType = (nextType) => {
+    if (nextType === 'public') {
+      setShowPublicConfirm(true);
+    } else {
+      setType('restricted');
+    }
+  };
+
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -89,11 +99,20 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
         {addToCommunity && (
           <div className="row">
             <label className={"radio"}>
-              <input type="radio" name="shareType" checked={type === 'public'} onChange={() => setType('public')} /> 公开（所有人可见）
+              <input type="radio" name="shareType" checked={type === 'public'} onChange={() => handleSelectType('public')} /> 公开（所有人可见）
             </label>
             <label className={"radio"}>
-              <input type="radio" name="shareType" checked={type === 'restricted'} onChange={() => setType('restricted')} /> 受限（仅名单可见）
+              <input type="radio" name="shareType" checked={type === 'restricted'} onChange={() => handleSelectType('restricted')} /> 受限（仅名单可见）
             </label>
+          </div>
+        )}
+
+        {addToCommunity && type === 'public' && (
+          <div className="privacy-warning">
+            <div className="privacy-warning-title">隐私安全提醒</div>
+            <div className="privacy-warning-text">
+              公开后，任何人登录的成员都可查看此八字记录。请勿包含身份证号、手机号、住址等敏感信息；你可以随时改为“受限”或取消加入社区。
+            </div>
           </div>
         )}
 
@@ -133,6 +152,26 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
         <div className="actions">
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>保存设置</button>
         </div>
+
+        {showPublicConfirm && (
+          <div className="modal-privacy-mask" onClick={() => setShowPublicConfirm(false)}>
+            <div className="modal-privacy" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-privacy-header">公开分享隐私提醒</div>
+              <div className="modal-privacy-body">
+                <p>公开后，任何人都可以查看您的八字记录及基本信息。</p>
+                <p>请确认已移除或避免包含敏感信息（如身份证号、手机号、住址等）。</p>
+                <label className="ack-row">
+                  <input type="checkbox" checked={ackRisk} onChange={(e) => setAckRisk(e.target.checked)} />
+                  <span>我已知悉风险并愿意公开此记录</span>
+                </label>
+              </div>
+              <div className="modal-privacy-actions">
+                <button className="btn btn-secondary" onClick={() => { setShowPublicConfirm(false); setAckRisk(false); }}>取消</button>
+                <button className="btn btn-primary" disabled={!ackRisk} onClick={() => { setType('public'); setShowPublicConfirm(false); }}>继续公开</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
