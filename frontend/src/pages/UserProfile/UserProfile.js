@@ -57,11 +57,19 @@ const UserProfile = () => {
                 <div className="sub">@{profile.username}</div>
               </div>
             </div>
-            <div className="user-extra">
-              {profile.gender && (
+            {profile.gender && (
                 <div className="extra-item"><span className="label">性别：</span><span className="value">{profile.gender}</span></div>
               )}
-            </div>
+              <br />
+              {/* 显示生日 */}
+              {profile.birthday && (
+                <div className="extra-item"><span className="label">生日：</span><span className="value">{profile.birthday.split('T')[0]}</span></div>
+              )}
+              <br />
+              {/* 显示个人介绍 */}
+              {profile.bio && (
+                <div className="extra-item"><span className="label">个人介绍：</span><span className="value">{profile.bio}</span></div>
+              )}
             <div className="actions">
               <Link to="/community" className="btn btn-secondary">返回社区</Link>
             </div>

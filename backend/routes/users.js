@@ -28,7 +28,11 @@ router.get('/search', protect, async (req, res) => {
  */
 router.get('/:id', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('_id username nickname avatarUrl gender');
+    const user = await User.findById(req.params.id).select('_id username nickname avatarUrl gender bio birthday birthdayPrivate');
+    // 判断生日是否公开
+    if (user.birthdayPrivate) {
+      user.birthday = null;
+    }
     res.json({ success: true, user });
   } catch (error) {
     console.error('获取用户错误:', error);
