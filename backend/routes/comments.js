@@ -3,6 +3,8 @@ const router = express.Router();
 const BaziRecord = require('../models/BaziRecord');
 const Comment = require('../models/Comment');
 const Action = require('../models/Action');
+const fs = require('fs');
+const path = require('path');
 
 function canViewRecord(record, user) {
   if (!record.addToCommunity) {
@@ -98,16 +100,41 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);
-    if (!comment) return res.status(404).json({ success: false, message: '评论不存在' });
-    if (comment.userId.toString() !== req.user._id.toString()) return res.status(403).json({ success: false, message: '无权修改此评论' });
+    if (!comment) return res.status(404).json({ error: 'Comment not found' });
+
+    if (String(comment.user) !== String(req.user._id)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
 
     const update = {};
-    for (const k of ['content', 'mentions', 'images']) if (req.body[k] !== undefined) update[k] = req.body[k];
+    // 支持更新内容、@、图片数组
+    if (req.body.content !== undefined) update.content = req.body.content;
+    if (req.body.mentions !== undefined) update.mentions = req.body.mentions;
+    const oldImages = Array.isArray(comment.images) ? [...comment.images] : [];
+    if (req.body.images !== undefined) update.images = req.body.images;
+
     const updated = await Comment.findByIdAndUpdate(comment._id, { $set: update }, { new: true });
-    res.json({ success: true, data: updated });
-  } catch (error) {
-    console.error('修改评论错误:', error);
-    res.status(500).json({ success: false, message: '修改失败' });
+
+    // 如果图片被移除，同步删除 public/files 中的文件
+    if (update.images) {
+      const removed = oldImages.filter((p) => !update.images.includes(p));
+      for (const p of removed) {
+        try {
+          if (typeof p === 'string' && p.startsWith('/files/')) {
+            const filename = p.replace('/files/', '');
+            const fullPath = path.join(__dirname, '..', 'public', 'files', filename);
+            await fs.promises.unlink(fullPath);
+          }
+        } catch (e) {
+          // 忽略删除错误（文件可能已不存在）
+        }
+      }
+    }
+
+    return res.json(updated);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -119,10 +146,27 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);
-    if (!comment) return res.status(404).json({ success: false, message: '评论不存在' });
-    if (comment.userId.toString() !== req.user._id.toString() && req.user.admin !== 1) {
-      return res.status(403).json({ success: false, message: '无权删除此评论' });
+    if (!comment) return res.status(404).json({ error: 'Comment not found' });
+
+    if (String(comment.user) !== String(req.user._id)) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
+
+    // 删除磁盘上的图片文件
+    if (Array.isArray(comment.images)) {
+      for (const p of comment.images) {
+        try {
+          if (typeof p === 'string' && p.startsWith('/files/')) {
+            const filename = p.replace('/files/', '');
+            const fullPath = path.join(__dirname, '..', 'public', 'files', filename);
+            await fs.promises.unlink(fullPath);
+          }
+        } catch (e) {
+          // 忽略删除错误
+        }
+      }
+    }
+
     await comment.deleteOne();
     res.json({ success: true, message: '评论已删除' });
   } catch (error) {

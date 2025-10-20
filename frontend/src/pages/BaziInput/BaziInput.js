@@ -42,6 +42,9 @@ const BaziInput = () => {
   });
   // 四柱反推计算中的状态
   const [sizhuCalculating, setSizhuCalculating] = useState(false);
+  const currentYear = new Date().getFullYear();
+  const [rangeStartYear, setRangeStartYear] = useState(currentYear - 120);
+  const [rangeEndYear, setRangeEndYear] = useState(currentYear);
   
   // 打开四柱模态框时，重置当前选择，确保初始不选中
   useEffect(() => {
@@ -85,7 +88,7 @@ const BaziInput = () => {
   const calculatePossibleDates = async () => {
     try {
       setSizhuCalculating(true);
-      const data = await reverseCalculateDatesFrontend(sizhu);
+      const data = await reverseCalculateDatesFrontend(sizhu, rangeStartYear, rangeEndYear);
       setPossibleDates(data || []);
       setShowDateSelectModal(true);
     } catch (error) {
@@ -379,6 +382,38 @@ const BaziInput = () => {
       case 'sizhu':
         return (
           <div className="sizhu-inputs">
+            <div className="range-config">
+              <div className="info-title">搜索范围</div>
+              <div className="input-row">
+                <div className="input-group">
+                  <label>开始年份</label>
+                  <input
+                    type="number"
+                    value={rangeStartYear}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setRangeStartYear(isNaN(val) ? currentYear - 120 : Math.min(Math.max(1900, val), rangeEndYear));
+                    }}
+                    min="1900"
+                    max={rangeEndYear}
+                  />
+                </div>
+                <div className="input-group">
+                  <label>结束年份</label>
+                  <input
+                    type="number"
+                    value={rangeEndYear}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setRangeEndYear(isNaN(val) ? currentYear : Math.max(Math.min(currentYear, val), rangeStartYear));
+                    }}
+                    min={rangeStartYear}
+                    max={currentYear}
+                  />
+                </div>
+              </div>
+              <div className="modal-hint" style={{marginTop: '6px'}}>默认120年前到今年，可调整范围后计算可能日期</div>
+            </div>
             <button
               type="button"
               className="btn btn-secondary"
@@ -392,7 +427,6 @@ const BaziInput = () => {
               <span>日柱: {sizhu.day || '未选择'}</span>
               <span>时柱: {sizhu.hour || '未选择'}</span>
             </div>
-            
             {/* 显示选择的对应日期 */}
             {gregorianDate.year && gregorianDate.month && gregorianDate.day && (
               <div className="selected-date-info">
@@ -637,7 +671,7 @@ const BaziInput = () => {
         <div className="modal-overlay" onClick={() => setShowDateSelectModal(false)}>
           <div className="modal-content date-select-modal" onClick={(e) => e.stopPropagation()}>
             <h2>选择对应的日期时间</h2>
-            <p className="modal-hint">根据您选择的四柱，以下是可能的日期时间范围（向前120年）</p>
+            <p className="modal-hint">根据您选择的四柱，以下是可能的日期时间范围（{rangeStartYear}年 - {rangeEndYear}年）</p>
             <div className="date-options">
               {possibleDates.length > 0 ? (
                 possibleDates.map((dateOption, index) => (
@@ -694,7 +728,7 @@ export default BaziInput;
 
 
 // 计算可能的日期范围
-const reverseCalculateDatesFrontend = async (sizhu) => {
+const reverseCalculateDatesFrontend = async (sizhu, startYear, endYear) => {
   const results = [];
   if (!sizhu || !sizhu.year || !sizhu.month || !sizhu.day || !sizhu.hour) return results;
 
@@ -705,13 +739,9 @@ const reverseCalculateDatesFrontend = async (sizhu) => {
   if (hourIndex === -1) return results;
   const hour = hourIndex * 2;
 
-  const currentYear = new Date().getFullYear();
-  const startYear = currentYear - 120; // 向前 120 年
-  const endYear = currentYear;
-
   // 逐年、逐月、逐日检查（按 60 天分段遍历以减少计算量）
-  for (let year = endYear; year >= startYear; year--) {
-    for (let month = 12; month >= 1; month--) {
+  for (let year = startYear; year <= endYear; year++) {
+    for (let month = 1; month <= 12; month++) {
       const daysInMonth = new Date(year, month, 0).getDate();
       for (let startDay = 1; startDay <= daysInMonth; startDay += 60) {
         for (let dayOffset = 0; dayOffset < 60 && startDay + dayOffset <= daysInMonth; dayOffset++) {
@@ -742,7 +772,7 @@ const reverseCalculateDatesFrontend = async (sizhu) => {
                 isLeapMonth: lunar.getMonth() < 0
               });
               // 限制结果上限，避免长时间阻塞
-              if (results.length >= 5) {
+              if (results.length >= 50) {
                 return results;
               }
             }
