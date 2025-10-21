@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
+const { get, del } = require('../utils/redisClient');
 
 // 生成 JWT Token
 const generateToken = (id) => {
@@ -238,6 +239,61 @@ router.patch('/profile', async (req, res) => {
     res.status(500).json({ success: false, message: '服务器错误' });
   }
 });
+
+/**
+ * @route   POST /api/auth/resetpwd
+ * @desc    使用邮箱验证码重置密码
+ * @access  Public
+ */
+router.post(
+  '/resetpwd',
+  [
+    body('email').isEmail().normalizeEmail().withMessage('请输入有效的邮箱地址'),
+    body('code').isLength({ min: 6, max: 6 }).withMessage('验证码格式错误'),
+    body('newPassword').isLength({ min: 6 }).withMessage('新密码至少需要6个字符')
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { email, code, newPassword } = req.body;
+    const codeKey = `captcha:code:${email}`;
+
+    try {
+      // 校验验证码
+      const saved = await get(codeKey);
+      if (!saved) {
+        return res.status(400).json({ success: false, message: '验证码不存在或已过期' });
+      }
+      if (String(saved) !== String(code)) {
+        return res.status(400).json({ success: false, message: '验证码错误' });
+      }
+
+      // 查找用户
+      const user = await User.findOne({ email }).select('+password');
+      if (!user) {
+        return res.status(404).json({ success: false, message: '用户不存在' });
+      }
+
+      // 禁用用户也允许重置密码，但无法登录，保留此逻辑
+      // 如需禁止，请改为：return res.status(403).json({ success:false, message:'账号已被禁用' });
+
+      // 更新密码（触发模型的加密逻辑）
+      user.password = newPassword;
+      await user.save();
+
+      // 删除已使用的验证码
+      await del(codeKey);
+
+      return res.json({ success: true, message: '密码已重置，请重新登录' });
+    } catch (error) {
+      console.error('重置密码错误:', error);
+      return res.status(500).json({ success: false, message: '服务器错误，重置失败' });
+    }
+  }
+);
 
 module.exports = router;
 

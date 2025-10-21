@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Auth from './pages/Auth/Auth';
+import ForgotPassword from './pages/Auth/ForgotPassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import BaziInput from './pages/BaziInput/BaziInput';
 import BaziDetail from './pages/BaziDetail/BaziDetail';
@@ -29,6 +30,7 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/forgot" element={<ForgotPassword />} />
             <Route
               path="/dashboard"
               element={

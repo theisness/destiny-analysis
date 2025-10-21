@@ -50,7 +50,10 @@ export const authAPI = {
   getCurrentUser: () => api.get('/auth/current'),
 
   // 更新个人信息
-  updateProfile: (data) => api.patch('/auth/profile', data)
+  updateProfile: (data) => api.patch('/auth/profile', data),
+
+  // 重置密码（忘记密码）
+  resetPassword: (email, code, newPassword) => api.post('/auth/resetpwd', { email, code, newPassword })
 };
 
 // 文件上传 API（使用 FormData）
@@ -114,7 +117,7 @@ export const adminAPI = {
   listUsers: () => api.get('/admin/users'),
   deleteUser: (id) => api.delete(`/admin/users/${id}`),
   banUser: (id, isBanned) => api.patch(`/admin/users/${id}/ban`, { isBanned }),
-  setAdmin: (id, makeAdmin) => api.patch(`/admin/users/${id}/admin`, { makeAdmin })
+  setAdmin: (id, makeAdmin) => api.patch(`/admin/users/${id}/admin`, { admin: makeAdmin ? 1 : 0 })
 };
 
 export default api;
