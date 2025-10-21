@@ -3,10 +3,9 @@ import './Profile.css';
 import Navbar from '../../components/Navbar';
 import { useAuth  } from '../../context/AuthContext';
 import { authAPI,uploadAPI } from '../../api/api';
-import { BASE_URL } from '../../config';
+import { BASE_URL, DEFAULT_AVATAR } from '../../config';
 import SecureImage from '../../components/SecureImage';
 
-const DEFAULT_AVATAR = `${BASE_URL}/files/default-avatar.png`;
 
 const Profile = () => {
   const { user, refreshCurrentUser } = useAuth();
