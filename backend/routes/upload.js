@@ -21,9 +21,14 @@ const storage = multer.diskStorage({
   }
 });
 
+// 仅允许图片，单文件大小限制 2MB
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 } // 2MB
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype && file.mimetype.startsWith('image/')) return cb(null, true);
+    cb(new Error('仅允许上传图片文件'));
+  }
 });
 
 /**

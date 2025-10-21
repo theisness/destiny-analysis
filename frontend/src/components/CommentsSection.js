@@ -55,8 +55,31 @@ const CommentsSection = ({ baziId }) => {
   }, [files]);
 
   const handleFileChange = (e) => {
-    const f = Array.from(e.target.files || []);
-    setFiles(f.slice(0, 4)); // 最多4张
+    const inputFiles = Array.from(e.target.files || []);
+    const accepted = [];
+    const rejectedLarge = [];
+    const rejectedType = [];
+    for (const f of inputFiles) {
+      if (!(f && f.type && f.type.startsWith('image/'))) {
+        rejectedType.push(f.name || '未知文件');
+        continue;
+      }
+      if (f.size > 2 * 1024 * 1024) {
+        rejectedLarge.push(f.name || '图片');
+        continue;
+      }
+      accepted.push(f);
+      if (accepted.length >= 4) break; // 最多4张
+    }
+    setFiles(accepted);
+    if (rejectedLarge.length || rejectedType.length) {
+      const msgParts = [];
+      if (rejectedLarge.length) msgParts.push(`以下图片超过2MB：${rejectedLarge.join('、')}`);
+      if (rejectedType.length) msgParts.push(`以下文件不是图片：${rejectedType.join('、')}`);
+      setError(msgParts.join('；'));
+    } else {
+      setError('');
+    }
   };
 
   const removeFile = (idx) => {
