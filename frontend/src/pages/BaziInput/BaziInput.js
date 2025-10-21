@@ -45,6 +45,9 @@ const BaziInput = () => {
   const currentYear = new Date().getFullYear();
   const [rangeStartYear, setRangeStartYear] = useState(currentYear - 120);
   const [rangeEndYear, setRangeEndYear] = useState(currentYear);
+  // 为输入框提供字符串态，避免 onChange 立即强制回填导致无法输入/退格
+  const [rangeStartYearInput, setRangeStartYearInput] = useState(String(currentYear - 120));
+  const [rangeEndYearInput, setRangeEndYearInput] = useState(String(currentYear));
   
   // 打开四柱模态框时，重置当前选择，确保初始不选中
   useEffect(() => {
@@ -88,6 +91,19 @@ const BaziInput = () => {
   const calculatePossibleDates = async () => {
     try {
       setSizhuCalculating(true);
+     // 在计算前再统一规范化输入范围（允许输入框为空，使用上一数值）
+     const parseYear = (v) => { const n = parseInt(v, 10); return isNaN(n) ? null : n; };
+     let start = parseYear(rangeStartYearInput);
+     let end = parseYear(rangeEndYearInput);
+     if (start == null) start = rangeStartYear;
+     if (end == null) end = rangeEndYear;
+     start = Math.max(1500, Math.min(start, end));
+     end = Math.min(currentYear, Math.max(end, start));
+     // 同步状态，确保弹窗显示为规范化后的范围
+     setRangeStartYear(start);
+     setRangeEndYear(end);
+     setRangeStartYearInput(String(start));
+     setRangeEndYearInput(String(end));
       const data = await reverseCalculateDatesFrontend(sizhu, rangeStartYear, rangeEndYear);
       setPossibleDates(data || []);
       setShowDateSelectModal(true);
@@ -389,12 +405,19 @@ const BaziInput = () => {
                   <label>开始年份</label>
                   <input
                     type="number"
-                    value={rangeStartYear}
+                    value={rangeStartYearInput}
                     onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      setRangeStartYear(isNaN(val) ? currentYear - 120 : Math.min(Math.max(1900, val), rangeEndYear));
+                      setRangeStartYearInput(e.target.value);
                     }}
-                    min="1900"
+                    onBlur={(e) => {
+                      const val = parseInt(e.target.value || '', 10);
+                      if (!isNaN(val)) {
+                        const clamped = Math.min(Math.max(1500, val), rangeEndYear);
+                        setRangeStartYear(clamped);
+                        setRangeStartYearInput(String(clamped));
+                      }
+                    }}
+                    min="1500"
                     max={rangeEndYear}
                   />
                 </div>
@@ -402,10 +425,17 @@ const BaziInput = () => {
                   <label>结束年份</label>
                   <input
                     type="number"
-                    value={rangeEndYear}
+                    value={rangeEndYearInput}
                     onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      setRangeEndYear(isNaN(val) ? currentYear : Math.max(Math.min(currentYear, val), rangeStartYear));
+                      setRangeEndYearInput(e.target.value);
+                    }}
+                    onBlur={(e) => {
+                      const val = parseInt(e.target.value || '', 10);
+                      if (!isNaN(val)) {
+                        const clamped = Math.max(Math.min(currentYear, val), rangeStartYear);
+                        setRangeEndYear(clamped);
+                        setRangeEndYearInput(String(clamped));
+                      }
                     }}
                     min={rangeStartYear}
                     max={currentYear}
