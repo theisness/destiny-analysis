@@ -6,6 +6,8 @@ const whitelist = [
   '/api/files/default-avatar.png',
   '/api/auth/register',
   '/api/auth/login',
+  '/api/captcha/send',
+  '/api/captcha/verify'
 ];
 
 // JWT 验证中间件

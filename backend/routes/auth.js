@@ -124,6 +124,11 @@ router.post(
         });
       }
 
+      // 禁用用户无法登录
+      if (user.isBanned) {
+        return res.status(403).json({ success: false, message: '账号已被禁用，无法登录' });
+      }
+
       // 验证密码
       const isMatch = await user.matchPassword(password);
       

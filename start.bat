@@ -105,6 +105,56 @@ if "%choice%"=="1" (
     echo    - 删除数据: docker volume rm destiny-mongo-data
     echo.
     
+    REM 检查并启动 Redis Docker 容器（从 backend\.env 读取密码与端口）
+    setlocal EnableDelayedExpansion
+    set "REDIS_PASSWORD_DEFAULT=destiny123"
+    set "REDIS_PORT_DEFAULT=6379"
+    set "REDIS_PASSWORD="
+    set "REDIS_PORT="
+    if exist "backend\.env" (
+        for /f "tokens=1,* delims==" %%A in (backend\.env) do (
+            if /I "%%A"=="REDIS_PASSWORD" set "REDIS_PASSWORD=%%B"
+            if /I "%%A"=="REDIS_PORT" set "REDIS_PORT=%%B"
+        )
+    )
+    if "!REDIS_PASSWORD!"=="" set "REDIS_PASSWORD=!REDIS_PASSWORD_DEFAULT!"
+    if "!REDIS_PORT!"=="" set "REDIS_PORT=!REDIS_PORT_DEFAULT!"
+
+    echo 🔍 检查 Redis 容器...
+    docker ps -a --format "{{.Names}}" | findstr /C:"destiny-redis" >nul 2>nul
+    if %errorlevel% neq 0 (
+        echo 📦 Redis 容器不存在，正在创建...
+        docker run -d -p !REDIS_PORT!:6379 --name destiny-redis redis:7 redis-server --requirepass !REDIS_PASSWORD! --appendonly yes
+        if %errorlevel% neq 0 (
+            echo ❌ Redis 容器创建失败
+            pause
+            exit /b 1
+        )
+        echo ✅ Redis 容器创建成功
+        timeout /t 2 >nul
+    ) else (
+        docker ps --format "{{.Names}}" | findstr /C:"destiny-redis" >nul 2>nul
+        if %errorlevel% neq 0 (
+            echo 🔄 启动已存在的 Redis 容器...
+            docker start destiny-redis
+            if %errorlevel% neq 0 (
+                echo ❌ Redis 容器启动失败
+                pause
+                exit /b 1
+            )
+            echo ✅ Redis 容器启动成功
+            timeout /t 2 >nul
+        ) else (
+            echo ✅ Redis 容器已在运行
+        )
+    )
+
+    echo.
+    echo 💾 Redis 信息：
+    echo    连接地址: redis://:***@localhost:!REDIS_PORT!
+    echo    容器名称: destiny-redis
+    echo.
+    
     REM 配置后端环境变量
     if not exist "backend\.env" (
         echo 🔧 配置后端环境变量...

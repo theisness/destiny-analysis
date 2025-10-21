@@ -30,6 +30,8 @@ app.use('/api/bazi', require('./routes/bazi'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/comments', require('./routes/comments'));
+app.use('/api/captcha', require('./routes/captcha'));
+app.use('/api/admin', require('./routes/admin'));
 // 静态文件
 app.use('/api/files', express.static(path.join(__dirname, 'public', 'files')));
 

@@ -32,6 +32,11 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  // 禁用标识：true 则无法登录
+  isBanned: {
+    type: Boolean,
+    default: false
+  },
   // 个人信息
   avatarUrl: { type: String, default: '' },
   nickname: { type: String, default: '' },

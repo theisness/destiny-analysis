@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './Auth.css';
+import { captchaAPI } from '../../api/api';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,7 +17,16 @@ const Auth = () => {
   const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [sendCountdown, setSendCountdown] = useState(0);
+  const [resetMsg, setResetMsg] = useState('');
+  useEffect(() => {
+    if (sendCountdown <= 0) return;
+    const t = setTimeout(() => setSendCountdown(v => v - 1), 1000);
+    return () => clearTimeout(t);
+  }, [sendCountdown]);
   const { register, login, user } = useAuth();
   const navigate = useNavigate();
 
@@ -119,6 +129,35 @@ const Auth = () => {
     });
     setErrors({});
     setMessage('');
+    setShowReset(false);
+    setResetEmail('');
+    setResetCode('');
+    setSendCountdown(0);
+    setResetMsg('');
+  };
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const handleSendCode = async () => {
+    if (!emailRegex.test(resetEmail.trim())) { setResetMsg('请输入有效的邮箱'); return; }
+    try {
+      setResetMsg('');
+      const res = await captchaAPI.send(resetEmail.trim());
+      setResetMsg(res.data?.message || '验证码已发送，请查收邮件');
+      setSendCountdown(60);
+    } catch (err) {
+      setResetMsg(err.response?.data?.message || '发送验证码失败');
+    }
+  };
+  const handleVerifyCode = async () => {
+    if (!emailRegex.test(resetEmail.trim())) { setResetMsg('请输入有效的邮箱'); return; }
+    if (!resetCode.trim()) { setResetMsg('请输入验证码'); return; }
+    try {
+      setResetMsg('');
+      const res = await captchaAPI.verify(resetEmail.trim(), resetCode.trim());
+      setResetMsg(res.data?.message || '验证码验证通过');
+    } catch (err) {
+      setResetMsg(err.response?.data?.message || '验证码验证失败');
+    }
   };
 
   return (
@@ -128,6 +167,35 @@ const Auth = () => {
           <h1>☯ 八字命理排盘系统</h1>
           <p>{isLogin ? '登录您的账户' : '创建新账户'}</p>
         </div>
+
+        {isLogin && (
+          <div className="reset-card">
+            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setShowReset(v => !v)}>
+              {showReset ? '收起重置密码' : '重置密码'}
+            </button>
+            {showReset && (
+              <div className="reset-section">
+                <div className="input-group">
+                  <label>邮箱</label>
+                  <input type="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} placeholder="请输入邮箱" />
+                </div>
+                <div className="actions">
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={handleSendCode} disabled={sendCountdown > 0}>
+                    {sendCountdown > 0 ? `再次发送（${sendCountdown}s）` : '发送验证码'}
+                  </button>
+                </div>
+                <div className="input-group">
+                  <label>验证码</label>
+                  <input type="text" value={resetCode} onChange={(e) => setResetCode(e.target.value)} placeholder="请输入6位验证码" />
+                </div>
+                <div className="actions">
+                  <button type="button" className="btn btn-primary btn-sm" onClick={handleVerifyCode}>验证验证码</button>
+                </div>
+                {resetMsg && <div className="message">{resetMsg}</div>}
+              </div>
+            )}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="auth-form">
           {!isLogin && (

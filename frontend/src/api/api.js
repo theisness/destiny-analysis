@@ -103,5 +103,19 @@ export const commentsAPI = {
   like: (id) => api.post(`/comments/${id}/like`)
 };
 
+// 验证码相关 API
+export const captchaAPI = {
+  send: (email) => api.post('/captcha/send', { email }),
+  verify: (email, code) => api.post('/captcha/verify', { email, code })
+};
+
+// 管理员相关 API
+export const adminAPI = {
+  listUsers: () => api.get('/admin/users'),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`),
+  banUser: (id, isBanned) => api.patch(`/admin/users/${id}/ban`, { isBanned }),
+  setAdmin: (id, makeAdmin) => api.patch(`/admin/users/${id}/admin`, { makeAdmin })
+};
+
 export default api;
 
