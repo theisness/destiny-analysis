@@ -27,15 +27,16 @@ router.post(
 
       // 生成6位随机验证码
       const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
-      await setWithTTL(codeKey, code, 10 * 60); // 10分钟有效
-      await setWithTTL(cooldownKey, '1', 60); // 60秒冷却
-      await incr(countKey);
 
       // 发送邮件
       const subject = '命理排盘系统-重置密码';
       const text = `您的验证码是 ${code}，10分钟内有效。`;
       const html = `<p>您的验证码是 <b>${code}</b>，10分钟内有效。</p>`;
       await sendMail({ to: email, subject, text, html });
+
+      await setWithTTL(codeKey, code, 10 * 60); // 10分钟有效
+      await setWithTTL(cooldownKey, '1', 60); // 60秒冷却
+      await incr(countKey);
 
       return res.json({ success: true, message: '验证码已发送' });
     } catch (err) {
