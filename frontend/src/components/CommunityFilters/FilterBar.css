@@ -1,7 +1,7 @@
 .filters-bar {
     display: flex;
     gap: 12px;
-    align-items: center;
+    align-items: end;
     flex-wrap: wrap;
     margin-top: 12px
 }

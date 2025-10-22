@@ -4,7 +4,7 @@ import './ShareSettingsSection.css';
 import { DEFAULT_AVATAR } from '../config';
 import SecureImage from '../components/SecureImage';
 
-const ShareSettingsSection = ({ record, onUpdated }) => {
+const ShareSettingsSection = ({ record, onUpdated, showTitle }) => {
   const [addToCommunity, setAddToCommunity] = useState(!!record.addToCommunity);
   const [type, setType] = useState(record.shareSettings?.type || 'public');
   const [allowedUsers, setAllowedUsers] = useState([]); // [{_id, username, nickname, avatarUrl}]
@@ -129,7 +129,7 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
 
   return (
     <div className="card">
-      <h2>分享设置</h2>
+      {showTitle && <h2>分享设置</h2>}
       <div className="share-grid">
         <label className="row">
           <input className="styled-checkbox" type="checkbox" checked={addToCommunity} onChange={(e) => setAddToCommunity(e.target.checked)} />

@@ -273,7 +273,8 @@ const BaziDetail = () => {
         <div className="card">
           <h2>基本信息</h2>
           <div className="info-grid">
-            <div className="info-item">
+            {/* 八字发布者占两列 */}
+            <div className="info-item" style={{ gridColumn: '1 / -1' }}>
               <span className="info-label">八字发布者：</span>
               <span className="info-value publisher-info">
                 <Link to={publisher?._id ? `/users/${publisher._id}` : '#'} className="publisher-link">
@@ -284,8 +285,6 @@ const BaziDetail = () => {
                 </Link>
               </span>
             </div>
-            {/* 换行 */}
-            <br />
             <div className="info-item">
               <span className="info-label">姓名：</span>
               <span className="info-value">{record.name}</span>
