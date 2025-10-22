@@ -1,16 +1,24 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Navbar from '../../components/Navbar';
-import { adminAPI } from '../../api/api';
+import { adminAPI, groupsAPI, userGroupsAPI } from '../../api/api';
 import { useAuth } from '../../context/AuthContext';
 import { BASE_URL, DEFAULT_AVATAR } from '../../config';
 import SecureImage from '../../components/SecureImage';
 import './Users.css';
+import './Groups.css';
 
 const AdminUsers = () => {
   const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // 分组管理相关状态
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [targetUser, setTargetUser] = useState(null);
+  const [userGroups, setUserGroups] = useState([]);
+  const [groupSearch, setGroupSearch] = useState('');
+  const [groupResults, setGroupResults] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -28,12 +36,62 @@ const AdminUsers = () => {
     fetchUsers();
   }, []);
 
+  // 搜索分组以添加给成员
+  useEffect(() => {
+    const t = setTimeout(async () => {
+      try {
+        if (!groupSearch.trim()) {
+          const res = await groupsAPI.list();
+          setGroupResults(res.data?.groups || []);
+        } else {
+          const res = await groupsAPI.list(groupSearch.trim());
+          setGroupResults(res.data?.groups || []);
+        }
+      } catch (e) {
+        setGroupResults([]);
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [groupSearch]);
+
   const sortedUsers = useMemo(() => {
     return [...users].sort((a, b) => (a.nickname || a.username || '').localeCompare(b.nickname || b.username || ''));
   }, [users]);
 
   const getAvatarSrc = (u) => (u?.avatarUrl ? `${BASE_URL}${u.avatarUrl}` : DEFAULT_AVATAR);
   const isSelf = (u) => u._id === user?.id;
+
+  // 分组管理弹窗逻辑
+  const openGroupModal = async (u) => {
+    try {
+      setTargetUser(u);
+      setShowGroupModal(true);
+      const resUG = await userGroupsAPI.getUserGroups(u._id);
+      setUserGroups(resUG.data?.groups || []);
+      const resG = await groupsAPI.list();
+      setGroupResults(resG.data?.groups || []);
+    } catch (err) {
+      alert(err.response?.data?.message || '加载分组信息失败');
+    }
+  };
+
+  const addGroupToUser = async (group) => {
+    try {
+      await userGroupsAPI.joinGroup(targetUser._id, group._id);
+      setUserGroups(prev => prev.some(g => g._id === group._id) ? prev : [...prev, group]);
+    } catch (err) {
+      alert(err.response?.data?.message || '添加分组失败');
+    }
+  };
+
+  const removeGroupFromUser = async (group) => {
+    try {
+      await userGroupsAPI.leaveGroup(targetUser._id, group._id);
+      setUserGroups(prev => prev.filter(g => g._id !== group._id));
+    } catch (err) {
+      alert(err.response?.data?.message || '移出分组失败');
+    }
+  };
 
   const toggleAdmin = async (u) => {
     const makeAdmin = u.admin === 1 ? false : true;
@@ -101,19 +159,22 @@ const AdminUsers = () => {
                     <div className="sub">{u.admin === 1 ? '管理员' : '成员'} · {u.email}</div>
                   </div>
                 </div>
-                {!isSelf(u) && (
-                  <div className="actions">
-                    <button className="btn btn-secondary btn-sm" onClick={() => toggleAdmin(u)}>
-                      {u.admin === 1 ? '取消管理员' : '设置为管理员'}
-                    </button>
-                    <button className="btn btn-secondary btn-sm" onClick={() => toggleBan(u)}>
-                      {u.isBanned ? '启用' : '禁用'}
-                    </button>
-                    <button className="btn btn-danger btn-sm" onClick={() => deleteUser(u)}>
-                      删除
-                    </button>
-                  </div>
-                )}
+                <div className="actions">
+                  <button className="btn btn-secondary btn-sm" onClick={() => openGroupModal(u)}>分组管理</button>
+                  {!isSelf(u) && (
+                    <>
+                      <button className="btn btn-secondary btn-sm" onClick={() => toggleAdmin(u)}>
+                        {u.admin === 1 ? '取消管理员' : '设置为管理员'}
+                      </button>
+                      <button className="btn btn-secondary btn-sm" onClick={() => toggleBan(u)}>
+                        {u.isBanned ? '启用' : '禁用'}
+                      </button>
+                      <button className="btn btn-danger btn-sm" onClick={() => deleteUser(u)}>
+                        删除
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             ))}
             {sortedUsers.length === 0 && (
@@ -122,6 +183,55 @@ const AdminUsers = () => {
           </div>
         )}
       </div>
+
+      {showGroupModal && targetUser && (
+        <div className="modal-backdrop" onClick={() => setShowGroupModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>成员分组 · {targetUser.nickname || targetUser.username}</h3>
+              <button className="btn btn-secondary btn-sm" onClick={() => setShowGroupModal(false)}>关闭</button>
+            </div>
+            <div className="modal-content">
+              <div className="member-search">
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="搜索分组（输入分组名关键词）"
+                  value={groupSearch}
+                  onChange={(e) => setGroupSearch(e.target.value)}
+                />
+                {groupResults.length > 0 && (
+                  <div className="search-results">
+                    {groupResults.map(g => (
+                      <div key={g._id} className="result-item">
+                        <div className="info">
+                          <div className="name">{g.name}</div>
+                        </div>
+                        <button className="btn btn-secondary btn-sm" onClick={() => addGroupToUser(g)}>添加</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="members-list">
+                {userGroups.length === 0 ? (
+                  <div className="empty">该用户暂无分组</div>
+                ) : (
+                  userGroups.map(g => (
+                    <div key={g._id} className="member-item">
+                      <div className="info">
+                        <div className="name">{g.name}</div>
+                      </div>
+                      <button className="btn btn-danger btn-sm" onClick={() => removeGroupFromUser(g)}>移出</button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

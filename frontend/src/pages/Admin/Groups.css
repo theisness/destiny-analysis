@@ -1,0 +1,18 @@
+.admin-groups-page .groups-list { display: flex; flex-direction: column; gap: 12px; }
+.group-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #eee; border-radius: 10px; background: #fff; }
+.group-item .group-name { font-weight: 600; }
+
+/* Modal styles */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal { width: 640px; max-width: 95vw; background: #fff; border-radius: 10px; box-shadow: 0 10px 24px rgba(0,0,0,0.15); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #eee; }
+.modal-content { padding: 12px 16px; }
+
+.member-search .search-results, .members-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.result-item, .member-item { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid #eee; border-radius: 8px; }
+.result-item .avatar, .member-item .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid #e0e0e0; }
+.result-item .info .name, .member-item .info .name { font-weight: 600; }
+.result-item .info .sub, .member-item .info .sub { color: #666; }
+
+.empty { color: #666; text-align: center; padding: 12px; }
+.loading-container, .error-container { text-align: center; padding: 12px; }

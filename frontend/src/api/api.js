@@ -80,6 +80,22 @@ export const labelsAPI = {
   delete: (id) => api.delete(`/labels/${id}`)
 };
 
+// 分组相关 API（管理员）
+export const groupsAPI = {
+  list: (q = '') => api.get('/groups', { params: q ? { q } : {} }),
+  create: (name) => api.post('/groups', { name }),
+  rename: (id, name) => api.patch(`/groups/${id}`, { name }),
+  delete: (id) => api.delete(`/groups/${id}`),
+  listUsers: (id) => api.get(`/groups/${id}/users`)
+};
+
+// 用户分组管理接口（管理员）
+export const userGroupsAPI = {
+  getUserGroups: (userId) => api.get(`/users/${userId}/groups`),
+  joinGroup: (userId, groupId) => api.patch(`/users/${userId}/groups/join`, { groupId }),
+  leaveGroup: (userId, groupId) => api.patch(`/users/${userId}/groups/leave`, { groupId })
+};
+
 // 八字相关 API
 export const baziAPI = {
   // 创建八字记录
