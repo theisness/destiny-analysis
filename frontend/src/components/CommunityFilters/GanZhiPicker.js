@@ -9,7 +9,7 @@ const GanZhiPicker = ({ type = 'gan', show = false, onSelect, onClose }) => {
   const list = type === 'zhi' ? ZHI : GAN;
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">选择{type === 'zhi' ? '地支' : '天干'}</div>
         <div className="ganzhi-grid">
           {list.map(item => (

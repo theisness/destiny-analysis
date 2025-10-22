@@ -222,20 +222,6 @@
   }
 }
 
-.filters-bar {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 12px;
-}
-
-.select {
-  padding: 10px 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fff;
-}
-
 .form-inline {
   display: flex;
   gap: 8px;

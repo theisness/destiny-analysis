@@ -35,7 +35,7 @@
 
 .tag-input {
     width: 100%;
-    padding: 8px 10px;
+    padding: 8px 10px 0px 0px;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     font-size: 14px
@@ -62,4 +62,10 @@
 
 .suggestion-item:hover {
     background: #f3f4f6
+}
+
+@media (max-width: 640px) {
+    .suggestions {
+        z-index: 1200;
+    }
 }

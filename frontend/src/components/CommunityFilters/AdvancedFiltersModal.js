@@ -26,6 +26,7 @@ const AdvancedFiltersModal = ({
   }), [value]);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [chosenRange, setChosenRange] = useState({ from: {}, to: {} });
   const [showGanPicker, setShowGanPicker] = useState({ open: false, pillar: '', type: 'gan' });
 
   if (!show) return null;
@@ -34,11 +35,26 @@ const AdvancedFiltersModal = ({
   const closeGanPicker = () => setShowGanPicker({ open: false, pillar: '', type: 'gan' });
 
   const setField = (key, val) => onChange && onChange({ ...v, [key]: val });
+  const clearPillar = (pillar) => {
+    console.log('clearPillar', pillar);
+    console.log('v', v);
+    setField(`${pillar}Gan`, '');
+    setField(`${pillar}Zhi`, '');
+  };
+
+  const formatDate = (d = {}) => {
+    const y = d.year ? String(d.year) : '';
+    const m = d.month ? String(d.month).padStart(2, '0') : '';
+    const day = d.day ? String(d.day).padStart(2, '0') : '';
+    const res = [y, m, day].filter(Boolean).join('-');
+    return res || '-';
+  };
 
   const handleDateConfirm = ({ from, to }) => {
+    setChosenRange({ from, to });
     setField('birthYearFrom', from.year || '');
     setField('birthYearTo', to.year || '');
-    // Month/Day为精确过滤（后端为等值匹配），若用户选择月/日则传入
+    // Month/Day为精确过滤（后端为等值匹配），若用户选择月/日则传入（仅当起止相同才启用）
     setField('birthMonth', from.month && to.month && from.month === to.month ? from.month : '');
     setField('birthDay', from.day && to.day && from.day === to.day ? from.day : '');
     setShowDatePicker(false);
@@ -46,7 +62,7 @@ const AdvancedFiltersModal = ({
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">高级筛选</div>
         <div className="modal-body">
           <div className="row">
@@ -77,9 +93,9 @@ const AdvancedFiltersModal = ({
                 </label>
               </div>
             </div>
-            {(v.birthYearFrom || v.birthYearTo || v.birthMonth || v.birthDay) && (
+            {(chosenRange.from.year || chosenRange.to.year || chosenRange.from.month || chosenRange.to.month || chosenRange.from.day || chosenRange.to.day) && (
               <div className="date-summary">
-                范围：{v.birthYearFrom || '-'} 至 {v.birthYearTo || '-'} {v.birthMonth ? `，月=${v.birthMonth}` : ''} {v.birthDay ? `，日=${v.birthDay}` : ''}
+                已选范围：{formatDate(chosenRange.from)} 至 {formatDate(chosenRange.to)}（{v.calendarType === 'lunar' ? '农历' : '阳历'}）
               </div>
             )}
           </div>
@@ -87,23 +103,35 @@ const AdvancedFiltersModal = ({
           <div className="row pillars">
             <div className="pillar">
               <div className="label">年柱：</div>
-              <button className="btn btn-secondary" onClick={() => openGanPicker('year', 'gan')}>{v.yearGan || '天干'}</button>
-              <button className="btn btn-secondary" onClick={() => openGanPicker('year', 'zhi')}>{v.yearZhi || '地支'}</button>
+              <div className="pillar-controls">
+                <button className="btn btn-secondary" onClick={() => openGanPicker('year', 'gan')}>{v.yearGan || '天干'}</button>
+                <button className="btn btn-secondary" onClick={() => openGanPicker('year', 'zhi')}>{v.yearZhi || '地支'}</button>
+                <button className="btn btn-secondary btn-clear" onClick={() => clearPillar('year')}>清除</button>
+              </div>
             </div>
             <div className="pillar">
               <div className="label">月柱：</div>
-              <button className="btn btn-secondary" onClick={() => openGanPicker('month', 'gan')}>{v.monthGan || '天干'}</button>
-              <button className="btn btn-secondary" onClick={() => openGanPicker('month', 'zhi')}>{v.monthZhi || '地支'}</button>
+              <div className="pillar-controls">
+                <button className="btn btn-secondary" onClick={() => openGanPicker('month', 'gan')}>{v.monthGan || '天干'}</button>
+                <button className="btn btn-secondary" onClick={() => openGanPicker('month', 'zhi')}>{v.monthZhi || '地支'}</button>
+                <button className="btn btn-secondary btn-clear" onClick={() => clearPillar('month')}>清除</button>
+              </div>
             </div>
             <div className="pillar">
               <div className="label">日柱：</div>
-              <button className="btn btn-secondary" onClick={() => openGanPicker('day', 'gan')}>{v.dayGan || '天干'}</button>
-              <button className="btn btn-secondary" onClick={() => openGanPicker('day', 'zhi')}>{v.dayZhi || '地支'}</button>
+              <div className="pillar-controls">
+                <button className="btn btn-secondary" onClick={() => openGanPicker('day', 'gan')}>{v.dayGan || '天干'}</button>
+                <button className="btn btn-secondary" onClick={() => openGanPicker('day', 'zhi')}>{v.dayZhi || '地支'}</button>
+                <button className="btn btn-secondary btn-clear" onClick={() => clearPillar('day')}>清除</button>
+              </div>
             </div>
             <div className="pillar">
               <div className="label">时柱：</div>
-              <button className="btn btn-secondary" onClick={() => openGanPicker('hour', 'gan')}>{v.hourGan || '天干'}</button>
-              <button className="btn btn-secondary" onClick={() => openGanPicker('hour', 'zhi')}>{v.hourZhi || '地支'}</button>
+              <div className="pillar-controls">
+                <button className="btn btn-secondary" onClick={() => openGanPicker('hour', 'gan')}>{v.hourGan || '天干'}</button>
+                <button className="btn btn-secondary" onClick={() => openGanPicker('hour', 'zhi')}>{v.hourZhi || '地支'}</button>
+                <button className="btn btn-secondary btn-clear" onClick={() => clearPillar('hour')}>清除</button>
+              </div>
             </div>
           </div>
         </div>

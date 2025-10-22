@@ -31,7 +31,7 @@ const DateRangePicker = ({ show = false, title = '选择日期', calendarType = 
   if (!show) return null;
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">{title}（{calendarType === 'lunar' ? '农历' : '阳历'}）</div>
         <div className="date-range-body">
           <div className="date-row">

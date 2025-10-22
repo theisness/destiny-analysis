@@ -43,7 +43,7 @@
 .input-row {
   display: flex;
   gap: 15px;
-  margin-bottom: 15px;
+  /* margin-bottom: 15px; */
 }
 
 .input-row .input-group {

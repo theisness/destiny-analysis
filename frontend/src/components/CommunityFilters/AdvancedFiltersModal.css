@@ -1,2 +1,121 @@
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:1100}.modal{background:#fff;border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,0.2);padding:16px;max-width:720px;width:92%}.modal-header{font-weight:700;font-size:18px;margin-bottom:10px}.modal-body{display:flex;flex-direction:column;gap:12px}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pillars{gap:12px}.pillar{display:flex;gap:8px;align-items:center}.label{min-width:48px}.calendar-toggle{display:flex;gap:12px}.calendar-toggle label{display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px 8px;border-radius:8px}.calendar-toggle label.active{background:#f3f4f6}.date-summary{font-size:12px;color:#666;margin-top:6px}.modal-actions{margin-top:12px;display:flex;justify-content:flex-end;gap:8px}
-@media (max-width: 640px){.modal{max-width:95vw;max-height:90vh;overflow:auto}.row{gap:6px}.pillar{gap:6px}}
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100
+}
+
+.modal {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    max-width: 720px;
+    width: 92%
+}
+
+.modal-header {
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 10px
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap
+}
+
+.pillars {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px
+}
+
+.pillar {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 8px;
+    align-items: center
+}
+
+.pillar-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px
+}
+
+.pillar-controls .btn {
+    width: 100%
+}
+
+.label {
+    min-width: 56px
+}
+
+.calendar-toggle {
+    display: flex;
+    gap: 12px
+}
+
+.calendar-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 8px
+}
+
+.calendar-toggle label.active {
+    background: #f3f4f6
+}
+
+.date-summary {
+    font-size: 12px;
+    color: #666;
+    margin-top: 6px
+}
+
+.modal-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px
+}
+
+@media (max-width: 640px) {
+    .modal {
+        width: 95%;
+        max-width: 95vw;
+        max-height: 90vh;
+        overflow: auto
+    }
+
+    .row {
+        gap: 6px
+    }
+
+    .pillars {
+        grid-template-columns: 1fr;
+    }
+
+    .pillar {
+        grid-template-columns: 56px 1fr;
+        gap: 6px
+    }
+
+    .pillar-controls {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
