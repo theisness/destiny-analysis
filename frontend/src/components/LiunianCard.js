@@ -2,6 +2,7 @@ import './LiunianCard.css'
 import React, { useEffect, useRef } from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
 import { getShishen, getShishenColorBySource, abbrShishen } from '../utils/shishen-calculator';
+import { getZhiBenQi, calculateDiShi, calculateNaYin, getDiShiColor, getNaYinColor } from '../utils/bazi-utils';
 
 const LiunianCard = ({
   liunianData = [],
@@ -52,16 +53,50 @@ const LiunianCard = ({
           const ganWuxing = getGanWuxing(nian.gan);
           const zhiWuxing = getZhiWuxing(nian.zhi);
           const ganShishen = getShishen(riGan, nian.gan);
+          const zhiBenQi = getZhiBenQi(nian.zhi);
+          const zhiShishen = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+          const dishi = calculateDiShi(riGan, nian.zhi);
+          const nayin = calculateNaYin(nian.gan, nian.zhi);
           return (
             <div key={index} className={`liunian-item ${nian.isCurrent ? 'current' : ''}`}>
               <div className="liunian-year">{nian.year}</div>
-              <div className="liunian-shishen" style={{ color: getShishenColorBySource(ganShishen, nian.gan) }}>
-                {isMobile ? abbrShishen(ganShishen) : ganShishen}
+
+              <div className="liunian-ganzhi-container">
+                <div className="liunian-gan-section">
+                  {ganShishen && (
+                    <div className="liunian-gan-shishen" style={{ color: getShishenColorBySource(ganShishen, nian.gan) }}>
+                      {isMobile ? abbrShishen(ganShishen) : ganShishen}
+                    </div>
+                  )}
+                  <span className="liunian-gan" style={{ color: getWuxingColor(ganWuxing) }}>
+                    {nian.gan}
+                  </span>
+                </div>
+
+                <div className="liunian-zhi-section">
+                  {zhiShishen && (
+                    <div className="liunian-zhi-shishen" style={{ color: getShishenColorBySource(zhiShishen, zhiBenQi) }}>
+                      {isMobile ? abbrShishen(zhiShishen) : zhiShishen}
+                    </div>
+                  )}
+                  <span className="liunian-zhi" style={{ color: getWuxingColor(zhiWuxing) }}>
+                    {nian.zhi}
+                  </span>
+                </div>
               </div>
-              <div className="liunian-ganzhi">
-                <span style={{ color: getWuxingColor(ganWuxing) }}>{nian.gan}</span>
-                <span style={{ color: getWuxingColor(zhiWuxing) }}>{nian.zhi}</span>
-              </div>
+
+              {dishi && (
+                <div className="liunian-dishi" style={{ color: getDiShiColor(dishi) }}>
+                  {dishi}
+                </div>
+              )}
+
+              {nayin && (
+                <div className="liunian-nayin" style={{ color: getNaYinColor(nayin) }}>
+                  {nayin}
+                </div>
+              )}
+
               {nian.isCurrent && <div className="current-badge">当前</div>}
             </div>
           );

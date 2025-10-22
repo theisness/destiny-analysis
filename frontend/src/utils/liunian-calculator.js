@@ -62,7 +62,6 @@ export const calculateLiuyue = (year, currentLunar) => {
     const isCurrentMonth = monthGanIndex%10 === currentLunar.getMonthGanIndex() &&
                           year === currentLunarYear;
     liuyue.push({
-      month: month,
       gan: TIAN_GAN[monthGanIndex % 10],
       zhi: DI_ZHI[(month + 1) % 12],
       isCurrent: isCurrentMonth

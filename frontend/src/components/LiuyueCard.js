@@ -2,6 +2,7 @@ import './LiuyueCard.css'
 import React, { useEffect, useRef } from 'react';
 import { getGanWuxing, getZhiWuxing, getWuxingColor } from '../utils/wuxing-calculator';
 import { getShishen, getShishenColorBySource, abbrShishen } from '../utils/shishen-calculator';
+import { getZhiBenQi, calculateDiShi, calculateNaYin, getDiShiColor, getNaYinColor } from '../utils/bazi-utils';
 
 const LiuyueCard = ({
   liuyueData = [],
@@ -40,16 +41,48 @@ const LiuyueCard = ({
           const ganWuxing = getGanWuxing(yue.gan);
           const zhiWuxing = getZhiWuxing(yue.zhi);
           const ganShishen = getShishen(riGan, yue.gan);
+          const zhiBenQi = getZhiBenQi(yue.zhi);
+          const zhiShishen = zhiBenQi ? getShishen(riGan, zhiBenQi) : '';
+          const dishi = calculateDiShi(riGan, yue.zhi);
+          const nayin = calculateNaYin(yue.gan, yue.zhi);
           return (
             <div key={index} className={`liuyue-item ${yue.isCurrent ? 'current' : ''}`}>
-              <div className="liuyue-month">{yue.month}月</div>
-              <div className="liuyue-shishen" style={{ color: getShishenColorBySource(ganShishen, yue.gan) }}>
-                {isMobile ? abbrShishen(ganShishen) : ganShishen}
+              <div className="liuyue-ganzhi-container">
+                <div className="liuyue-gan-section">
+                  {ganShishen && (
+                    <div className="liuyue-gan-shishen" style={{ color: getShishenColorBySource(ganShishen, yue.gan) }}>
+                      {isMobile ? abbrShishen(ganShishen) : ganShishen}
+                    </div>
+                  )}
+                  <span className="liuyue-gan" style={{ color: getWuxingColor(ganWuxing) }}>
+                    {yue.gan}
+                  </span>
+                </div>
+
+                <div className="liuyue-zhi-section">
+                  {zhiShishen && (
+                    <div className="liuyue-zhi-shishen" style={{ color: getShishenColorBySource(zhiShishen, zhiBenQi) }}>
+                      {isMobile ? abbrShishen(zhiShishen) : zhiShishen}
+                    </div>
+                  )}
+                  <span className="liuyue-zhi" style={{ color: getWuxingColor(zhiWuxing) }}>
+                    {yue.zhi}
+                  </span>
+                </div>
               </div>
-              <div className="liuyue-ganzhi">
-                <span style={{ color: getWuxingColor(ganWuxing) }}>{yue.gan}</span>
-                <span style={{ color: getWuxingColor(zhiWuxing) }}>{yue.zhi}</span>
-              </div>
+
+              {dishi && (
+                <div className="liuyue-dishi" style={{ color: getDiShiColor(dishi) }}>
+                  {dishi}
+                </div>
+              )}
+
+              {nayin && (
+                <div className="liuyue-nayin" style={{ color: getNaYinColor(nayin) }}>
+                  {nayin}
+                </div>
+              )}
+
               {yue.isCurrent && <div className="current-badge">当前</div>}
             </div>
           );
