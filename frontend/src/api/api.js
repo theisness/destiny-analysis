@@ -77,6 +77,7 @@ export const usersAPI = {
 export const labelsAPI = {
   list: (q = '') => api.get('/labels', { params: q ? { q } : {} }),
   create: (name) => api.post('/labels', { name }),
+  rename: (id, name) => api.patch(`/labels/${id}`, { name }),
   delete: (id) => api.delete(`/labels/${id}`)
 };
 

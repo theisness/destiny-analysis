@@ -305,7 +305,7 @@ router.patch('/:id', async (req, res) => {
       return res.status(403).json({ success: false, message: '无权编辑此记录' });
     }
 
-    const allowedFields = ['name', 'gender', 'addToCommunity', 'shareSettings'];
+    const allowedFields = ['name', 'gender', 'addToCommunity', 'shareSettings', 'labels'];
     const update = {};
     for (const key of allowedFields) {
       if (req.body[key] !== undefined) update[key] = req.body[key];
@@ -321,8 +321,36 @@ router.patch('/:id', async (req, res) => {
       };
     }
 
+    // 处理标签更新：传入标签名数组，自动创建缺失标签
+    if (update.labels) {
+      let labelIds = [];
+      if (Array.isArray(update.labels)) {
+        const names = [...new Set(update.labels
+          .map(l => {
+            if (typeof l === 'string') return l.trim();
+            if (l && typeof l === 'object' && l.name) return String(l.name).trim();
+            return '';
+          })
+          .filter(n => !!n)
+        )];
+        if (names.length > 0) {
+          const existing = await Label.find({ name: { $in: names } });
+          const existingMap = new Map(existing.map(l => [l.name, l]));
+          const toCreate = names.filter(n => !existingMap.has(n));
+          let createdDocs = [];
+          if (toCreate.length > 0) {
+            createdDocs = await Label.insertMany(toCreate.map(n => ({ name: n })), { ordered: false });
+          }
+          const allDocs = [...existing, ...createdDocs];
+          labelIds = allDocs.map(d => d._id);
+        }
+      }
+      update.labels = labelIds;
+    }
+
     const updated = await BaziRecord.findByIdAndUpdate(req.params.id, { $set: update }, { new: true });
-    res.json({ success: true, data: updated });
+    const populated = await BaziRecord.findById(updated._id).populate('labels', 'name');
+    res.json({ success: true, data: populated });
   } catch (error) {
     console.error('编辑八字错误:', error);
     res.status(500).json({ success: false, message: '编辑失败' });

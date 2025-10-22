@@ -49,6 +49,7 @@ import CommentsSection from '../../components/CommentsSection';
 import { BASE_URL, DEFAULT_AVATAR } from '../../config';
 import { useAuth } from '../../context/AuthContext';
 import SecureImage from '../../components/SecureImage';
+import TagSelect from '../../components/TagSelect';
 
 const BaziDetail = () => {
   const { id } = useParams();
@@ -97,6 +98,9 @@ const BaziDetail = () => {
   const [showLiuyue, setShowLiuyue] = useState(false);
   // 在详情页新增：分享设置弹窗开关
   const [showShareSettingsModal, setShowShareSettingsModal] = useState(false);
+  // 在详情页新增：标签管理弹窗开关与当前选择
+  const [showLabelsModal, setShowLabelsModal] = useState(false);
+  const [labelSelection, setLabelSelection] = useState([]);
 
   useEffect(() => {
     fetchDetail();
@@ -317,7 +321,13 @@ const BaziDetail = () => {
               </div>
             )}
             {user && (record?.userId && user.id === record.userId) && (
-              <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 0, gap: 10 }}>
+                <button className="btn btn-secondary" onClick={() => {
+                  setLabelSelection(Array.isArray(record.labels) ? record.labels.map(l => l.name || l) : []);
+                  setShowLabelsModal(true);
+                }}>
+                  标签管理
+                </button>
                 <button className="btn btn-primary" onClick={() => setShowShareSettingsModal(true)}>
                   分享设置
                 </button>
@@ -396,6 +406,41 @@ const BaziDetail = () => {
                 record={record}
                 onUpdated={(data) => setRecord(prev => ({ ...prev, ...data }))}
               />
+            </div>
+          </div>
+        )}
+
+        {user && (record?.userId && user.id === record.userId) && showLabelsModal && (
+          <div className="modal-backdrop" onClick={() => setShowLabelsModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <span>标签管理</span>
+                <button className="btn btn-secondary btn-sm" onClick={() => setShowLabelsModal(false)}>关闭</button>
+              </div>
+              <div className="modal-content">
+                <TagSelect
+                  value={labelSelection}
+                  onChange={(next) => setLabelSelection(next)}
+                  placeholder="输入标签，按回车添加"
+                  allowFreeText={true}
+                />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 12 }}>
+                  <button className="btn btn-secondary" onClick={() => setShowLabelsModal(false)}>取消</button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={async () => {
+                      try {
+                        const res = await baziAPI.update(record._id, { labels: labelSelection });
+                        const updated = res.data?.data || record;
+                        setRecord(updated);
+                        setShowLabelsModal(false);
+                      } catch (err) {
+                        alert(err.response?.data?.message || '保存标签失败');
+                      }
+                    }}
+                  >保存</button>
+                </div>
+              </div>
             </div>
           </div>
         )}

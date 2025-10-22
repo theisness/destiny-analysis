@@ -12,6 +12,10 @@ const AdminLabels = () => {
   const [search, setSearch] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [creating, setCreating] = useState(false);
+  // 新增：改名状态
+  const [editingId, setEditingId] = useState('');
+  const [editName, setEditName] = useState('');
+  const [renaming, setRenaming] = useState(false);
 
   const fetchLabels = async (q = '') => {
     try {
@@ -58,6 +62,31 @@ const AdminLabels = () => {
       setLabels(prev => prev.filter(l => l._id !== label._id));
     } catch (err) {
       alert(err.response?.data?.message || '删除失败');
+    }
+  };
+
+  const startEdit = (label) => {
+    setEditingId(label._id);
+    setEditName(label.name || '');
+  };
+
+  const cancelEdit = () => {
+    setEditingId('');
+    setEditName('');
+  };
+
+  const saveEdit = async () => {
+    const name = editName.trim();
+    if (!name) return;
+    try {
+      setRenaming(true);
+      await labelsAPI.rename(editingId, name);
+      setLabels(prev => prev.map(l => (String(l._id) === String(editingId) ? { ...l, name } : l)));
+      cancelEdit();
+    } catch (err) {
+      alert(err.response?.data?.message || '重命名失败');
+    } finally {
+      setRenaming(false);
     }
   };
 
@@ -121,8 +150,29 @@ const AdminLabels = () => {
               ) : (
                 sortedLabels.map(label => (
                   <div key={label._id} className="label-item">
-                    <span className="label-name">{label.name}</span>
-                    <button className="btn btn-secondary btn-sm" onClick={() => handleDelete(label)}>删除</button>
+                    {String(editingId) === String(label._id) ? (
+                      <>
+                        <input
+                          className="input"
+                          type="text"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); saveEdit(); } }}
+                        />
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button className="btn btn-primary btn-sm" disabled={renaming} onClick={saveEdit}>保存</button>
+                          <button className="btn btn-secondary btn-sm" onClick={cancelEdit}>取消</button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="label-name">{label.name}</span>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button className="btn btn-secondary btn-sm" onClick={() => startEdit(label)}>编辑</button>
+                          <button className="btn btn-secondary btn-sm" onClick={() => handleDelete(label)}>删除</button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))
               )}
