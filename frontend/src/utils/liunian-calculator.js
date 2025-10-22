@@ -28,7 +28,13 @@ export const calculateLiunian = (centerYear, currentYear) => {
 };
 
 // 计算流月（五虎遁月诀）
-export const calculateLiuyue = (year, currentLunarInfo) => {
+/**
+ * 计算流月（五虎遁月诀）
+ * @param {number} year - 目标年份
+ * @param {object} currentLunar - 当前农历日期对象，包含year, month, day, hour, minute, second
+ * @returns {object[]} 流月数据数组，每个元素包含month, gan, zhi, isCurrent
+ */
+export const calculateLiuyue = (year, currentLunar) => {
   const liuyue = [];
   const yearGanIndex = (year - 4) % 10;
 
@@ -47,16 +53,14 @@ export const calculateLiuyue = (year, currentLunarInfo) => {
   let currentLunarMonth = null;
   let currentLunarYear = null;
 
-  if (currentLunarInfo) {
-    currentLunarMonth = Math.abs(currentLunarInfo.month); // 农历月可能是负数（闰月）
-    currentLunarYear = currentLunarInfo.year;
+  if (currentLunar) {
+    currentLunarMonth = Math.abs(currentLunar.getMonth()); // 农历月可能是负数（闰月）
+    currentLunarYear = currentLunar.getYear();
   }
 
   for (let month = 1; month <= 12; month++) {
-    const isCurrentMonth = currentLunarInfo &&
-                          year === currentLunarYear &&
-                          month === currentLunarMonth+1;
-
+    const isCurrentMonth = monthGanIndex%10 === currentLunar.getMonthGanIndex() &&
+                          year === currentLunarYear;
     liuyue.push({
       month: month,
       gan: TIAN_GAN[monthGanIndex % 10],

@@ -38,7 +38,7 @@ export const calculateDayun = (dateTime, gender, monthPillar) => {
     // 大运列表
     const dayunList = [];
     const daYuns = yunArray.getDaYun();
-    for (let i = 0; i < Math.min(8, daYuns.length); i++) {
+    for (let i = 0; i <  daYuns.length; i++) {
       const yun = daYuns[i];
       if (yun) {
         const ganZhi = yun.getGanZhi();

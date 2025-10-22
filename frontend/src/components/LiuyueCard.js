@@ -6,7 +6,7 @@ import { getShishen, getShishenColorBySource, abbrShishen } from '../utils/shish
 const LiuyueCard = ({
   liuyueData = [],
   selectedYear,
-  currentLunarInfo,
+  currentLunar,
   baziResult
 }) => {
   const riGan = baziResult?.dayPillar?.gan;
@@ -22,16 +22,16 @@ const LiuyueCard = ({
       const target = currentEl.offsetLeft - container.clientWidth / 2 + currentEl.clientWidth / 2;
       container.scrollLeft = Math.max(target, 0);
     }
-  }, [liuyueData, selectedYear, currentLunarInfo]);
+  }, [liuyueData, selectedYear]);
 
   return (
     <div className="card">
       <h2>流月排盘（{selectedYear}年）</h2>
       <p className="liuyue-hint">
         💡 五虎遁月诀：甲己之年丙作首，乙庚之岁戊为头，丙辛必定寻庚起，丁壬壬位顺行流，戊癸甲寅好追求
-        {currentLunarInfo && selectedYear === currentLunarInfo.year && (
+        {selectedYear === currentLunar.getYear() && (
           <span className="current-lunar-info">
-            （当前：农历{Math.abs(currentLunarInfo.month+1)}月 - {currentLunarInfo.monthInGanZhi}）
+            （当前：农历{Math.abs(currentLunar.getMonth())}月 - {currentLunar.getMonthInGanZhi()}）
           </span>
         )}
       </p>

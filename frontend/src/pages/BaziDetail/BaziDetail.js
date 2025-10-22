@@ -50,6 +50,7 @@ import { BASE_URL, DEFAULT_AVATAR } from '../../config';
 import { useAuth } from '../../context/AuthContext';
 import SecureImage from '../../components/SecureImage';
 import TagSelect from '../../components/TagSelect';
+import { Lunar } from 'lunar-javascript';
 
 const BaziDetail = () => {
   const { id } = useParams();
@@ -63,13 +64,12 @@ const BaziDetail = () => {
   const getAvatarSrc = (u) => (u?.avatarUrl ? `${BASE_URL}${u.avatarUrl}` : DEFAULT_AVATAR);
 
   // 流年流月选择
-  const currentYear = new Date().getFullYear();
+  // 使用农历年
+  const currentLunar = Lunar.fromDate(new Date());
+  const currentYear = currentLunar.getYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [liunianData, setLiunianData] = useState([]);
   const [liuyueData, setLiuyueData] = useState([]);
-
-  // 当前农历信息
-  const [currentLunarInfo, setCurrentLunarInfo] = useState(null);
 
   // 大运数据（本地计算）
   const [dayunData, setDayunData] = useState({
@@ -104,26 +104,15 @@ const BaziDetail = () => {
 
   useEffect(() => {
     fetchDetail();
-    fetchCurrentLunar();
   }, [id]);
-
-  // 获取当前农历信息
-  const fetchCurrentLunar = async () => {
-    try {
-      const response = await baziAPI.getCurrentLunar();
-      setCurrentLunarInfo(response.data.data);
-    } catch (error) {
-      console.error('获取当前农历信息失败:', error);
-    }
-  };
 
   // 实时计算流年流月
   useEffect(() => {
-    if (selectedYear && currentLunarInfo) {
+    if (selectedYear && currentLunar) {
       setLiunianData(calculateLiunian(selectedYear, currentYear));
-      setLiuyueData(calculateLiuyue(selectedYear, currentLunarInfo));
+      setLiuyueData(calculateLiuyue(selectedYear, currentLunar));
     }
-  }, [selectedYear, currentLunarInfo, currentYear]);
+  }, [selectedYear, currentYear]);
 
   const fetchDetail = async () => {
     try {
@@ -388,7 +377,7 @@ const BaziDetail = () => {
         <LiuyueCard
           liuyueData={liuyueData}
           selectedYear={selectedYear}
-          currentLunarInfo={currentLunarInfo}
+          currentLunar={currentLunar}
           baziResult={baziResult}
         />
 
