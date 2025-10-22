@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const Label = require('../models/Label');
+const BaziRecord = require('../models/BaziRecord');
 
 // 管理员鉴权（与 admin.js 保持一致）
 function requireAdmin(req, res, next) {
@@ -57,13 +58,49 @@ router.post(
 );
 
 /**
+ * @route   PATCH /api/labels/:id
+ * @desc    修改标签名称（管理员）
+ * @access  Private/Admin
+ */
+router.patch(
+  '/:id',
+  requireAdmin,
+  [body('name').trim().notEmpty().withMessage('标签名不能为空')],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+    const id = req.params.id;
+    const name = req.body.name.trim();
+    try {
+      const conflict = await Label.findOne({ name });
+      if (conflict && String(conflict._id) !== String(id)) {
+        return res.status(400).json({ success: false, message: '标签名已存在' });
+      }
+      const updated = await Label.findByIdAndUpdate(id, { name }, { new: true });
+      if (!updated) return res.status(404).json({ success: false, message: '标签不存在' });
+      res.json({ success: true, label: { _id: updated._id, name: updated.name } });
+    } catch (err) {
+      console.error('修改标签错误:', err);
+      res.status(500).json({ success: false, message: '服务器错误' });
+    }
+  }
+);
+
+/**
  * @route   DELETE /api/labels/:id
- * @desc    删除标签（管理员）
+ * @desc    删除标签（管理员）- 删除前检查是否被使用
  * @access  Private/Admin
  */
 router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const id = req.params.id;
+    // 检查是否有八字正在使用该标签
+    const usingCount = await BaziRecord.countDocuments({ labels: id });
+    if (usingCount > 0) {
+      return res.status(400).json({ success: false, message: '该标签正在被八字使用，请先取消相关八字的标签后再删除' });
+    }
     const deleted = await Label.findByIdAndDelete(id);
     if (!deleted) return res.status(404).json({ success: false, message: '标签不存在' });
     res.json({ success: true });

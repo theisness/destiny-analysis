@@ -14,7 +14,7 @@ function requireAdmin(req, res, next) {
 // 成员列表（管理员可见）
 router.get('/users', requireAdmin, async (req, res) => {
   try {
-    const users = await User.find({}).select('_id username nickname avatarUrl email admin isBanned createdAt');
+    const users = await User.find({}).select('_id username nickname avatarUrl email admin isBanned createdAt groupIds');
     res.json({ success: true, users });
   } catch (err) {
     console.error('获取成员列表错误:', err);

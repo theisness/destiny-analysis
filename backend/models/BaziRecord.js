@@ -110,7 +110,8 @@ const BaziRecordSchema = new mongoose.Schema({
       enum: ['public', 'restricted'],
       default: 'public'
     },
-    allowedUserIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    allowedUserIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    allowedUserGroups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserGroup' }]
   },
   createdAt: {
     type: Date,

@@ -260,15 +260,21 @@ router.get('/:id', async (req, res) => {
 
     // 权限判断：
     // 1) 非社区记录：仅创建者或管理员可见
-    // 2) 社区记录：管理员可见；public可见；restricted仅允许名单内可见
+    // 2) 社区记录：管理员可见；public可见；restricted仅允许名单或分组内可见
     if(record.userId.toString() !== req.user._id.toString() && req.user.admin !== 1) {
       if (!record.addToCommunity) {
         return res.status(403).json({ success: false, message: '无权访问此记录' });
       } else {
         const type = record.shareSettings?.type || 'public';
-        const allowed = record.shareSettings?.allowedUserIds || [];
-        if (type === 'restricted' && !allowed.map(id => id.toString()).includes(req.user._id.toString())) {
-          return res.status(403).json({ success: false, message: '无权访问此记录' });
+        const allowedUserIds = record.shareSettings?.allowedUserIds || [];
+        const allowedUserGroups = record.shareSettings?.allowedUserGroups || [];
+        if (type === 'restricted') {
+          const uidAllowed = allowedUserIds.map(id => id.toString()).includes(req.user._id.toString());
+          const userGroupIds = (req.user.groupIds || []).map(id => id.toString());
+          const gidAllowed = allowedUserGroups.map(id => id.toString()).some(gid => userGroupIds.includes(gid));
+          if (!uidAllowed && !gidAllowed) {
+            return res.status(403).json({ success: false, message: '无权访问此记录' });
+          }
         }
       }
     }
@@ -310,7 +316,8 @@ router.patch('/:id', async (req, res) => {
       const s = update.shareSettings;
       update.shareSettings = {
         type: s.type === 'restricted' ? 'restricted' : 'public',
-        allowedUserIds: Array.isArray(s.allowedUserIds) ? s.allowedUserIds : []
+        allowedUserIds: Array.isArray(s.allowedUserIds) ? s.allowedUserIds : [],
+        allowedUserGroups: Array.isArray(s.allowedUserGroups) ? s.allowedUserGroups : []
       };
     }
 
@@ -457,17 +464,21 @@ router.get('/community/list', async (req, res) => {
         permissionFilter = {}; // 不限制
       }
     } else {
-      // 非管理员：只看 public 或 restricted 且包含当前用户；若显式选择 share 类型则应用
-      const basePerm = [
-        { 'shareSettings.type': { $in: [null, 'public'] } },
-        { 'shareSettings.type': 'restricted', 'shareSettings.allowedUserIds': req.user._id }
-      ];
+      // 非管理员：只看 public 或 restricted 且包含当前用户或其所属分组；若显式选择 share 类型则应用
+      const publicPerm = { 'shareSettings.type': { $in: [null, 'public'] } };
+      const restrictedPerm = {
+        'shareSettings.type': 'restricted',
+        $or: [
+          { 'shareSettings.allowedUserIds': req.user._id },
+          { 'shareSettings.allowedUserGroups': { $in: req.user.groupIds || [] } }
+        ]
+      };
       if (share === 'public') {
-        permissionFilter = basePerm[0];
+        permissionFilter = publicPerm;
       } else if (share === 'restricted') {
-        permissionFilter = basePerm[1];
+        permissionFilter = restrictedPerm;
       } else {
-        permissionFilter = { $or: basePerm };
+        permissionFilter = { $or: [publicPerm, restrictedPerm] };
       }
     }
 

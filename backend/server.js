@@ -33,6 +33,7 @@ app.use('/api/comments', require('./routes/comments'));
 app.use('/api/captcha', require('./routes/captcha'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/labels', require('./routes/labels'));
+app.use('/api/groups', require('./routes/groups'));
 // 静态文件
 app.use('/api/files', express.static(path.join(__dirname, 'public', 'files')));
 

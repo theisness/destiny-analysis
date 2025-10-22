@@ -44,6 +44,7 @@ const UserSchema = new mongoose.Schema({
   birthday: { type: Date },
   birthdayPrivate: { type: Boolean, default: false },
   bio: { type: String, default: '' },
+  groupIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'UserGroup' }],
   createdAt: {
     type: Date,
     default: Date.now
