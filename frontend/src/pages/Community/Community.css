@@ -128,11 +128,17 @@
 }
 
 .record-bazi {
-  display: flex;
+  /* 四格单行网格布局 */
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
+  align-items: stretch;
 }
 
 .record-bazi .pillar {
+  /* 填满格子宽度 */
+  width: 100%;
+  box-sizing: border-box;
   padding: 6px 10px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -140,6 +146,8 @@
   font-weight: bold;
   font-size: 14px;
   box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  /* 文字居中 */
+  text-align: center;
 }
 
 /* 字母索引侧边栏 */
@@ -218,7 +226,14 @@
   }
 
   .record-bazi {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    align-items: stretch;
+    .pillar {
+      /* 文字居中 */
+      text-align: center;
+    }
   }
 }
 

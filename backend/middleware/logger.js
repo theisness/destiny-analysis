@@ -51,22 +51,22 @@ const logger = (req, res, next) => {
   };
 
   // 重写 res.send 方法以捕获文本响应
-  res.send = function(data) {
-    const endTime = Date.now();
-    const duration = endTime - startTime;
+  // res.send = function(data) {
+  //   const endTime = Date.now();
+  //   const duration = endTime - startTime;
 
-    const responseLog = {
-      状态码: res.statusCode,
-      响应时间: `${duration}ms`,
-      响应数据: data
-    };
+  //   const responseLog = {
+  //     状态码: res.statusCode,
+  //     响应时间: `${duration}ms`,
+  //     响应数据: data
+  //   };
 
-    console.log('📤 接口响应:');
-    console.log(JSON.stringify(responseLog, null, 2));
-    console.log('='.repeat(80) + '\n');
+  //   console.log('📤 接口响应:');
+  //   console.log(JSON.stringify(responseLog, null, 2));
+  //   console.log('='.repeat(80) + '\n');
 
-    return originalSend(data);
-  };
+  //   return originalSend(data);
+  // };
 
   next();
 };

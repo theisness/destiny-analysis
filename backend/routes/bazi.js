@@ -339,8 +339,10 @@ router.get('/community/list', async (req, res) => {
       calendarType, // 'gregorian' | 'lunar'
       birthYearFrom,
       birthYearTo,
-      birthMonth,
-      birthDay,
+      birthMonthFrom,
+      birthMonthTo,
+      birthDayFrom,
+      birthDayTo,
       yearGan,
       yearZhi,
       monthGan,
@@ -378,34 +380,60 @@ router.get('/community/list', async (req, res) => {
     if (calendarType === 'gregorian') {
       const yFrom = parseInt(birthYearFrom, 10);
       const yTo = parseInt(birthYearTo, 10);
-      const m = parseInt(birthMonth, 10);
-      const d = parseInt(birthDay, 10);
-      if (!isNaN(yFrom) || !isNaN(yTo) || !isNaN(m) || !isNaN(d)) {
-        baseQuery.gregorianDate = baseQuery.gregorianDate || {};
-        if (!isNaN(yFrom)) baseQuery.gregorianDate.year = { ...(baseQuery.gregorianDate.year || {}), $gte: yFrom };
-        if (!isNaN(yTo)) baseQuery.gregorianDate.year = { ...(baseQuery.gregorianDate.year || {}), $lte: yTo };
-        if (!isNaN(m)) baseQuery.gregorianDate.month = m;
-        if (!isNaN(d)) baseQuery.gregorianDate.day = d;
+      const mFrom = parseInt(birthMonthFrom, 10);
+      const mTo = parseInt(birthMonthTo, 10);
+      const dFrom = parseInt(birthDayFrom, 10);
+      const dTo = parseInt(birthDayTo, 10);
+      if (!isNaN(yFrom) || !isNaN(yTo) || !isNaN(mFrom) || !isNaN(mTo) || !isNaN(dFrom) || !isNaN(dTo)) {
+        // 使用点号路径查询嵌套字段
+        if (!isNaN(yFrom) || !isNaN(yTo)) {
+          baseQuery['gregorianDate.year'] = { ...(baseQuery['gregorianDate.year'] || {}) };
+          if (!isNaN(yFrom)) baseQuery['gregorianDate.year'].$gte = yFrom;
+          if (!isNaN(yTo)) baseQuery['gregorianDate.year'].$lte = yTo;
+        }
+        if (!isNaN(mFrom) || !isNaN(mTo)){
+          baseQuery['gregorianDate.month'] = { ...(baseQuery['gregorianDate.month'] || {}) };
+          if (!isNaN(mFrom)) baseQuery['gregorianDate.month'].$gte = mFrom;
+          if (!isNaN(mTo)) baseQuery['gregorianDate.month'].$lte = mTo;
+        }
+        if (!isNaN(dFrom) || !isNaN(dTo)){
+          baseQuery['gregorianDate.day'] = { ...(baseQuery['gregorianDate.day'] || {}) }; 
+          if (!isNaN(dFrom)) baseQuery['gregorianDate.day'].$gte = dFrom;
+          if (!isNaN(dTo)) baseQuery['gregorianDate.day'].$lte = dTo;   
+        }
       }
     } else if (calendarType === 'lunar') {
       const yFrom = parseInt(birthYearFrom, 10);
       const yTo = parseInt(birthYearTo, 10);
-      const m = parseInt(birthMonth, 10);
-      const d = parseInt(birthDay, 10);
-      if (!isNaN(yFrom) || !isNaN(yTo) || !isNaN(m) || !isNaN(d)) {
-        baseQuery.lunarDate = baseQuery.lunarDate || {};
-        if (!isNaN(yFrom)) baseQuery.lunarDate.year = { ...(baseQuery.lunarDate.year || {}), $gte: yFrom };
-        if (!isNaN(yTo)) baseQuery.lunarDate.year = { ...(baseQuery.lunarDate.year || {}), $lte: yTo };
-        if (!isNaN(m)) baseQuery.lunarDate.month = m;
-        if (!isNaN(d)) baseQuery.lunarDate.day = d;
+      const mFrom = parseInt(birthMonthFrom, 10);
+      const mTo = parseInt(birthMonthTo, 10);
+      const dFrom = parseInt(birthDayFrom, 10);
+      const dTo = parseInt(birthDayTo, 10);
+      if (!isNaN(yFrom) || !isNaN(yTo) || !isNaN(mFrom) || !isNaN(mTo) || !isNaN(dFrom) || !isNaN(dTo)) { 
+        // 使用点号路径查询嵌套字段
+        if (!isNaN(yFrom) || !isNaN(yTo)) {
+          baseQuery['lunarDate.year'] = { ...(baseQuery['lunarDate.year'] || {}) };
+          if (!isNaN(yFrom)) baseQuery['lunarDate.year'].$gte = yFrom;
+          if (!isNaN(yTo)) baseQuery['lunarDate.year'].$lte = yTo;
+        }
+        if (!isNaN(mFrom) || !isNaN(mTo)) {
+          baseQuery['lunarDate.month'] = { ...(baseQuery['lunarDate.month'] || {}) };
+          if (!isNaN(mFrom)) baseQuery['lunarDate.month'].$gte = mFrom;
+          if (!isNaN(mTo)) baseQuery['lunarDate.month'].$lte = mTo;
+        }
+        if (!isNaN(dFrom) || !isNaN(dTo)) {
+          baseQuery['lunarDate.day'] = { ...(baseQuery['lunarDate.day'] || {}) };
+          if (!isNaN(dFrom)) baseQuery['lunarDate.day'].$gte = dFrom;
+          if (!isNaN(dTo)) baseQuery['lunarDate.day'].$lte = dTo; 
+        }
       }
     }
 
     // 干支过滤
     const pillarFilter = {};
     const addPillar = (key, gan, zhi) => {
-      if (gan) pillarFilter[key] = { ...(pillarFilter[key] || {}), gan };
-      if (zhi) pillarFilter[key] = { ...(pillarFilter[key] || {}), zhi };
+      if (gan) pillarFilter[`${key}.gan`] = gan;
+      if (zhi) pillarFilter[`${key}.zhi`] = zhi;
     };
     addPillar('baziResult.yearPillar', yearGan, yearZhi);
     addPillar('baziResult.monthPillar', monthGan, monthZhi);
@@ -444,7 +472,7 @@ router.get('/community/list', async (req, res) => {
     }
 
     const query = req.user.admin === 1 ? { ...finalFilter, ...permissionFilter } : { ...finalFilter, ...permissionFilter };
-
+    console.log('query', query);
     const records = await BaziRecord.find(query)
       .populate('userId', 'username')
       .populate('labels', 'name')

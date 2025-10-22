@@ -16,8 +16,10 @@ const AdvancedFiltersModal = ({
     calendarType: 'gregorian',
     birthYearFrom: '',
     birthYearTo: '',
-    birthMonth: '',
-    birthDay: '',
+    birthMonthFrom: '',
+    birthMonthTo: '',
+    birthDayFrom: '',
+    birthDayTo: '',
     yearGan: '', yearZhi: '',
     monthGan: '', monthZhi: '',
     dayGan: '', dayZhi: '',
@@ -26,7 +28,8 @@ const AdvancedFiltersModal = ({
   }), [value]);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [chosenRange, setChosenRange] = useState({ from: {}, to: {} });
+  // 使用v中状态
+  const [chosenRange, setChosenRange] = useState( { from: { year: v.birthYearFrom, month: v.birthMonthFrom, day: v.birthDayFrom }, to: { year: v.birthYearTo, month: v.birthMonthTo, day: v.birthDayTo } }); 
   const [showGanPicker, setShowGanPicker] = useState({ open: false, pillar: '', type: 'gan' });
 
   if (!show) return null;
@@ -36,11 +39,26 @@ const AdvancedFiltersModal = ({
 
   const setField = (key, val) => onChange && onChange({ ...v, [key]: val });
   const clearPillar = (pillar) => {
-    console.log('clearPillar', pillar);
-    console.log('v', v);
-    setField(`${pillar}Gan`, '');
-    setField(`${pillar}Zhi`, '');
+    if (!onChange) return;
+    const next = { ...v, [`${pillar}Gan`]: '', [`${pillar}Zhi`]: '' };
+    onChange(next);
   };
+  console.log('clearDate', v);
+  const clearDate = () =>{
+    setChosenRange({ from: { year: '', month: '', day: '' }, to: { year: '', month: '', day: '' } });
+    if(onChange){
+      const next = {
+        ...v,
+        birthYearFrom: '',
+        birthYearTo: '',
+        birthMonthFrom: '',
+        birthMonthTo: '',
+        birthDayFrom: '',
+        birthDayTo: '',
+      };
+      onChange(next);
+    } 
+  }
 
   const formatDate = (d = {}) => {
     const y = d.year ? String(d.year) : '';
@@ -52,11 +70,17 @@ const AdvancedFiltersModal = ({
 
   const handleDateConfirm = ({ from, to }) => {
     setChosenRange({ from, to });
-    setField('birthYearFrom', from.year || '');
-    setField('birthYearTo', to.year || '');
-    // Month/Day为精确过滤（后端为等值匹配），若用户选择月/日则传入（仅当起止相同才启用）
-    setField('birthMonth', from.month && to.month && from.month === to.month ? from.month : '');
-    setField('birthDay', from.day && to.day && from.day === to.day ? from.day : '');
+    if (!onChange) { setShowDatePicker(false); return; }
+    const next = {
+      ...v,
+      birthYearFrom: from.year || '',
+      birthYearTo: to.year || '',
+      birthMonthFrom: from.month || '',
+      birthMonthTo: to.month || '',
+      birthDayFrom: from.day || '',
+      birthDayTo: to.day || '' 
+    };
+    onChange(next);
     setShowDatePicker(false);
   };
 
@@ -74,9 +98,8 @@ const AdvancedFiltersModal = ({
             <label>性别：</label>
             <select className="select" value={v.gender} onChange={e => setField('gender', e.target.value)}>
               <option value="">不限</option>
-              <option value="male">男</option>
-              <option value="female">女</option>
-              <option value="other">其他</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
             </select>
           </div>
 
@@ -84,6 +107,7 @@ const AdvancedFiltersModal = ({
             <label>日期：</label>
             <div className="date-controls">
               <button className="btn btn-secondary" onClick={() => setShowDatePicker(true)}>选择起始/结束日期</button>
+              &nbsp;<button className="btn btn-secondary btn-clear" onClick={clearDate}>清除</button>
               <div className="calendar-toggle">
                 <label className={v.calendarType === 'gregorian' ? 'active' : ''}>
                   <input type="radio" name="calendarType" checked={v.calendarType === 'gregorian'} onChange={() => setField('calendarType', 'gregorian')} />阳历
