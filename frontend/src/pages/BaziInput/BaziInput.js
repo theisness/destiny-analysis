@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar';
 import { baziAPI } from '../../api/api';
 import './BaziInput.css';
 import { Solar } from 'lunar-javascript';
+import TagSelect from '../../components/TagSelect';
 
 const BaziInput = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const BaziInput = () => {
     gender: '男',
     addToCommunity: false
   });
+  const [selectedLabels, setSelectedLabels] = useState([]);
   const [gregorianDate, setGregorianDate] = useState({
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
@@ -235,7 +237,8 @@ const BaziInput = () => {
         name: formData.name,
         gender: formData.gender,
         inputType: inputType,
-        addToCommunity: formData.addToCommunity
+        addToCommunity: formData.addToCommunity,
+        labels: selectedLabels
       };
 
       if (inputType === 'gregorian') {
@@ -555,6 +558,11 @@ const BaziInput = () => {
             </div>
 
             {renderInputFields()}
+
+            <div className="input-group">
+              <label>标签</label>
+              <TagSelect value={selectedLabels} onChange={setSelectedLabels} placeholder="输入标签并回车添加" />
+            </div>
 
             <div className="input-group checkbox-group">
               <label>

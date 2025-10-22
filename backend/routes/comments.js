@@ -148,7 +148,8 @@ router.delete('/:id', async (req, res) => {
     const comment = await Comment.findById(req.params.id);
     if (!comment) return res.status(404).json({ error: 'Comment not found' });
 
-    if (String(comment.user) !== String(req.user._id)) {
+    // 管理员或评论作者可删除
+    if (req.user.admin !== 1 && String(comment.user) !== String(req.user._id)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 

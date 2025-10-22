@@ -301,10 +301,23 @@ const BaziDetail = () => {
                 </span>
               </div>
             )}
+            {Array.isArray(record.labels) && record.labels.length > 0 && (
+              <div className="info-item" style={{ alignItems: 'flex-start' }}>
+                <span className="info-label">标签：</span>
+                <span className="info-value" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {record.labels.map(l => (
+                    <span key={l._id || l.name} style={{
+                      background: '#eef2ff', border: '1px solid #c7d2fe', color: '#3730a3',
+                      padding: '2px 8px', borderRadius: 12, fontSize: 12
+                    }}>{l.name || l}</span>
+                  ))}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        {user && (user.admin === 1 || (record?.userId && user.id === record.userId)) && (
+        {user && (record?.userId && user.id === record.userId) && (
           <ShareSettingsSection record={record} onUpdated={(data) => setRecord(prev => ({ ...prev, ...data }))} />
         )}
         {/* 七列综合排盘（仅七列卡片） */}

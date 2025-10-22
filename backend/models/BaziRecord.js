@@ -101,6 +101,8 @@ const BaziRecordSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // 标签（可选）：引用 Labels 表
+  labels: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Label' }],
   // 分享设置：public-所有人可看；restricted-部分人可看
   shareSettings: {
     type: {

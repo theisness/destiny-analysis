@@ -73,6 +73,13 @@ export const usersAPI = {
   getById: (id) => api.get(`/users/${id}`)
 };
 
+// 标签相关 API
+export const labelsAPI = {
+  list: (search = '') => api.get('/labels', { params: search ? { search } : {} }),
+  create: (name) => api.post('/labels', { name }),
+  delete: (id) => api.delete(`/labels/${id}`)
+};
+
 // 八字相关 API
 export const baziAPI = {
   // 创建八字记录
@@ -87,8 +94,8 @@ export const baziAPI = {
   // 获取指定八字记录详情
   getById: (id) => api.get(`/bazi/${id}`),
   
-  // 获取社区八字记录
-  getCommunity: (search = '') => api.get(`/bazi/community/list?search=${search}`),
+  // 获取社区八字记录（支持筛选参数对象）
+  getCommunity: (params = {}) => api.get('/bazi/community/list', { params }),
   
   // 删除八字记录
   delete: (id) => api.delete(`/bazi/${id}`),

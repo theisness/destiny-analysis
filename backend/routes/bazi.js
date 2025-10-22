@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const BaziRecord = require('../models/BaziRecord');
 const { solarToLunar, lunarToSolar } = require('../utils/lunar-converter');
 const { calculateBazi, calculateFromSizhu } = require('../utils/bazi-calculator');
+const Label = require('../models/Label');
 
 /**
  * @route   POST /api/bazi
@@ -27,7 +28,7 @@ router.post(
       });
     }
 
-    const { name, gender, inputType, gregorianDate, lunarDate, sizhu, addToCommunity } = req.body;
+    const { name, gender, inputType, gregorianDate, lunarDate, sizhu, addToCommunity, labels } = req.body;
 
     try {
       let baziResult;
@@ -131,6 +132,28 @@ router.post(
         );
       }
 
+      // 处理标签：允许在创建时附带字符串数组，必要时自动创建新标签
+      let labelIds = [];
+      if (Array.isArray(labels) && labels.length > 0) {
+        // 去重与清理
+        const names = [...new Set(labels
+          .map(l => typeof l === 'string' ? l.trim() : '')
+          .filter(n => !!n))];
+        if (names.length > 0) {
+          // 查找已存在的标签
+          const existing = await Label.find({ name: { $in: names } });
+          const existingMap = new Map(existing.map(l => [l.name, l]));
+          // 创建缺失的标签
+          const toCreate = names.filter(n => !existingMap.has(n));
+          let createdDocs = [];
+          if (toCreate.length > 0) {
+            createdDocs = await Label.insertMany(toCreate.map(n => ({ name: n })), { ordered: false });
+          }
+          const allDocs = [...existing, ...createdDocs];
+          labelIds = allDocs.map(d => d._id);
+        }
+      }
+
       // 创建八字记录
       const baziRecord = await BaziRecord.create({
         userId: req.user._id,
@@ -140,7 +163,8 @@ router.post(
         gregorianDate: finalGregorianDate,
         lunarDate: finalLunarDate,
         baziResult,
-        addToCommunity: addToCommunity || false
+        addToCommunity: addToCommunity || false,
+        labels: labelIds
       });
 
       res.status(201).json({
@@ -224,7 +248,8 @@ router.get('/current-lunar', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   try {
-    const record = await BaziRecord.findById(req.params.id);
+    const record = await BaziRecord.findById(req.params.id)
+      .populate('labels', 'name');
 
     if (!record) {
       return res.status(404).json({
@@ -304,29 +329,125 @@ router.patch('/:id', async (req, res) => {
  */
 router.get('/community/list', async (req, res) => {
   try {
-    const { search } = req.query;
+    const {
+      search,
+      share, // 'public' | 'restricted'
+      publisherId,
+      labels, // comma-separated label names
+      name,
+      gender,
+      calendarType, // 'gregorian' | 'lunar'
+      birthYearFrom,
+      birthYearTo,
+      birthMonth,
+      birthDay,
+      yearGan,
+      yearZhi,
+      monthGan,
+      monthZhi,
+      dayGan,
+      dayZhi,
+      hourGan,
+      hourZhi
+    } = req.query;
 
+    // 基础社区条件
     const baseQuery = { addToCommunity: true };
     if (search) baseQuery.name = { $regex: search, $options: 'i' };
+    if (name) baseQuery.name = { $regex: name, $options: 'i' };
+    if (gender) baseQuery.gender = gender;
+    if (publisherId) baseQuery.userId = publisherId;
 
-    // 管理员可查看全部
-    if (req.user.admin === 1) {
-      const records = await BaziRecord.find(baseQuery)
-        .populate('userId', 'username')
-        .sort({ name: 1 })
-        .select('-__v');
-      return res.json({ success: true, count: records.length, data: records });
+    // 标签过滤（通过名称转换为ID）
+    let labelFilterIds = [];
+    if (labels) {
+      const names = String(labels)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+      if (names.length > 0) {
+        const labelDocs = await Label.find({ name: { $in: names } }).select('_id');
+        labelFilterIds = labelDocs.map(d => d._id);
+        if (labelFilterIds.length > 0) {
+          baseQuery.labels = { $all: labelFilterIds };
+        }
+      }
     }
 
-    // 非管理员：只看 public 或 restricted 且包含当前用户
-    const records = await BaziRecord.find({
-      ...baseQuery,
-      $or: [
+    // 日期过滤
+    if (calendarType === 'gregorian') {
+      const yFrom = parseInt(birthYearFrom, 10);
+      const yTo = parseInt(birthYearTo, 10);
+      const m = parseInt(birthMonth, 10);
+      const d = parseInt(birthDay, 10);
+      if (!isNaN(yFrom) || !isNaN(yTo) || !isNaN(m) || !isNaN(d)) {
+        baseQuery.gregorianDate = baseQuery.gregorianDate || {};
+        if (!isNaN(yFrom)) baseQuery.gregorianDate.year = { ...(baseQuery.gregorianDate.year || {}), $gte: yFrom };
+        if (!isNaN(yTo)) baseQuery.gregorianDate.year = { ...(baseQuery.gregorianDate.year || {}), $lte: yTo };
+        if (!isNaN(m)) baseQuery.gregorianDate.month = m;
+        if (!isNaN(d)) baseQuery.gregorianDate.day = d;
+      }
+    } else if (calendarType === 'lunar') {
+      const yFrom = parseInt(birthYearFrom, 10);
+      const yTo = parseInt(birthYearTo, 10);
+      const m = parseInt(birthMonth, 10);
+      const d = parseInt(birthDay, 10);
+      if (!isNaN(yFrom) || !isNaN(yTo) || !isNaN(m) || !isNaN(d)) {
+        baseQuery.lunarDate = baseQuery.lunarDate || {};
+        if (!isNaN(yFrom)) baseQuery.lunarDate.year = { ...(baseQuery.lunarDate.year || {}), $gte: yFrom };
+        if (!isNaN(yTo)) baseQuery.lunarDate.year = { ...(baseQuery.lunarDate.year || {}), $lte: yTo };
+        if (!isNaN(m)) baseQuery.lunarDate.month = m;
+        if (!isNaN(d)) baseQuery.lunarDate.day = d;
+      }
+    }
+
+    // 干支过滤
+    const pillarFilter = {};
+    const addPillar = (key, gan, zhi) => {
+      if (gan) pillarFilter[key] = { ...(pillarFilter[key] || {}), gan };
+      if (zhi) pillarFilter[key] = { ...(pillarFilter[key] || {}), zhi };
+    };
+    addPillar('baziResult.yearPillar', yearGan, yearZhi);
+    addPillar('baziResult.monthPillar', monthGan, monthZhi);
+    addPillar('baziResult.dayPillar', dayGan, dayZhi);
+    addPillar('baziResult.hourPillar', hourGan, hourZhi);
+
+    const finalFilter = { ...baseQuery };
+    for (const [k, v] of Object.entries(pillarFilter)) {
+      finalFilter[k] = v;
+    }
+
+    // 权限过滤
+    let permissionFilter = {};
+    if (req.user.admin === 1) {
+      // 管理员查看全部或按 share 类型过滤
+      if (share === 'public') {
+        permissionFilter = { 'shareSettings.type': { $in: [null, 'public'] } };
+      } else if (share === 'restricted') {
+        permissionFilter = { 'shareSettings.type': 'restricted' };
+      } else {
+        permissionFilter = {}; // 不限制
+      }
+    } else {
+      // 非管理员：只看 public 或 restricted 且包含当前用户；若显式选择 share 类型则应用
+      const basePerm = [
         { 'shareSettings.type': { $in: [null, 'public'] } },
         { 'shareSettings.type': 'restricted', 'shareSettings.allowedUserIds': req.user._id }
-      ]
-    })
+      ];
+      if (share === 'public') {
+        permissionFilter = basePerm[0];
+      } else if (share === 'restricted') {
+        permissionFilter = basePerm[1];
+      } else {
+        permissionFilter = { $or: basePerm };
+      }
+    }
+
+    const query = req.user.admin === 1 ? { ...finalFilter, ...permissionFilter } : { ...finalFilter, ...permissionFilter };
+
+    const records = await BaziRecord.find(query)
       .populate('userId', 'username')
+      .populate('labels', 'name')
       .sort({ name: 1 })
       .select('-__v');
 
