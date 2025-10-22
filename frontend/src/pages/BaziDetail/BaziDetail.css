@@ -59,6 +59,16 @@
   font-weight: 500;
 }
 
+.label-setting-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  animation: slideUp 0.3s ease;
+}
+
 /* 四柱 */
 .sizhu-display-detail {
   display: grid;

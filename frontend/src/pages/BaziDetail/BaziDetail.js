@@ -412,7 +412,7 @@ const BaziDetail = () => {
 
         {user && (record?.userId && user.id === record.userId) && showLabelsModal && (
           <div className="modal-backdrop" onClick={() => setShowLabelsModal(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="label-setting-modal" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <span>标签管理</span>
                 <button className="btn btn-secondary btn-sm" onClick={() => setShowLabelsModal(false)}>关闭</button>
