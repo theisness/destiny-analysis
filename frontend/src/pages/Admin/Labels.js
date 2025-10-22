@@ -169,7 +169,7 @@ const AdminLabels = () => {
                         <span className="label-name">{label.name}</span>
                         <div style={{ display: 'flex', gap: 8 }}>
                           <button className="btn btn-secondary btn-sm" onClick={() => startEdit(label)}>编辑</button>
-                          <button className="btn btn-secondary btn-sm" onClick={() => handleDelete(label)}>删除</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(label)}>删除</button>
                         </div>
                       </>
                     )}

@@ -1,1 +1,66 @@
-.admin-users-page .users-list{display:flex;flex-direction:column;gap:12px}.user-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #eee;border-radius:10px;background:#fff}.user-item .main{display:flex;align-items:center;gap:12px}.user-item .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #e0e0e0}.user-item .info .name{font-weight:600}.user-item .info .sub{color:#666;font-size:13px}.user-item .actions{display:flex;gap:8px}.empty{padding:20px;text-align:center;color:#666}.error-container{padding:16px;background:#fff0f0;border:1px solid #ffd6d6;border-radius:10px;color:#a00}.loading-container{padding:20px;text-align:center;color:#666}
+.admin-users-page .users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.admin-users-page .container h1 {
+    margin-bottom: 16px
+}
+
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    background: #fff
+}
+
+.user-item .main {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+.user-item .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e0e0e0
+}
+
+.user-item .info .name {
+    font-weight: 600
+}
+
+.user-item .info .sub {
+    color: #666;
+    font-size: 13px
+}
+
+.user-item .actions {
+    display: flex;
+    gap: 8px
+}
+
+.empty {
+    padding: 20px;
+    text-align: center;
+    color: #666
+}
+
+.error-container {
+    padding: 16px;
+    background: #fff0f0;
+    border: 1px solid #ffd6d6;
+    border-radius: 10px;
+    color: #a00
+}
+
+.loading-container {
+    padding: 20px;
+    text-align: center;
+    color: #666
+}

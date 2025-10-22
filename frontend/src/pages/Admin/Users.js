@@ -202,13 +202,17 @@ const AdminUsers = () => {
                 />
                 {groupResults.length > 0 && (
                   <div className="search-results">
-                    {groupResults.map(g => (
-                      <div key={g._id} className="result-item">
-                        <div className="info">
-                          <div className="name">{g.name}</div>
-                        </div>
-                        <button className="btn btn-secondary btn-sm" onClick={() => addGroupToUser(g)}>添加</button>
-                      </div>
+                    {groupResults.map(g =>
+                      (
+                        // 过滤掉已加入的成员
+                        !userGroups.find(x => x._id === g._id) && (
+                          <div key={g._id} className="result-item">
+                            <div className="info">
+                              <div className="name">{g.name}</div>
+                            </div>
+                            <button className="btn btn-secondary btn-sm" onClick={() => addGroupToUser(g)}>添加</button>
+                          </div>
+                        )
                     ))}
                   </div>
                 )}

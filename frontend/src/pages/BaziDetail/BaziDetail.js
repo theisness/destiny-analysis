@@ -416,7 +416,7 @@ const BaziDetail = () => {
                 <span>标签管理</span>
                 <button className="btn btn-secondary btn-sm" onClick={() => setShowLabelsModal(false)}>关闭</button>
               </div>
-              <div className="modal-content">
+              <div className="label-setting-modal">
                 <TagSelect
                   value={labelSelection}
                   onChange={(next) => setLabelSelection(next)}

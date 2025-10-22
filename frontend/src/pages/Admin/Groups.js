@@ -187,8 +187,8 @@ const AdminGroups = () => {
                   <div key={group._id} className="group-item">
                     <span className="group-name">{group.name}</span>
                     <div className="actions">
-                      <button className="btn btn-secondary btn-sm" onClick={() => openMembersModal(group)}>查看成员</button>
-                      <button className="btn btn-secondary btn-sm" onClick={() => handleRename(group)}>修改名称</button>
+                      <button className="btn btn-secondary btn-sm" style={{ marginRight: '4px' }} onClick={() => openMembersModal(group)}>查看成员</button>
+                      <button className="btn btn-secondary btn-sm" style={{ marginRight: '4px' }} onClick={() => handleRename(group)}>修改名称</button>
                       <button className="btn btn-danger btn-sm" onClick={() => handleDelete(group)}>删除</button>
                     </div>
                   </div>
@@ -218,15 +218,17 @@ const AdminGroups = () => {
                 {memberSearchResults.length > 0 && (
                   <div className="search-results">
                     {memberSearchResults.map(u => (
-                      <div key={u._id} className="result-item">
-                        <SecureImage className="avatar" src={getAvatarSrc(u)} alt="" />
-                        <div className="info">
-                          <div className="name">{u.nickname || u.username}</div>
-                          <div className="sub">@{u.username}</div>
-                        </div>
+                      // 过滤掉已加入的成员
+                      !groupMembers.find(x => x._id === u._id) && (
+                        <div key={u._id} className="result-item">
+                          <SecureImage className="avatar" src={getAvatarSrc(u)} alt="" />
+                          <div className="info">
+                            <div className="name">{u.nickname || u.username}</div>
+                            <div className="sub">@{u.username}</div>
+                          </div>
                         <button className="btn btn-secondary btn-sm" onClick={() => addMemberToGroup(u)}>添加</button>
                       </div>
-                    ))}
+                    )))}
                   </div>
                 )}
               </div>
