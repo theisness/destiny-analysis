@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { baziAPI, usersAPI } from '../api/api';
+import { baziAPI, usersAPI, groupsAPI } from '../api/api';
 import './ShareSettingsSection.css';
 import { DEFAULT_AVATAR } from '../config';
 import SecureImage from '../components/SecureImage';
@@ -8,8 +8,11 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
   const [addToCommunity, setAddToCommunity] = useState(!!record.addToCommunity);
   const [type, setType] = useState(record.shareSettings?.type || 'public');
   const [allowedUsers, setAllowedUsers] = useState([]); // [{_id, username, nickname, avatarUrl}]
+  const [allowedGroups, setAllowedGroups] = useState([]); // [{_id, name}]
   const [search, setSearch] = useState('');
+  const [groupSearch, setGroupSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [groupResults, setGroupResults] = useState([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [showPublicConfirm, setShowPublicConfirm] = useState(false);
@@ -19,7 +22,6 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
   useEffect(() => {
     const init = async () => {
       const ids = record.shareSettings?.allowedUserIds || [];
-      // 拉取每个用户的公开信息
       const list = [];
       for (const id of ids) {
         try {
@@ -28,11 +30,26 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
         } catch {}
       }
       setAllowedUsers(list);
+
+      const groupIds = record.shareSettings?.allowedUserGroups || [];
+      if (groupIds.length > 0) {
+        try {
+          const res = await groupsAPI.list();
+          const all = res.data?.data || res.data?.groups || [];
+          const picked = all.filter(g => groupIds.map(x => x.toString()).includes(g._id?.toString()));
+          setAllowedGroups(picked);
+        } catch {
+          setAllowedGroups([]);
+        }
+      } else {
+        setAllowedGroups([]);
+      }
     };
     if (type === 'restricted') {
       init();
     } else {
       setAllowedUsers([]);
+      setAllowedGroups([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [record._id]);
@@ -51,12 +68,33 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
     return () => clearTimeout(t);
   }, [search]);
 
+  useEffect(() => {
+    const t = setTimeout(async () => {
+      if (!groupSearch.trim()) { setGroupResults([]); return; }
+      try {
+        const res = await groupsAPI.list(groupSearch.trim());
+        setGroupResults(res.data?.data || res.data?.groups || []);
+      } catch (e) {
+        setGroupResults([]);
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [groupSearch]);
+
   const addUser = (u) => {
     if (allowedUsers.find(x => x._id === u._id)) return;
     setAllowedUsers(prev => [...prev, u]);
   };
   const removeUser = (id) => {
     setAllowedUsers(prev => prev.filter(u => u._id !== id));
+  };
+
+  const addGroup = (g) => {
+    if (allowedGroups.find(x => x._id === g._id)) return;
+    setAllowedGroups(prev => [...prev, g]);
+  };
+  const removeGroup = (id) => {
+    setAllowedGroups(prev => prev.filter(g => g._id !== id));
   };
 
   const handleSelectType = (nextType) => {
@@ -75,7 +113,8 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
         addToCommunity,
         shareSettings: addToCommunity ? {
           type,
-          allowedUserIds: type === 'restricted' ? allowedUsers.map(u => u._id) : []
+          allowedUserIds: type === 'restricted' ? allowedUsers.map(u => u._id) : [],
+          allowedUserGroups: type === 'restricted' ? allowedGroups.map(g => g._id) : []
         } : undefined
       };
       const res = await baziAPI.update(record._id, payload);
@@ -142,6 +181,33 @@ const ShareSettingsSection = ({ record, onUpdated }) => {
                 <div key={u._id} className="chip">
                   <span>{u.nickname || u.username}</span>
                   <button className="btn btn-secondary btn-sm" onClick={() => removeUser(u._id)}>移除</button>
+                </div>
+              ))}
+            </div>
+
+            <div className="input-group">
+              <label>添加可见的用户分组</label>
+              <input placeholder="输入分组名关键词搜索" value={groupSearch} onChange={(e) => setGroupSearch(e.target.value)} />
+            </div>
+            {groupResults.length > 0 && (
+              <div className="search-results">
+                {groupResults.map(g => (
+                  <div key={g._id} className="result-item" onClick={() => addGroup(g)}>
+                    <div className="info">
+                      <div className="name">{g.name}</div>
+                      <div className="sub">分组</div>
+                    </div>
+                    <button className="btn btn-secondary btn-sm">添加</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="chips">
+              {allowedGroups.map(g => (
+                <div key={g._id} className="chip">
+                  <span>{g.name}</span>
+                  <button className="btn btn-secondary btn-sm" onClick={() => removeGroup(g._id)}>移除</button>
                 </div>
               ))}
             </div>
