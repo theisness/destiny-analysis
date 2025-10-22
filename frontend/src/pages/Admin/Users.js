@@ -186,7 +186,7 @@ const AdminUsers = () => {
 
       {showGroupModal && targetUser && (
         <div className="modal-backdrop" onClick={() => setShowGroupModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>成员分组 · {targetUser.nickname || targetUser.username}</h3>
               <button className="btn btn-secondary btn-sm" onClick={() => setShowGroupModal(false)}>关闭</button>

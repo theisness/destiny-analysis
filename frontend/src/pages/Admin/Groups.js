@@ -201,7 +201,7 @@ const AdminGroups = () => {
 
       {showMembersModal && currentGroup && (
         <div className="modal-backdrop" onClick={() => setShowMembersModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>分组成员 · {currentGroup.name}</h3>
               <button className="btn btn-secondary btn-sm" onClick={() => setShowMembersModal(false)}>关闭</button>

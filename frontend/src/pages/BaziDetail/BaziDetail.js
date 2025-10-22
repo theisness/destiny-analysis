@@ -95,6 +95,8 @@ const BaziDetail = () => {
   const [showDayun, setShowDayun] = useState(false);
   const [showLiunian, setShowLiunian] = useState(false);
   const [showLiuyue, setShowLiuyue] = useState(false);
+  // 在详情页新增：分享设置弹窗开关
+  const [showShareSettingsModal, setShowShareSettingsModal] = useState(false);
 
   useEffect(() => {
     fetchDetail();
@@ -314,12 +316,17 @@ const BaziDetail = () => {
                 </span>
               </div>
             )}
+            {user && (record?.userId && user.id === record.userId) && (
+              <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 0 }}>
+                <button className="btn btn-primary" onClick={() => setShowShareSettingsModal(true)}>
+                  分享设置
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {user && (record?.userId && user.id === record.userId) && (
-          <ShareSettingsSection record={record} onUpdated={(data) => setRecord(prev => ({ ...prev, ...data }))} />
-        )}
+        
         {/* 七列综合排盘（仅七列卡片） */}
         <SevenGridCard
           baziResult={baziResult}
@@ -378,6 +385,20 @@ const BaziDetail = () => {
 
         <CommentsSection baziId={record._id} />
 
+        {user && (record?.userId && user.id === record.userId) && showShareSettingsModal && (
+          <div className="modal-backdrop" onClick={() => setShowShareSettingsModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <span>分享设置</span>
+                <button className="btn btn-secondary btn-sm" onClick={() => setShowShareSettingsModal(false)}>关闭</button>
+              </div>
+              <ShareSettingsSection
+                record={record}
+                onUpdated={(data) => setRecord(prev => ({ ...prev, ...data }))}
+              />
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
