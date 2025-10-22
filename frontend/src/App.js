@@ -11,6 +11,7 @@ import './App.css';
 import Profile from './pages/Profile/Profile';
 import UserProfile from './pages/UserProfile/UserProfile';
 import AdminUsers from './pages/Admin/Users';
+import AdminLabels from './pages/Admin/Labels';
 
 // 私有路由组件
 const PrivateRoute = ({ children }) => {
@@ -84,6 +85,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <AdminUsers />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/labels"
+              element={
+                <PrivateRoute>
+                  <AdminLabels />
                 </PrivateRoute>
               }
             />

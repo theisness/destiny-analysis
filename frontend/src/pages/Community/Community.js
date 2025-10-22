@@ -4,6 +4,8 @@ import Navbar from '../../components/Navbar';
 import { baziAPI } from '../../api/api';
 import pinyin from 'pinyin';
 import './Community.css';
+import FilterBar from '../../components/CommunityFilters/FilterBar';
+import AdvancedFiltersModal from '../../components/CommunityFilters/AdvancedFiltersModal';
 
 const Community = () => {
   const [records, setRecords] = useState([]);
@@ -12,6 +14,23 @@ const Community = () => {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeIndex, setActiveIndex] = useState('');
+  const [selectedLabels, setSelectedLabels] = useState([]);
+  const [share, setShare] = useState('');
+  const [publisherId, setPublisherId] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [advFilters, setAdvFilters] = useState({
+    name: '',
+    gender: '',
+    calendarType: 'gregorian',
+    birthYearFrom: '',
+    birthYearTo: '',
+    birthMonth: '',
+    birthDay: '',
+    yearGan: '', yearZhi: '',
+    monthGan: '', monthZhi: '',
+    dayGan: '', dayZhi: '',
+    hourGan: '', hourZhi: ''
+  });
   const navigate = useNavigate();
   const listRef = useRef(null);
 
@@ -28,20 +47,16 @@ const Community = () => {
   const fetchCommunityRecords = async () => {
     try {
       setLoading(true);
-      const response = await baziAPI.getCommunity();
+      const params = buildParams();
+      const response = await baziAPI.getCommunity(params);
       const data = response.data.data;
-      
       // 为每条记录添加拼音首字母
       const recordsWithPinyin = data.map(record => ({
         ...record,
         pinyinInitial: getPinyinInitial(record.name)
       }));
-      
       // 按拼音首字母排序
-      recordsWithPinyin.sort((a, b) => 
-        a.pinyinInitial.localeCompare(b.pinyinInitial)
-      );
-      
+      recordsWithPinyin.sort((a, b) => a.pinyinInitial.localeCompare(b.pinyinInitial));
       setRecords(recordsWithPinyin);
       setError('');
     } catch (err) {
@@ -52,6 +67,50 @@ const Community = () => {
     }
   };
 
+  const buildParams = () => {
+    const params = {};
+    if (searchTerm.trim()) params.search = searchTerm.trim();
+    if (selectedLabels.length > 0) params.labels = selectedLabels.join(',');
+    if (share) params.share = share;
+    if (publisherId) params.publisherId = publisherId;
+    if (advFilters.name) params.name = advFilters.name.trim();
+    if (advFilters.gender) params.gender = advFilters.gender;
+    if (advFilters.calendarType) params.calendarType = advFilters.calendarType;
+    if (advFilters.birthYearFrom) params.birthYearFrom = advFilters.birthYearFrom;
+    if (advFilters.birthYearTo) params.birthYearTo = advFilters.birthYearTo;
+    if (advFilters.birthMonth) params.birthMonth = advFilters.birthMonth;
+    if (advFilters.birthDay) params.birthDay = advFilters.birthDay;
+    ['yearGan','yearZhi','monthGan','monthZhi','dayGan','dayZhi','hourGan','hourZhi'].forEach(k => {
+      const v = advFilters[k];
+      if (v && String(v).trim()) params[k] = String(v).trim();
+    });
+    return params;
+  };
+
+  const applyFilters = () => {
+    fetchCommunityRecords();
+  };
+
+  const clearFilters = () => {
+    setSelectedLabels([]);
+    setShare('');
+    setPublisherId('');
+    setAdvFilters({
+      name: '',
+      gender: '',
+      calendarType: 'gregorian',
+      birthYearFrom: '',
+      birthYearTo: '',
+      birthMonth: '',
+      birthDay: '',
+      yearGan: '', yearZhi: '',
+      monthGan: '', monthZhi: '',
+      dayGan: '', dayZhi: '',
+      hourGan: '', hourZhi: ''
+    });
+    setSearchTerm('');
+    fetchCommunityRecords();
+  };
   const getPinyinInitial = (name) => {
     if (!name) return '#';
     try {
@@ -131,6 +190,17 @@ const Community = () => {
               </button>
             )}
           </div>
+          <FilterBar
+            labels={selectedLabels}
+            onChangeLabels={setSelectedLabels}
+            share={share}
+            onChangeShare={setShare}
+            publisherId={publisherId}
+            onChangePublisherId={setPublisherId}
+            onOpenAdvanced={() => setShowAdvanced(true)}
+            onApply={applyFilters}
+            onClear={clearFilters}
+          />
         </div>
 
         <div className="community-content">
@@ -218,6 +288,15 @@ const Community = () => {
           </div>
         </div>
       </div>
+      {showAdvanced && (
+        <AdvancedFiltersModal
+          show={showAdvanced}
+          value={advFilters}
+          onChange={setAdvFilters}
+          onApply={() => { setShowAdvanced(false); applyFilters(); }}
+          onClose={() => setShowAdvanced(false)}
+        />
+      )}
     </div>
   );
 };

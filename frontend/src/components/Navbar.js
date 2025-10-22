@@ -43,7 +43,10 @@ const Navbar = () => {
                 <div className="dropdown-menu">
                   <Link to="/profile" className="dropdown-item" onClick={() => setShowMenu(false)}>个人资料</Link>
                   {user?.admin === 1 && (
-                    <Link to="/admin/users" className="dropdown-item" onClick={() => setShowMenu(false)}>成员管理</Link>
+                    <>
+                      <Link to="/admin/users" className="dropdown-item" onClick={() => setShowMenu(false)}>成员管理</Link>
+                      <Link to="/admin/labels" className="dropdown-item" onClick={() => setShowMenu(false)}>标签管理</Link>
+                    </>
                   )}
                   <button className="dropdown-item" onClick={handleLogout}>退出登录</button>
                 </div>
@@ -65,7 +68,10 @@ const Navbar = () => {
                 <div className="dropdown-menu">
                   <Link to="/profile" className="dropdown-item" onClick={() => setShowMenu(false)}>个人资料</Link>
                   {user?.admin === 1 && (
-                    <Link to="/admin/users" className="dropdown-item" onClick={() => setShowMenu(false)}>成员管理</Link>
+                    <>
+                      <Link to="/admin/users" className="dropdown-item" onClick={() => setShowMenu(false)}>成员管理</Link>
+                      <Link to="/admin/labels" className="dropdown-item" onClick={() => setShowMenu(false)}>八字标签管理</Link>
+                    </>
                   )}
                   <button className="dropdown-item" onClick={handleLogout}>退出登录</button>
                 </div>

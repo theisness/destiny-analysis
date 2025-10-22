@@ -77,6 +77,8 @@ const TagSelect = ({ value = [], onChange, placeholder = '输入标签，按回�
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
+              e.preventDefault();
+              e.stopPropagation();
               if (allowFreeText) addTag(query);
               else if (filtered.length > 0) addTag(filtered[0]);
             }

@@ -75,7 +75,7 @@ export const usersAPI = {
 
 // 标签相关 API
 export const labelsAPI = {
-  list: (search = '') => api.get('/labels', { params: search ? { search } : {} }),
+  list: (q = '') => api.get('/labels', { params: q ? { q } : {} }),
   create: (name) => api.post('/labels', { name }),
   delete: (id) => api.delete(`/labels/${id}`)
 };
