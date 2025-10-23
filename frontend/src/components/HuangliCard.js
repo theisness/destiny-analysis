@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import './HuangliCard.css';
-import { Solar, Lunar } from 'lunar-javascript';
+import { Solar, Lunar, Foto } from 'lunar-javascript';
 
 function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
 
@@ -33,7 +33,8 @@ export default function HuangliCard({ date }) {
   const ji = (lunar.getDayJi?.() || []).join('、');
 
   const jq = lunar.getJieQi?.();
-  const buddhistYear = solar.getYear() + 543; // 常用佛历纪年：BE = 公历年 + 543
+  const foto = useMemo(() => Foto.fromLunar(lunar), [lunar]);
+  const buddhistMemorials = (foto.getOtherFestivals?.() || []).map((x) => x?.toString?.() || x);
 
   return (
     <div className="huangli-card">
@@ -53,7 +54,17 @@ export default function HuangliCard({ date }) {
           <div className="yiji-content">{ji || '——'}</div>
         </div>
       </div>
-      <div className="buddhist-line">佛历：{buddhistYear}年</div>
+      <div className="buddhist-line">
+         <div className="buddhist-era">佛历：{foto.getYear()}年{String(foto.getMonth()).padStart(2,'0')}月{String(foto.getDay()).padStart(2,'0')}日</div>
+         <div className="buddhist-right">
+            {buddhistMemorials.length > 0 && (
+              <div className="buddhist-memorials">{buddhistMemorials.join('、')}</div>
+            )}
+            {((foto.getFestivals?.() || []).length > 0) && (
+              <div className="buddhist-taboos">{(foto.getFestivals?.() || []).map(x => x?.toFullString?.() || x?.toString?.() || x).join('、')}</div>
+            )}
+          </div>
+        </div>
     </div>
   );
 }
