@@ -133,6 +133,9 @@
     .almanac-calendar {
         padding: 8px;
     }
+    .almanac-calendar .minor-text {
+        font-size: 12px;
+    }
 
     .almanac-calendar .solar-day {
         font-size: 18px;
