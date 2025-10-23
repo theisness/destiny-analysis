@@ -108,7 +108,14 @@
 .liuyue-gan-shishen,
 .liuyue-zhi-shishen {
   font-size: 12px;
-  color: #666;
+  color: #333;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 2px 6px;
+  display: inline-block;
+  line-height: 1.2;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .liuyue-gan,
@@ -120,13 +127,25 @@
 
 .liuyue-dishi {
   font-size: 12px;
-  color: #666;
+  color: #333;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 2px 6px;
+  display: inline-block;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .liuyue-nayin {
   font-size: 12px;
-  color: #666;
-  opacity: 0.9;
+  color: #333;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 2px 6px;
+  display: inline-block;
+  opacity: 0.95;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 @media (max-width: 576px) {
@@ -134,4 +153,19 @@
   .liuyue-zhi {
     font-size: 20px;
   }
+}
+
+/* 地势纳音两行统一宽度 */
+.liuyue-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.liuyue-meta .tag-pill {
+  display: block;
+  width: var(--tag-width, 88px);
+  text-align: center;
 }

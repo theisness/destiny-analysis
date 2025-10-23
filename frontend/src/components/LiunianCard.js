@@ -85,17 +85,19 @@ const LiunianCard = ({
                 </div>
               </div>
 
-              {dishi && (
-                <div className="liunian-dishi" style={{ color: getDiShiColor(dishi) }}>
-                  {dishi}
-                </div>
-              )}
+              <div className="liunian-meta">
+                {dishi && (
+                  <div className="liunian-dishi tag-pill" style={{ color: getDiShiColor(dishi) }}>
+                    {dishi}
+                  </div>
+                )}
 
-              {nayin && (
-                <div className="liunian-nayin" style={{ color: getNaYinColor(nayin) }}>
-                  {nayin}
-                </div>
-              )}
+                {nayin && (
+                  <div className="liunian-nayin tag-pill" style={{ color: getNaYinColor(nayin) }}>
+                    {nayin}
+                  </div>
+                )}
+              </div>
 
               {nian.isCurrent && <div className="current-badge">当前</div>}
             </div>

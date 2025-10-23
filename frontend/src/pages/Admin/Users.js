@@ -155,7 +155,7 @@ const AdminUsers = () => {
                 <div className="main">
                   <SecureImage className="avatar" src={getAvatarSrc(u)} alt="avatar" />
                   <div className="info">
-                    <div className="name">{u.nickname || u.username}</div>
+                    <div className="name">{u.nickname || u.username}{isSelf(u) ? '（当前用户）' : ''}</div>
                     <div className="sub">{u.admin === 1 ? '管理员' : '成员'} · {u.email}</div>
                   </div>
                 </div>

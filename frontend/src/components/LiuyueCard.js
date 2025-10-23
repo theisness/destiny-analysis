@@ -71,17 +71,19 @@ const LiuyueCard = ({
                 </div>
               </div>
 
-              {dishi && (
-                <div className="liuyue-dishi" style={{ color: getDiShiColor(dishi) }}>
-                  {dishi}
-                </div>
-              )}
+              <div className="liuyue-meta">
+                {dishi && (
+                  <div className="liuyue-dishi tag-pill" style={{ color: getDiShiColor(dishi) }}>
+                    {dishi}
+                  </div>
+                )}
 
-              {nayin && (
-                <div className="liuyue-nayin" style={{ color: getNaYinColor(nayin) }}>
-                  {nayin}
-                </div>
-              )}
+                {nayin && (
+                  <div className="liuyue-nayin tag-pill" style={{ color: getNaYinColor(nayin) }}>
+                    {nayin}
+                  </div>
+                )}
+              </div>
 
               {yue.isCurrent && <div className="current-badge">当前</div>}
             </div>
