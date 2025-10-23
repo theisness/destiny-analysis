@@ -45,11 +45,11 @@ const Navbar = () => {
                   {user?.admin === 1 && (
                     <>
                       <Link to="/admin/users" className="dropdown-item" onClick={() => setShowMenu(false)}>成员管理</Link>
-                      <Link to="/admin/labels" className="dropdown-item" onClick={() => setShowMenu(false)}>标签管理</Link>
-                      <Link to="/admin/groups" className="dropdown-item" onClick={() => setShowMenu(false)}>分组管理</Link>
+                      <Link to="/admin/labels" className="dropdown-item" onClick={() => setShowMenu(false)}>八字标签管理</Link>
+                      <Link to="/admin/groups" className="dropdown-item" onClick={() => setShowMenu(false)}>成员分组管理</Link>
                     </>
                   )}
-                  <button className="dropdown-item" onClick={handleLogout}>退出登录</button>
+                  <button className="dropdown-item" style={{ color: 'red' }} onClick={handleLogout}>退出登录</button>
                 </div>
               )}
             </div>

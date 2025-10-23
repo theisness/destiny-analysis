@@ -33,7 +33,35 @@ if "%choice%"=="1" (
     echo 📦 使用 Docker Compose 启动服务...
     echo.
     
-    docker-compose up -d --build
+    REM 读取 MongoDB 根用户与密码（优先使用 backend\.env 中的配置）
+    setlocal EnableDelayedExpansion
+    set "MONGO_ROOT_USER_DEFAULT=root"
+    set "MONGO_ROOT_PASSWORD_DEFAULT=destiny123"
+    set "MONGO_ROOT_USER="
+    set "MONGO_ROOT_PASSWORD="
+    if exist "backend\.env" (
+        for /f "tokens=1,* delims==" %%A in (backend\.env) do (
+            if /I "%%A"=="MONGO_ROOT_USER" set "MONGO_ROOT_USER=%%B"
+            if /I "%%A"=="MONGO_ROOT_PASSWORD" set "MONGO_ROOT_PASSWORD=%%B"
+        )
+    )
+    if "!MONGO_ROOT_USER!"=="" set "MONGO_ROOT_USER=!MONGO_ROOT_USER_DEFAULT!"
+    if "!MONGO_ROOT_PASSWORD!"=="" set "MONGO_ROOT_PASSWORD=!MONGO_ROOT_PASSWORD_DEFAULT!"
+
+    REM 生成 docker-compose.override.yml 以启用 Mongo 密码验证
+    (
+        echo version: '3.8'
+        echo services:
+        echo   mongo:
+        echo     environment:
+        echo       MONGO_INITDB_ROOT_USERNAME: !MONGO_ROOT_USER!
+        echo       MONGO_INITDB_ROOT_PASSWORD: !MONGO_ROOT_PASSWORD!
+        echo   backend:
+        echo     environment:
+        echo       - MONGODB_URI=mongodb://!MONGO_ROOT_USER!:!MONGO_ROOT_PASSWORD!@mongo:27017/destiny-analysis^?authSource=admin
+    ) > docker-compose.override.yml
+
+    docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d --build
     
     echo.
     echo ✅ 服务启动成功！
@@ -60,13 +88,28 @@ if "%choice%"=="1" (
         exit /b 1
     )
     
+    REM 读取 MongoDB 根用户和密码（从 backend\.env 读取，若未设置则使用默认）
+    setlocal EnableDelayedExpansion
+    set "MONGO_ROOT_USER_DEFAULT=root"
+    set "MONGO_ROOT_PASSWORD_DEFAULT=destiny123"
+    set "MONGO_ROOT_USER="
+    set "MONGO_ROOT_PASSWORD="
+    if exist "backend\.env" (
+        for /f "tokens=1,* delims==" %%A in (backend\.env) do (
+            if /I "%%A"=="MONGO_ROOT_USER" set "MONGO_ROOT_USER=%%B"
+            if /I "%%A"=="MONGO_ROOT_PASSWORD" set "MONGO_ROOT_PASSWORD=%%B"
+        )
+    )
+    if "!MONGO_ROOT_USER!"=="" set "MONGO_ROOT_USER=!MONGO_ROOT_USER_DEFAULT!"
+    if "!MONGO_ROOT_PASSWORD!"=="" set "MONGO_ROOT_PASSWORD=!MONGO_ROOT_PASSWORD_DEFAULT!"
+
     REM 检查并启动 MongoDB Docker 容器
     echo 🔍 检查 MongoDB 容器...
     docker ps -a --format "{{.Names}}" | findstr /C:"destiny-mongo" >nul 2>nul
     
     if %errorlevel% neq 0 (
         echo 📦 MongoDB 容器不存在，正在创建...
-        docker run -d -p 27017:27017 --name destiny-mongo -v destiny-mongo-data:/data/db mongo:7.0
+        docker run -d -p 27017:27017 --name destiny-mongo -v destiny-mongo-data:/data/db -e MONGO_INITDB_ROOT_USERNAME=!MONGO_ROOT_USER! -e MONGO_INITDB_ROOT_PASSWORD=!MONGO_ROOT_PASSWORD! -e MONGO_INITDB_DATABASE=destiny-analysis mongo:7.0 --auth
         if %errorlevel% neq 0 (
             echo ❌ MongoDB 容器创建失败
             pause
@@ -94,7 +137,7 @@ if "%choice%"=="1" (
     
     echo.
     echo 💾 MongoDB 信息：
-    echo    连接地址: mongodb://localhost:27017/destiny-analysis
+    echo    连接地址: mongodb://!MONGO_ROOT_USER!:***@localhost:27017/destiny-analysis?authSource=admin
     echo    容器名称: destiny-mongo
     echo    数据卷: destiny-mongo-data
     echo.
@@ -165,7 +208,7 @@ if "%choice%"=="1" (
             echo 📝 创建默认后端 .env 配置...
             (
                 echo PORT=5000
-                echo MONGODB_URI=mongodb://localhost:27017/destiny-analysis
+                echo MONGODB_URI=mongodb://!MONGO_ROOT_USER!:!MONGO_ROOT_PASSWORD!@localhost:27017/destiny-analysis?authSource=admin
                 echo JWT_SECRET=destiny_analysis_jwt_secret_2024_change_in_production
                 echo JWT_EXPIRE=30d
                 echo NODE_ENV=development
@@ -173,6 +216,9 @@ if "%choice%"=="1" (
             echo ✅ 已创建后端默认 .env 文件
         )
     )
+    
+    REM 使用认证信息更新后端 .env 的 MONGODB_URI
+    powershell -NoProfile -Command "(Get-Content 'backend\.env') -replace '^MONGODB_URI=.*$', 'MONGODB_URI=mongodb://!MONGO_ROOT_USER!:!MONGO_ROOT_PASSWORD!@localhost:27017/destiny-analysis?authSource=admin' ^| Set-Content 'backend\.env'"
     
     REM 配置前端环境变量（可选）
     if not exist "frontend\.env" (
