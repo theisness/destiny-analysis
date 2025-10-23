@@ -8,18 +8,44 @@
 
 .almanac-calendar .calendar-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    justify-content: space-between;
+    margin-bottom: 12px;
 }
 
-.almanac-calendar .selectors select {
-    margin-right: 8px;
-    padding: 6px 8px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    background: #fafafa;
+.almanac-calendar .calendar-header .selectors {
+    display: flex;
+    gap: 12px;
 }
+
+.almanac-calendar .selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.almanac-calendar .nav-btn {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.almanac-calendar .calendar-header select {
+    padding: 6px 8px;
+}
+
+.almanac-calendar .actions .btn-today {
+    padding: 6px 10px;
+    background: #ff4d4f;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.almanac-calendar .actions .btn-today:hover { opacity: 0.9; }
 
 .almanac-calendar .week-row {
     display: grid;
@@ -51,6 +77,21 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: relative;
+}
+
+.almanac-calendar .rest-corner {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    background: #ff4d4f;
+    color: #fff;
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
+    border-radius: 3px;
 }
 
 .almanac-calendar .day-cell:hover {
@@ -80,6 +121,16 @@
 .almanac-calendar .minor-text {
     font-size: 13px;
     color: #666;
+}
+
+.almanac-calendar .minor-text.text-festival {
+    color: #d30000;
+    font-weight: 600;
+}
+
+.almanac-calendar .minor-text.text-jieqi {
+    color: #2b78e4;
+    font-weight: 600;
 }
 
 @media (max-width: 768px) {
