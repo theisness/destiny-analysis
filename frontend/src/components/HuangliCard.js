@@ -18,7 +18,7 @@ export default function HuangliCard({ date }) {
   const solar = useMemo(() => Solar.fromDate(date), [date]);
   const lunar = useMemo(() => Lunar.fromDate(date), [date]);
 
-  const line1 = `${formatRelative(date)}、${WEEK_NAMES[date.getDay()]}、${solar.getYear()}年${String(solar.getMonth()).padStart(2,'0')}月`;
+  const line1 = `${formatRelative(date)}  ${WEEK_NAMES[date.getDay()]}  ${solar.getYear()}年${String(solar.getMonth()).padStart(2,'0')}月`;
   const line2 = solar.getDay();
   const lunarMonth = lunar.getMonthInChinese();
   const lunarDay = lunar.getDayInChinese();
