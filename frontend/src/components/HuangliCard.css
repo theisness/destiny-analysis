@@ -1,1 +1,81 @@
-.huangli-card {  background: #fff;  border-radius: 12px;  border: 1px solid #e6e6e6;  box-shadow: 0 6px 16px rgba(0,0,0,0.06);  padding: 16px;}.huangli-card .header {  text-align: left;}.huangli-card .line1 {  font-size: 14px;  color: #666;}.huangli-card .line2 {  font-size: 48px;  font-weight: 800;  color: #d4380d;  margin: 4px 0;}.huangli-card .line3 {  font-size: 15px;  color: #333;}.huangli-card .line4 {  font-size: 15px;  color: #333;  margin-bottom: 12px;}.huangli-card .yiji {  display: grid;  grid-template-columns: 1fr 1fr;  gap: 12px;}.huangli-card .yiji-box {  background: #fafafa;  border: 1px solid #eee;  border-radius: 10px;  padding: 12px;}.huangli-card .yiji-title {  font-weight: 700;  margin-bottom: 6px;}.huangli-card .yiji-title.yiji-good {  color: #52c41a;}.huangli-card .yiji-title.yiji-bad {  color: #ff4d4f;}.huangli-card .yiji-content {  color: #444;  line-height: 1.6;}@media (max-width: 768px) {  .huangli-card .line2 {    font-size: 40px;  }  .huangli-card .yiji {    grid-template-columns: 1fr;  }}
+.huangli-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    padding: 16px;
+}
+
+.huangli-card .header {
+    text-align: left;
+}
+
+.huangli-card .line1 {
+    font-size: 14px;
+    color: #666;
+}
+
+.huangli-card .line2 {
+    font-size: 48px;
+    font-weight: 800;
+    color: #d4380d;
+    margin: 4px 0;
+}
+
+.huangli-card .line3 {
+    font-size: 15px;
+    color: #333;
+}
+
+.huangli-card .line4 {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.huangli-card .yiji {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.huangli-card .yiji-box {
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.huangli-card .yiji-title {
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.huangli-card .yiji-title.yiji-good {
+    color: #52c41a;
+}
+
+.huangli-card .yiji-title.yiji-bad {
+    color: #ff4d4f;
+}
+
+.huangli-card .yiji-content {
+    color: #444;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .huangli-card .line2 {
+        font-size: 40px;
+    }
+
+    .huangli-card .yiji {
+        grid-template-columns: 1fr;
+    }
+}
+
+.buddhist-line {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #555;
+}

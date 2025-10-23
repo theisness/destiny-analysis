@@ -33,6 +33,7 @@ export default function HuangliCard({ date }) {
   const ji = (lunar.getDayJi?.() || []).join('、');
 
   const jq = lunar.getJieQi?.();
+  const buddhistYear = solar.getYear() + 543; // 常用佛历纪年：BE = 公历年 + 543
 
   return (
     <div className="huangli-card">
@@ -52,6 +53,7 @@ export default function HuangliCard({ date }) {
           <div className="yiji-content">{ji || '——'}</div>
         </div>
       </div>
+      <div className="buddhist-line">佛历：{buddhistYear}年</div>
     </div>
   );
 }

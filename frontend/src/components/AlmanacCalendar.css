@@ -36,16 +36,7 @@
     padding: 6px 8px;
 }
 
-.almanac-calendar .actions .btn-today {
-    padding: 6px 10px;
-    background: #ff4d4f;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
 
-.almanac-calendar .actions .btn-today:hover { opacity: 0.9; }
 
 .almanac-calendar .week-row {
     display: grid;
@@ -80,19 +71,15 @@
     position: relative;
 }
 
-.almanac-calendar .rest-corner {
+.almanac-calendar .corner {
     position: absolute;
     top: 4px;
-    right: 4px;
-    width: 18px;
-    height: 18px;
-    background: #ff4d4f;
-    color: #fff;
+    right: 6px;
     font-size: 12px;
-    line-height: 18px;
-    text-align: center;
-    border-radius: 3px;
+    font-weight: 700;
 }
+.almanac-calendar .corner-rest { color: #ff4d4f; }
+.almanac-calendar .corner-work { color: #16a34a; }
 
 .almanac-calendar .day-cell:hover {
     border-color: #c9e7ff;
