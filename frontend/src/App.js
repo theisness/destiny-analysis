@@ -13,6 +13,7 @@ import UserProfile from './pages/UserProfile/UserProfile';
 import AdminUsers from './pages/Admin/Users';
 import AdminLabels from './pages/Admin/Labels';
 import AdminGroups from './pages/Admin/Groups';
+import AlmanacPage from './pages/Almanac/Almanac';
 
 // 私有路由组件
 const PrivateRoute = ({ children }) => {
@@ -102,6 +103,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <AdminGroups />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/almanac"
+              element={
+                <PrivateRoute>
+                  <AlmanacPage />
                 </PrivateRoute>
               }
             />
