@@ -55,6 +55,7 @@ import { Lunar } from 'lunar-javascript';
 const BaziDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('basic'); // basic | simple | pro | visual | ai
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -258,130 +259,181 @@ const BaziDetail = () => {
           <h1>八字详情</h1>
         </div>
 
-        {/* 基本信息 */}
-        <div className="card">
-          <h2>基本信息</h2>
-          <div className="info-grid">
-            {/* 八字发布者占两列 */}
-            <div className="info-item" style={{ gridColumn: '1 / -1' }}>
-              <span className="info-label">八字发布者：</span>
-              <span className="info-value publisher-info">
-                <Link to={publisher?._id ? `/users/${publisher._id}` : '#'} className="publisher-link">
-                  <SecureImage className="avatar" src={getAvatarSrc(publisher)} alt="" />
-                </Link>
-                <Link to={publisher?._id ? `/users/${publisher._id}` : '#'} className="publisher-name">
-                  {publisher?.nickname || publisher?.username || '—'}
-                </Link>
-              </span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">姓名：</span>
-              <span className="info-value">{record.name}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">性别：</span>
-              <span className="info-value">{record.gender}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">公历：</span>
-              <span className="info-value">{formatDate(record.gregorianDate)}</span>
-            </div>
-            {record.lunarDate && record.lunarDate.year && (
+        {/* 顶部 Tab 切换 */}
+        <div className="tabs">
+          <button
+            className={`tab-item ${activeTab === 'basic' ? 'active' : ''}`}
+            onClick={() => setActiveTab('basic')}
+          >
+            基本信息
+          </button>
+          <button
+            className={`tab-item ${activeTab === 'simple' ? 'active' : ''}`}
+            onClick={() => setActiveTab('simple')}
+          >
+            基本排盘
+          </button>
+          <button
+            className={`tab-item ${activeTab === 'pro' ? 'active' : ''}`}
+            onClick={() => setActiveTab('pro')}
+          >
+            专业排盘
+          </button>
+          <button
+            className={`tab-item ${activeTab === 'visual' ? 'active' : ''}`}
+            onClick={() => setActiveTab('visual')}
+          >
+            智能图示
+          </button>
+          <button
+            className={`tab-item ${activeTab === 'ai' ? 'active' : ''}`}
+            onClick={() => setActiveTab('ai')}
+          >
+            AI解析
+          </button>
+        </div>
+
+        {activeTab === 'basic' && (
+          <div className="card">
+            <h2>基本信息</h2>
+            <div className="info-grid">
+              {/* 八字发布者占两列 */}
+              <div className="info-item" style={{ gridColumn: '1 / -1' }}>
+                <span className="info-label">八字发布者：</span>
+                <span className="info-value publisher-info">
+                  <Link to={publisher?._id ? `/users/${publisher._id}` : '#'} className="publisher-link">
+                    <SecureImage className="avatar" src={getAvatarSrc(publisher)} alt="" />
+                  </Link>
+                  <Link to={publisher?._id ? `/users/${publisher._id}` : '#'} className="publisher-name">
+                    {publisher?.nickname || publisher?.username || '—'}
+                  </Link>
+                </span>
+              </div>
               <div className="info-item">
-                <span className="info-label">农历：</span>
-                <span className="info-value">
-                  {formatDate(record.lunarDate)}
-                  {record.lunarDate.isLeapMonth && ' (闰月)'}
-                </span>
+                <span className="info-label">姓名：</span>
+                <span className="info-value">{record.name}</span>
               </div>
-            )}
-            {Array.isArray(record.labels) && record.labels.length > 0 && (
-              <div className="info-item" style={{ alignItems: 'flex-start' }}>
-                <span className="info-label">标签：</span>
-                <span className="info-value" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {record.labels.map(l => (
-                    <span key={l._id || l.name} style={{
-                      background: '#eef2ff', border: '1px solid #c7d2fe', color: '#3730a3',
-                      padding: '2px 8px', borderRadius: 12, fontSize: 12
-                    }}>{l.name || l}</span>
-                  ))}
-                </span>
+              <div className="info-item">
+                <span className="info-label">性别：</span>
+                <span className="info-value">{record.gender}</span>
               </div>
-            )}
-            {user && (record?.userId && user.id === record.userId) && (
-              <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 0, gap: 10 }}>
-                <button className="btn btn-secondary" onClick={() => {
-                  setLabelSelection(Array.isArray(record.labels) ? record.labels.map(l => l.name || l) : []);
-                  setShowLabelsModal(true);
-                }}>
-                  标签管理
-                </button>
-                <button className="btn btn-primary" onClick={() => setShowShareSettingsModal(true)}>
-                  分享设置
-                </button>
+              <div className="info-item">
+                <span className="info-label">公历：</span>
+                <span className="info-value">{formatDate(record.gregorianDate)}</span>
               </div>
-            )}
+              {record.lunarDate && record.lunarDate.year && (
+                <div className="info-item">
+                  <span className="info-label">农历：</span>
+                  <span className="info-value">
+                    {formatDate(record.lunarDate)}
+                    {record.lunarDate.isLeapMonth && ' (闰月)'}
+                  </span>
+                </div>
+              )}
+              {Array.isArray(record.labels) && record.labels.length > 0 && (
+                <div className="info-item" style={{ alignItems: 'flex-start' }}>
+                  <span className="info-label">标签：</span>
+                  <span className="info-value" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {record.labels.map(l => (
+                      <span key={l._id || l.name} style={{
+                        background: '#eef2ff', border: '1px solid #c7d2fe', color: '#3730a3',
+                        padding: '2px 8px', borderRadius: 12, fontSize: 12
+                      }}>{l.name || l}</span>
+                    ))}
+                  </span>
+                </div>
+              )}
+              {user && (record?.userId && user.id === record.userId) && (
+                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 0, gap: 10 }}>
+                  <button className="btn btn-secondary" onClick={() => {
+                    setLabelSelection(Array.isArray(record.labels) ? record.labels.map(l => l.name || l) : []);
+                    setShowLabelsModal(true);
+                  }}>
+                    标签管理
+                  </button>
+                  <button className="btn btn-primary" onClick={() => setShowShareSettingsModal(true)}>
+                    分享设置
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
-        
-        {/* 七列综合排盘（仅七列卡片） */}
-        <SevenGridCard
-          baziResult={baziResult}
-          dayunData={dayunData}
-          liunianData={liunianData}
-          liuyueData={liuyueData}
-          diShiData={diShiData}
-          naYinData={naYinData}
-          selectedYear={selectedYear}
-          currentYear={currentYear}
-          frontendHiddenGan={frontendHiddenGan}
-          titleExtra={titleExtraControls}
-          showDayun={showDayun}
-          showLiunian={showLiunian}
-          showLiuyue={showLiuyue}
-        />
-
-        {/* 藏干 */}
-        <ShenShaCard baziResult={baziResult} shenshaData={shenshaData} />
-
-        {/* 五行 - 前端计算 */}
-        <div className="card">
-          <h2>五行分析 </h2>
-          <WuxingDisplay wuxing={wuxingData} />
-        </div>
-
-        {/* 大运 - 本地计算 */}
-        {dayunData.dayunList && dayunData.dayunList.length > 0 && (
-          <DayunCard
-            dayunData={dayunData}
+        {activeTab === 'simple' && (
+          <SevenGridCard
             baziResult={baziResult}
-            birthYear={record.gregorianDate?.year}
+            dayunData={dayunData}
+            liunianData={liunianData}
+            liuyueData={liuyueData}
+            diShiData={diShiData}
+            naYinData={naYinData}
+            selectedYear={selectedYear}
             currentYear={currentYear}
+            frontendHiddenGan={frontendHiddenGan}
+            titleExtra={titleExtraControls}
+            showDayun={showDayun}
+            showLiunian={showLiunian}
+            showLiuyue={showLiuyue}
           />
         )}
 
-        {/* 流年 - 实时计算 */}
-        <LiunianCard
-          liunianData={liunianData}
-          selectedYear={selectedYear}
-          currentYear={currentYear}
-          onPrevDecade={() => setSelectedYear(selectedYear - 10)}
-          onNextDecade={() => setSelectedYear(selectedYear + 10)}
-          onSetYear={(y) => setSelectedYear(y)}
-          onToday={() => setSelectedYear(currentYear)}
-          baziResult={baziResult}
-        />
+        {activeTab === 'pro' && (
+          <>
+            {/* 藏干 */}
+            <ShenShaCard baziResult={baziResult} shenshaData={shenshaData} />
 
-        {/* 流月 - 实时计算 */}
-        <LiuyueCard
-          liuyueData={liuyueData}
-          selectedYear={selectedYear}
-          currentLunar={currentLunar}
-          baziResult={baziResult}
-        />
+            {/* 五行 - 前端计算 */}
+            <div className="card">
+              <h2>五行分析 </h2>
+              <WuxingDisplay wuxing={wuxingData} />
+            </div>
+          </>
+        )}
 
-        <CommentsSection baziId={record._id} />
+        {activeTab === 'visual' && (
+          <>
+            {/* 大运 - 本地计算 */}
+            {dayunData.dayunList && dayunData.dayunList.length > 0 && (
+              <DayunCard
+                dayunData={dayunData}
+                baziResult={baziResult}
+                birthYear={record.gregorianDate?.year}
+                currentYear={currentYear}
+              />
+            )}
+
+            {/* 流年 - 实时计算 */}
+            <LiunianCard
+              liunianData={liunianData}
+              selectedYear={selectedYear}
+              currentYear={currentYear}
+              onPrevDecade={() => setSelectedYear(selectedYear - 10)}
+              onNextDecade={() => setSelectedYear(selectedYear + 10)}
+              onSetYear={(y) => setSelectedYear(y)}
+              onToday={() => setSelectedYear(currentYear)}
+              baziResult={baziResult}
+            />
+
+            {/* 流月 - 实时计算 */}
+            <LiuyueCard
+              liuyueData={liuyueData}
+              selectedYear={selectedYear}
+              currentLunar={currentLunar}
+              baziResult={baziResult}
+            />
+          </>
+        )}
+
+        {activeTab === 'ai' && (
+          <>
+            <div className="card">
+              <h2>AI解析</h2>
+              <div style={{ color: '#666' }}>敬请期待：结合八字与流年进行 AI 智能解析。</div>
+            </div>
+            <CommentsSection baziId={record._id} />
+          </>
+        )}
 
         {user && (record?.userId && user.id === record.userId) && showShareSettingsModal && (
           <div className="modal-backdrop" onClick={() => setShowShareSettingsModal(false)}>

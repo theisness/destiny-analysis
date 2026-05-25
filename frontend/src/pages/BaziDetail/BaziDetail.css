@@ -15,6 +15,37 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* 顶部 Tabs */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 16px;
+}
+
+.tab-item {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px 8px 0 0;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+}
+
+.tab-item:hover {
+  background: #f8f9fa;
+}
+
+.tab-item.active {
+  color: #111;
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-bottom-color: transparent;
+}
+
 .card h2 {
   color: #333;
   font-size: 22px;
